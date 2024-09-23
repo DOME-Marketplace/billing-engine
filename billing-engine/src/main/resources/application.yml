@@ -1,6 +1,4 @@
 
-
-
 # Spring Configuration
 server: 
   port: 8080

@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          repository: dome-brokerage/billing-engine
+          path: billing-engine
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -21,6 +24,5 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: cd billing-engine & ls -al
-
+        run: ls -al
 

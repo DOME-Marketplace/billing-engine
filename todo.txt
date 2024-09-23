@@ -1,0 +1,7 @@
+
+TODO LIST
+
+1. creare il dockerfile
+2. aggiungere l'actuator per liveness, readness dell'immagini per ionos
+3. inserire la sezione release-note con versioni
+4. aggiungere una sorta di REST APIs view

@@ -1,6 +1,10 @@
 # Billing Engine
 
-**Billing Engine services for DOME project**
+**Billing Engine services in the DOME project**
+
+The **billing engine service** includes all features ... 
+
+In the [RELEASE NOTE](RELEASE_NOTE.md), you can find the history versions of the software and updates. It briefly describes **all changes** (i.e. *features*, *bug fixing*, and *improvements*) of the software.
 
 ## How to Run Application
 

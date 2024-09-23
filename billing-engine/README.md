@@ -27,10 +27,13 @@
 
 ## How to Run Unit Test Cases
 
-**Run the test cases using these commands below**
+**Run the test cases using this command below**
 
-> **Note:** These commands need to run inside the root folder of this project i.e inside the **billing-engine** folder
+> [!TIP] 
+> This command needs to run inside the root folder of this project i.e inside the **billing-engine** folder
 
 - **To run all the test cases**
-  <br/>```mvn test```
+  ```
+  mvn test
+  ```
 

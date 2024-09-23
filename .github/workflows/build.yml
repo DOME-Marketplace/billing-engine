@@ -63,18 +63,13 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: maven
-
-      - name: Change Dir
-        run: | 
-          cd billing-engine
-          ls -al
-            
+                      
       - name: Generate PMD report
         id: generate-pmd-report
         uses: pmd/pmd-github-action@v2
         with:
           rulesets: 'rulesets/java/quickstart.xml'
-          sourcePath: 'src/main/java'
+          sourcePath: './billing-engine/src/main/java'
           analyzeModifiedFilesOnly: false
       
       - name: Upload SARIF file

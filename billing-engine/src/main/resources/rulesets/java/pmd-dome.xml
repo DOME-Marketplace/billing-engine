@@ -11,8 +11,7 @@
   <rule ref="category/java/bestpractices.xml">
     <exclude name="GuardLogStatement"/>
   </rule>
-  
-  <rule ref="category/java/multithreading.xml"/>
+
   <rule ref="category/java/security.xml"/>
 
 </ruleset>

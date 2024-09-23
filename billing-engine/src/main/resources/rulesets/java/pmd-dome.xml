@@ -10,18 +10,8 @@
 
   <rule ref="category/java/bestpractices.xml">
     <exclude name="GuardLogStatement"/>
-    <exclude name="AvoidReassigningParameters"/>
-    <exclude name="UseVarargs"/>
-    <exclude name="MethodReturnsInternalArray"/>
-    <exclude name="ArrayIsStoredDirectly"/>
-    <exclude name="AvoidPrintStackTrace"/>
-    <exclude name="LooseCoupling"/>
   </rule>
   
-  <!--rule ref="category/java/performance.xml"/-->
-  <!-- rule ref="category/java/codestyle.xml"/ -->
-  <!--rule ref="category/java/design.xml"/-->
-  <!--rule ref="category/java/errorprone.xml"/-->
   <rule ref="category/java/multithreading.xml"/>
   <rule ref="category/java/security.xml"/>
 

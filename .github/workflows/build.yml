@@ -68,7 +68,8 @@ jobs:
         id: generate-pmd-report
         uses: pmd/pmd-github-action@v2
         with:
-          rulesets: 'rulesets/java/quickstart.xml'
+          #rulesets: 'rulesets/java/quickstart.xml'
+          rulesets: './billing-engine/src/main/resources/rulesets/java/pmd-dome.xml'
           sourcePath: './billing-engine/src/main/java'
           analyzeModifiedFilesOnly: false
       

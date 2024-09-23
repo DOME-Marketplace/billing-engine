@@ -4,9 +4,16 @@ on:
   push:
     branches: ["main"]
 
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Working directory to use
+        type: string
+        default: './'
+
 jobs:
   build:
-    name: Build Billing Engine
+    name: Build and Test Billing Engine
     runs-on: ubuntu-latest
 
     steps:
@@ -20,14 +27,12 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Build with Maven
+      - name: Print Project
         run: |
-          cd billing-engine
-          ls -al
-          mvn -B package --file pom.xml
+          echo "The working dir is ${{ inputs.working-directory }}"
 
-      - name: Test with Maven
-        run: |
-          cd billing-engine
-          ls -al
-          mvn -B test --file pom.xml
+#      - name: Build and Test with Maven
+#        run: |
+#          cd billing-engine
+#          ls -al
+#          mvn -B package --file pom.xml

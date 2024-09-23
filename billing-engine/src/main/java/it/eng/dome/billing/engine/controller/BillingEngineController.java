@@ -1,6 +1,7 @@
 package it.eng.dome.billing.engine.controller;
 
 import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +25,9 @@ public class BillingEngineController {
     private String buildTimestamp;
 
     @GetMapping("/info")
-    public HashMap<String, String> getInfo() {
+    public Map<String, String> getInfo() {
         log.info("Request getInfo");
-        HashMap<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("name", appName);
         map.put("version", buildVersion);
         map.put("timestamp", buildTimestamp);

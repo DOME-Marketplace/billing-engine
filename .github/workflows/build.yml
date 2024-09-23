@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          repository: billing-engine
+          repository: /billing-engine
           path: billing-engine
 
       - name: Set up JDK 17

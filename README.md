@@ -1,6 +1,6 @@
 # Dome Brokerage
 
-This folder contains software and tutorials regarding the **Service Brokerage** in **DOME project**.
+This folder contains software and tutorials regarding the Service Brokerage in DOME.
 
 ## Billing Engine
 

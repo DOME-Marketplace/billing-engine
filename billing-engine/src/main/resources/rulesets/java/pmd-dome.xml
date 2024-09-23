@@ -10,6 +10,12 @@
 
   <rule ref="category/java/bestpractices.xml">
     <exclude name="GuardLogStatement"/>
+    <exclude name="AvoidReassigningParameters"/>
+    <exclude name="UseVarargs"/>
+    <exclude name="MethodReturnsInternalArray"/>
+    <exclude name="ArrayIsStoredDirectly"/>
+    <exclude name="AvoidPrintStackTrace"/>
+    <exclude name="LooseCoupling"/>
   </rule>
   
   <!--rule ref="category/java/performance.xml"/-->

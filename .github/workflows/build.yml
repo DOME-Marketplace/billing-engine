@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build and Test
+    name: Build Billing Engine
     runs-on: ubuntu-latest
 
     steps:
@@ -21,10 +21,10 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B package --file /billing-engine/pom.xml
 
       - name: Test with Maven
-        run: mvn -B test --file pom.xml
+        run: mvn -B test --file /billing-engine/pom.xml
 
   pmd_job:
     name: Static Code Analyzer

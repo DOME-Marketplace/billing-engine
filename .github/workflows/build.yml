@@ -29,6 +29,7 @@ jobs:
   test:
     name: Test Billing Engine
     runs-on: ubuntu-latest
+    needs: [build]
 
     steps:
       - name: Checkout repo
@@ -50,7 +51,7 @@ jobs:
   pmd_job:
     name: Static Code Analyzer
     runs-on: ubuntu-latest  
-    needs: [build]
+    needs: [test]
 
     steps:
       - name: Checkout repo
@@ -68,7 +69,7 @@ jobs:
         uses: pmd/pmd-github-action@v2
         with:
           rulesets: 'rulesets/java/quickstart.xml'
-          sourcePath: 'src/main/java'
+          sourcePath: 'billing-engine/src/main/java'
           analyzeModifiedFilesOnly: false
       
       - name: Upload SARIF file

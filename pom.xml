@@ -41,6 +41,8 @@
             <groupId>it.eng.dome.tmforum-sdk</groupId>
             <artifactId>tmf622-v4</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/src/main/resources/lib/tmf622-v4.jar</systemPath>
         </dependency>        
     </dependencies>
 

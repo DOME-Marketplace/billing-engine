@@ -1,6 +1,7 @@
 # Billing Engine
 
-**Billing Engine services for DOME project**
+## Description
+Billing Engine services for DOME project.
 
 ## How to Run Application
 

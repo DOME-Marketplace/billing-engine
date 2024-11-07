@@ -141,8 +141,9 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: maven
-          
-      - run: mvn -B package --file pom.xml -DskipTests
+      
+      - name: Build Maven (skipTests)   
+        run: mvn -B package --file pom.xml -DskipTests
 
       - name: Get Image Version
         run: |
@@ -153,6 +154,7 @@ jobs:
       - name: Print Image Version
         run: |
           echo "The image version is ${{ steps.getVersion.outputs.version }}"
+          echo "username ${{ secrets.HARBOR_USERNAME_BILLING }}"
 
       - name: Login to Harbor
         uses: docker/login-action@v3

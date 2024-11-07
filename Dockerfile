@@ -1,11 +1,9 @@
 FROM openjdk:17-jdk-alpine
 
-RUN addgroup -S dome && adduser -S bengine -G dome
-
-USER bengine:dome
-
 COPY ./target/billing-engine*.jar /usr/app/billing-engine.jar
 
-EXPOSE 8080/tcp 
+RUN apt-get update && apt-get install -y \
+	curl \
+	wget
 
-ENTRYPOINT ["java","-jar","/billing-engine.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -jar billing-engine.jar

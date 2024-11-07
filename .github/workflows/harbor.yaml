@@ -140,6 +140,8 @@ jobs:
         with:
           java-version: "17"
           distribution: "temurin"
+          cache: maven
+          
       - run: mvn -B package --file pom.xml -DskipTests
 
       - name: Get Image Version

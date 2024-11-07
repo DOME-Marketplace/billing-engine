@@ -29,8 +29,8 @@ jobs:
               <servers>
                   <server>
                       <id>nexus</id>
-                      <username>${{ env.MAVEN_REPO_USERNAME }}</username>
-                      <password>${{ env.MAVEN_REPO_PASSWORD }}</password>
+                      <username>pvitale</username>
+                      <password>Sandro_2015</password>
                   </server>
               </servers>
               <profiles>

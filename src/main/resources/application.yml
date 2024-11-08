@@ -3,13 +3,6 @@
 server: 
   port: 8080
 
-application:
-  name: "@project.artifactId@"
-
-build: 
-  version: "@project.version@"
-  timestamp: "@timestamp@"
-  
 
 # Logging Configuration
 logging:

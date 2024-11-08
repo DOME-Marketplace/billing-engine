@@ -1,11 +1,15 @@
+
+# Use Java base image JDK 17
 FROM openjdk:17-jdk-alpine
 
-RUN addgroup -S dome && adduser -S bengine -G dome
+# Set the workdir in the container
+WORKDIR /usr/app
 
-USER bengine:dome
+# Copy JAR in the working directory
+COPY target/billing-engine.jar billing-engine.jar
 
-COPY ./target/billing-engine*.jar /usr/app/billing-engine.jar
+# Espose port 8080
+EXPOSE 8080
 
-EXPOSE 8080/tcp 
-
-ENTRYPOINT ["java","-jar","/billing-engine.jar"]
+# Comand to run the Spring Boot application
+ENTRYPOINT ["java","-jar","billing-engine.jar"]

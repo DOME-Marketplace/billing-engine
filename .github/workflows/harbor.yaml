@@ -6,7 +6,7 @@ on:
 
 env:
   REPOSITORY: production.eng.it:8433 # URL Harbor
-  IMAGE_NAME: billing-engine	
+  IMAGE_NAME: billing-scheduler	
 
 jobs:
   build:
@@ -43,18 +43,18 @@ jobs:
               <servers>
                   <server>
                       <id>almesl-snapshots</id>
-                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                      <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
+                      <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
                   </server>
                   <server>
                       <id>almesl-releases</id>
-                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                      <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
+                      <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
                   </server>
                   <server>
                       <id>nexus</id>
-                      <username>${{ vars.ENG_LDAP_USERNAME }}</username>
-                      <password>${{ secrets.ENG_LDAP_PASSWORD }}</password>
+                      <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
+                      <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
                   </server>
               </servers>
               <profiles>
@@ -122,19 +122,100 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: maven
-      
-      - name: Build Maven (skipTests)   
-        run: mvn -B package --file pom.xml -DskipTests
 
       - name: Get Image Version
         run: |
-          mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false -DinteractiveMode=false
-          echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
+            mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false -DinteractiveMode=false
+            echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
         id: getVersion
-
+  
       - name: Print Image Version
         run: |
           echo "The image version is ${{ steps.getVersion.outputs.version }}"
+
+      - name: Set up Maven settings
+        run: |
+           cat > ~/.m2/settings.xml <<EOF
+           <?xml version="1.0" encoding="UTF-8"?>
+           <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
+               <!--This sends everything else to /public -->
+               <mirrors>
+                   <mirror>
+                       <id>nexus</id>
+                       <mirrorOf>external:*</mirrorOf>
+                       <url>https://production.eng.it/nexus/content/groups/alm-eng-esl-mirror/
+                       </url>
+                   </mirror>
+               </mirrors>
+               <servers>
+                   <server>
+                       <id>almesl-snapshots</id>
+                       <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
+                       <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                   </server>
+                   <server>
+                       <id>almesl-releases</id>
+                       <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
+                       <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                   </server>
+                   <server>
+                       <id>nexus</id>
+                       <username>${{ secrets.ENG_LDAP_USERNAME }}</username>
+                       <password>${{ secrets.ENG_LDAP_USERNAME }}</password>
+                   </server>
+               </servers>
+               <profiles>
+                   <profile>
+                       <id>nexus</id>
+                       <repositories>
+                           <repository>
+                               <id>almesl-snapshots</id>
+                               <url>https://production.eng.it/nexus/content/repositories/snapshots/
+                               </url>
+                               <releases>
+                                   <enabled>false</enabled>
+                               </releases>
+                               <snapshots>
+                                   <enabled>true</enabled>
+                               </snapshots>
+                           </repository>
+                           <repository>
+                               <id>almesl-releases</id>
+                               <url>https://production.eng.it/nexus/content/repositories/releases/
+                               </url>
+                               <releases>
+                                   <enabled>true</enabled>
+                               </releases>
+                               <snapshots>
+                                   <enabled>false</enabled>
+                               </snapshots>
+                           </repository>
+                       </repositories>
+                       <pluginRepositories>
+                           <pluginRepository>
+                               <id>nexus</id>
+                               <url>http://production.eng.it/nexus/content/groups/alm-eng-esl-mirror/</url>
+                               <releases>
+                                   <enabled>true</enabled>
+                               </releases>
+                               <snapshots>
+                                   <enabled>true</enabled>
+                               </snapshots>
+                           </pluginRepository>
+                       </pluginRepositories>
+                   </profile>
+               </profiles>
+               <activeProfiles>
+                   <!--make the profile active all the time -->
+                   <activeProfile>nexus</activeProfile>
+               </activeProfiles>
+           </settings>
+           EOF
+
+      - name: Build Maven (skipTests)   
+        run: mvn -B package --file pom.xml -DskipTests
 
       - name: Login to Harbor
         uses: docker/login-action@v3

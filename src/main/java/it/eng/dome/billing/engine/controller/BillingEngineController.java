@@ -36,7 +36,7 @@ public class BillingEngineController {
         @ApiResponse(/*description = "Example of response",*/
             content = @Content(
                 mediaType = "application/json",
-                examples = @ExampleObject(value = "{\"name\":\"engine\", \"version\":\"0.0.2\", \"release_time\":\"08-11-2024 17:02:56\"}")
+                examples = @ExampleObject(value = "{\"name\":\"Billing Engine\", \"version\":\"0.0.2\", \"release_time\":\"08-11-2024 17:02:56\"}")
             ))
     })
     public Map<String, String> getInfo() {

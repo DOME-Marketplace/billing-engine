@@ -36,21 +36,36 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
-        <!-- TMForum SDK dependencies -->
+        <!-- TMF622 Ordering -->
         <dependency>
             <groupId>it.eng.dome.tmforum-sdk</groupId>
             <artifactId>tmf622-v4</artifactId>
             <version>1.0.0</version>
-        </dependency> 
-        
+        </dependency>
+		<!-- TMF678 Customer Bill -->
+        <dependency>
+            <groupId>it.eng.dome.tmforum-sdk</groupId>
+            <artifactId>tmf678-v4</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+		<!-- TMF620 Catalog -->
+        <dependency>
+            <groupId>it.eng.dome.tmforum-sdk</groupId>
+            <artifactId>tmf620-v4</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>
 	        <groupId>org.springdoc</groupId>
 	        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 	        <version>2.1.0</version>
 	    </dependency>
-           
+	    <!-- Lombok -->
+	    <dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
     </dependencies>
 
     <build>

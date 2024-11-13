@@ -2,6 +2,7 @@ package it.eng.dome.billing.engine.model;
 
 import java.util.ArrayList;
 
+import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf622.v4.model.Money;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
@@ -19,7 +20,7 @@ public class BillingProductOrder {
 		this.offeringPriceApi = offeringPriceApi;
 	}
 	
-	public OrderPrice setOrderPrice() throws Exception {
+	public OrderPrice calculateOrderPrice() throws Exception {
 		float totalOrderValue = 0F;
 		BillingOrderItem billingOrderItem;
 		
@@ -30,8 +31,9 @@ public class BillingProductOrder {
 			billingOrderItem.setOrderItemPrice();
 			totalOrderValue += billingOrderItem.getPriceAmount();
 		}
-		Money orderTotalPriceAmount = new Money();
-		orderTotalPriceAmount.unit("EUR").value(totalOrderValue);
+		
+		EuroMoney euro = new EuroMoney(totalOrderValue);
+		Money orderTotalPriceAmount = (new Money()).unit(euro.getCurrency()).value(euro.getAmount());
 
 		// set the orderTotalPrice to the ProductOrder
 		if (order.getOrderTotalPrice() != null)
@@ -44,7 +46,7 @@ public class BillingProductOrder {
 		orderPrice.setPrice(orderTotalPrice);
 		order.addOrderTotalPriceItem(orderPrice);
 		
-		return null;
+		return orderPrice;
 	}
 	
 	

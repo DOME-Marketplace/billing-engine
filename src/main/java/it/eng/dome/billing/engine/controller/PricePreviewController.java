@@ -1,6 +1,8 @@
 package it.eng.dome.billing.engine.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.service.PriceService;
+import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 
 @RestController
@@ -19,6 +22,8 @@ import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 @Tag(name = "Price Preview Controller", description = "APIs to manage the price calculation for orders")
 public class PricePreviewController {
 	
+	protected final Logger logger = LoggerFactory.getLogger(PricePreviewController.class);
+
 	@Autowired
 	protected PriceService priceService;
 	
@@ -42,15 +47,16 @@ public class PricePreviewController {
     public ResponseEntity<String> calculateOrderPrice(@RequestBody String orderJson) throws Throwable {
 		Assert.state(!StringUtils.isBlank(orderJson), "Missing the instance of ProductOrder in the request body");
 
-		try { 
+		try {
+			// 1) parse request body to ProductOrder
 			ProductOrder order = ProductOrder.fromJson(orderJson);
-			
-			priceService.setOrderTotalPrice(order);
-			
+			// 2) calculate order price
+			OrderPrice orderPrice = priceService.calculateOrderPrice(order);
+			logger.info("Calculated order total price: {} ", orderPrice.getPrice().getDutyFreeAmount().getValue());
+			// 3) return updated ProductOrder
 			return new ResponseEntity<String>(order.toJson(), HttpStatus.OK);
 		} catch (Exception e) {
-			// log
-			
+			logger.error(e.getMessage(), e);
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
 			throw (e.getCause() != null) ? e.getCause() : e;
 		}

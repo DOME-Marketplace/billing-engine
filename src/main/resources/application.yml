@@ -8,7 +8,12 @@ server:
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - [%-5level] - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 tmforumapi:
-  tmf620_catalog_url: http://localhost:8100/tmf-api/productCatalogManagement/v4
-  tmf622_ordering_url: http://localhost:8000/tmf-api/productOrderingManagement/v4
+  tmf620_catalog_base: http://localhost:8100
+  tmf622_ordering_base: http://localhost:8000
+  tmf620_catalog_path: tmf-api/productCatalogManagement/v4
+  tmf622_ordering_path: tmf-api/productOrderingManagement/v4

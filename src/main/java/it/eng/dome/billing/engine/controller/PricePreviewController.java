@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.eng.dome.billing.engine.service.PriceService;
+import it.eng.dome.billing.engine.price.PriceService;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 
@@ -45,14 +45,13 @@ public class PricePreviewController {
 	 */
     @RequestMapping(value = "/order", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity<String> calculateOrderPrice(@RequestBody String orderJson) throws Throwable {
+		logger.info("Received request for calculating order price...");
 		Assert.state(!StringUtils.isBlank(orderJson), "Missing the instance of ProductOrder in the request body");
-
 		try {
 			// 1) parse request body to ProductOrder
 			ProductOrder order = ProductOrder.fromJson(orderJson);
 			// 2) calculate order price
 			OrderPrice orderPrice = priceService.calculateOrderPrice(order);
-			logger.info("Calculated order total price: {} ", orderPrice.getPrice().getDutyFreeAmount().getValue());
 			// 3) return updated ProductOrder
 			return new ResponseEntity<String>(order.toJson(), HttpStatus.OK);
 		} catch (Exception e) {

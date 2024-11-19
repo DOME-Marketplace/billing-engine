@@ -1,5 +1,6 @@
 package it.eng.dome.billing.engine.tmf;
 
+import it.eng.dome.tmforum.tmf622.v4.model.Money;
 import lombok.Getter;
 
 public class EuroMoney {
@@ -12,6 +13,10 @@ public class EuroMoney {
 	public EuroMoney(float amount) {
 		super();
 		this.amount = amount;
+	}
+	
+	public Money toMoney() {
+		return (new Money()).unit(getCurrency()).value(getAmount());
 	}
 	
 }

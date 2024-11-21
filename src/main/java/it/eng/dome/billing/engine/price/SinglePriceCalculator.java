@@ -1,6 +1,5 @@
 package it.eng.dome.billing.engine.price;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -23,9 +22,7 @@ public class SinglePriceCalculator implements PriceCalculator {
     private final Logger logger = LoggerFactory.getLogger(SinglePriceCalculator.class);
 
 	@Override
-	public OrderPrice calculatePrice(ProductOrderItem orderItem, 
-			ProductOfferingPrice pop,
-			List<ProductOfferingPrice> bundledPops) {
+	public OrderPrice calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
 		
 		// retrieves the OrderPrice instance linked to the ProductOfferingPrice received
 		Optional<OrderPrice> orderPriceOpt = orderItem.getItemPrice()

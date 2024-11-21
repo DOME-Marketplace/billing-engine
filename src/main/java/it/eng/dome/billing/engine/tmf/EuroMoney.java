@@ -1,5 +1,8 @@
 package it.eng.dome.billing.engine.tmf;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import it.eng.dome.tmforum.tmf622.v4.model.Money;
 import lombok.Getter;
 
@@ -16,7 +19,9 @@ public class EuroMoney {
 	}
 	
 	public Money toMoney() {
-		return (new Money()).unit(getCurrency()).value(getAmount());
+		BigDecimal amount = new BigDecimal(getAmount());
+		amount = amount.setScale(2, RoundingMode.HALF_UP);
+		return (new Money()).unit(getCurrency()).value(amount.floatValue());
 	}
 	
 }

@@ -1,7 +1,6 @@
 package it.eng.dome.billing.engine.price;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -55,20 +54,18 @@ public class PriceService implements InitializingBean {
 	 * @return
 	 */
 	public OrderPrice calculateOrderPrice(ProductOrder order) throws Exception {
-	    final Iterator<ProductOrderItem> items = order.getProductOrderItem().iterator();
-	    ProductOrderItem item;
 	    ProductOfferingPrice pop;
 	    PriceCalculator priceCalculator;
 	    OrderPrice itemPrice = null;
 	    float orderTotalPriceAmount = 0F;
-	    while (items.hasNext()) {
-	    	item = items.next();
+	    for (ProductOrderItem item : order.getProductOrderItem()) {
 	    	// 1) retrieve from the server the ProductOfferingPrice
 	    	pop = getProductOfferingPrice(item, popApi);
 	    	// 2) retrieve the price calculator for the ProductOfferingPrice
 	    	priceCalculator = priceCalculatorFactory.getPriceCalculator(pop);
 	    	// 3) calculates the price
-	    	itemPrice = priceCalculator.calculatePrice(item, pop, null);
+	    	itemPrice = priceCalculator.calculatePrice(item, pop);
+	    	// TODO: da cambiare l'alterations non può fare parte di un calcolo esterno al prezzo
 	    	// 4) calculates the alteration of the price
 			if (PriceUtils.hasRelationships(pop)) {
 				priceAlterationCalculator.applyAlterations(item, pop, itemPrice);
@@ -97,13 +94,14 @@ public class PriceService implements InitializingBean {
 	    return itemPrice;
 	}
 
-	
+	/*
 	public ProductPrice calculateProductPrice(Product product) throws Exception {
 		final ApiClient apiClient = tmfApiFactory.getTMF620ProductCatalogApiClient();
 	    final var popApi = new ProductOfferingPriceApi(apiClient);
 
 	    return null;
 	}
+	*/
 	
 	
 	private ProductOfferingPrice getProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws ApiException {

@@ -14,6 +14,7 @@ import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
+import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPriceRelationship;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
@@ -49,11 +50,10 @@ public class PriceAlterationCalculator implements InitializingBean {
 		ProductOfferingPrice alterationPOP;
 		PriceAlterationOperation alterationCalculator;
 		PriceAlteration alteredPrice;
-		final var alterations = pop.getPopRelationship().iterator();
 		// loops for all the alterations
-		while (alterations.hasNext()) {
+		for (ProductOfferingPriceRelationship popR : pop.getPopRelationship()) {
 			// retrieve pops from server
-			alterationPOP = popApi.retrieveProductOfferingPrice(alterations.next().getId(), null);
+			alterationPOP = popApi.retrieveProductOfferingPrice(popR.getId(), null);
 			
 			// to be used, the alteration must be active
 			if (!PriceUtils.isActive(alterationPOP))

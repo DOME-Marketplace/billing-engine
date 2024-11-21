@@ -1,6 +1,5 @@
 package it.eng.dome.billing.engine.price;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -21,7 +20,7 @@ public class PriceCalculatorFactory {
 		if (pop.getIsBundle() == false)
 			return (PriceCalculator)applicationContext.getBean("singlePriceCalculator");
 		else 
-			throw new NotImplementedException("Bundled pop");
+			return (PriceCalculator)applicationContext.getBean("bundledPriceCalculator");
 	}
 
 }

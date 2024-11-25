@@ -13,15 +13,14 @@ public class EuroMoney {
 	@Getter
 	private float amount;
 
-	public EuroMoney(float amount) {
-		super();
-		this.amount = amount;
+	public EuroMoney(double amount) {
+		BigDecimal bd = new BigDecimal(amount);
+		bd = bd.setScale(2, RoundingMode.HALF_UP);
+		this.amount = bd.floatValue();
 	}
 	
 	public Money toMoney() {
-		BigDecimal amount = new BigDecimal(getAmount());
-		amount = amount.setScale(2, RoundingMode.HALF_UP);
-		return (new Money()).unit(getCurrency()).value(amount.floatValue());
+		return (new Money()).unit(currency).value(amount);
 	}
 	
 }

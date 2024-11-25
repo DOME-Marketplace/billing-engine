@@ -22,9 +22,10 @@ public final class PriceUtils {
 		return (pop.getBundledPopRelationship() != null && pop.getBundledPopRelationship().size() > 0);
 	}
 	
-	public static boolean asFixedPrice(ProductOfferingPrice pop) {
-		final Quantity unit = pop.getUnitOfMeasure();
-		return (unit == null || (unit.getAmount() == 1F && "unit".equalsIgnoreCase(unit.getUnits())));
+	public static boolean isFixedPrice(ProductOfferingPrice pop) {
+		//final Quantity unit = pop.getUnitOfMeasure();
+		//return (unit == null || (unit.getAmount() == 1F && "unit".equalsIgnoreCase(unit.getUnits())));
+		return pop.getUnitOfMeasure() == null;
 	}
 	
 	

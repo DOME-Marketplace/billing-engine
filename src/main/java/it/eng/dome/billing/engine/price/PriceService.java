@@ -89,7 +89,7 @@ public class PriceService implements InitializingBean {
 		orderTotal.setPrice(orderTotalPrice);
 		order.addOrderTotalPriceItem(orderTotal);
 		
-		logger.info("Calculated order total price: {} ", euro.getAmount());
+		logger.info("Calculated order total price: {} euro ", euro.getAmount());
 
 	    return itemPrice;
 	}

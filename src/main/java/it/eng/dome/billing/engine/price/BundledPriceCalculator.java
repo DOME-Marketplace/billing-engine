@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
@@ -43,13 +44,21 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	    popApi = new ProductOfferingPriceApi(apiClient);
 	}
 	
+	/**
+	 * Bundled Price is a composite price, where there is one container price and
+	 * several contained prices. Each contained price is the price of one of 
+	 * the Characteristics selected by the customer. 
+	 * 
+	 * An Order is composed of order items and every order items is composed by Characteristics
+	 * each one with its own price and its own quantity defined by the customer.
+	 */
 	@Override
 	public OrderPrice calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
 		logger.debug("Starting bundled price calculation...");
 		Assert.state(orderItem.getProduct() != null, "Error! Cannot calculate price for a ProductOrderItem with a null Product");
 		// gets the characteristic chosen by the Customer
 		final var productChars = orderItem.getProduct().getProductCharacteristic();
-		Assert.state(productChars != null && productChars.size() > 0, "Error! Cannot calculate price for a ProductOrder with a null or empty ProductCharacteristic");
+		Assert.state(!CollectionUtils.isEmpty(productChars), "Error! Cannot calculate price for a ProductOrder with a null or empty ProductCharacteristic");
 		
 		// retrieves the OrderPrice instance linked to the ProductOfferingPrice received
 		Optional<OrderPrice> orderPriceOpt = orderItem.getItemTotalPrice()

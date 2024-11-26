@@ -35,21 +35,22 @@ public class PriceMatcher {
 		}
 		
 		for (var popChar : pop.getProdSpecCharValueUse()) {
-			for (var popCharValue : popChar.getProductSpecCharacteristicValue()) {
-				CharacteristicPop cp = new CharacteristicPop(pop);
-				
-				cp.charName = popChar.getName();
-				cp.charValueType = popChar.getValueType();
-				cp.setCharValidPeriod(popChar.getValidFor());
-				
-				cp.charValueType = popCharValue.getValueType();
-				cp.charValueUOM = popCharValue.getUnitOfMeasure();				
-				cp.charValueValue = popCharValue.getValue();
-				cp.charValueFrom = popCharValue.getValueFrom();
-				cp.charValueTo = popCharValue.getValueTo();
-				
-				characteristicPopList.add(cp);
+			CharacteristicPop cp = new CharacteristicPop(pop);
+			cp.charName = popChar.getName();
+			cp.charValueType = popChar.getValueType();
+			cp.setCharValidPeriod(popChar.getValidFor());
+			
+			if (!CollectionUtils.isEmpty(popChar.getProductSpecCharacteristicValue())) {
+				for (var popCharValue : popChar.getProductSpecCharacteristicValue()) {
+					cp.charValueType = popCharValue.getValueType();
+					cp.charQuantityUOM = popCharValue.getUnitOfMeasure();				
+					cp.charQuantity = popCharValue.getValue();
+					cp.charQuantityFrom = popCharValue.getValueFrom();
+					cp.charQuantityTo = popCharValue.getValueTo();					
+				}
 			}
+			
+			characteristicPopList.add(cp);
 		}
 		
 	}
@@ -116,11 +117,11 @@ public class PriceMatcher {
 		Date charValidTo;
 		
 		// Characteristic Value
-		Integer charValueFrom;
-		Integer charValueTo;
-		Object charValueValue;
-		String charValueValueType;
-		String charValueUOM;
+		Integer charQuantityFrom;
+		Integer charQuantityTo;
+		Object charQuantity;
+		String charQuantityType;
+		String charQuantityUOM;
 		
 		CharacteristicPop(ProductOfferingPrice pop) {
 			this.pop = pop;
@@ -171,12 +172,12 @@ public class PriceMatcher {
 		
 		
 		boolean hasRange() {
-			return (charValueFrom != null && charValueTo != null);
+			return (charQuantityFrom != null && charQuantityTo != null);
 		}
 		
 		
 		boolean hasValue() {
-			return charValueValue != null;
+			return charQuantity != null;
 		}
 	
 		boolean valueMatch(Characteristic productCharacteristic) {
@@ -196,16 +197,16 @@ public class PriceMatcher {
 					productCharacteristicValueAsNumber = (Integer)productCharactersiticValue;
 
 				double priceCharacteristicValueAsNumber = 0;
-				if (charValueValue instanceof String) 
-					priceCharacteristicValueAsNumber = Double.parseDouble(charValueValue.toString());
-				else if (charValueValue instanceof Double)
-					priceCharacteristicValueAsNumber = (Double)charValueValue;
-				else if (charValueValue instanceof Integer)
-					priceCharacteristicValueAsNumber = (Integer)charValueValue;
+				if (charQuantity instanceof String) 
+					priceCharacteristicValueAsNumber = Double.parseDouble(charQuantity.toString());
+				else if (charQuantity instanceof Double)
+					priceCharacteristicValueAsNumber = (Double)charQuantity;
+				else if (charQuantity instanceof Integer)
+					priceCharacteristicValueAsNumber = (Integer)charQuantity;
 				
 				return productCharacteristicValueAsNumber == priceCharacteristicValueAsNumber;
 			} else if ("string".equalsIgnoreCase(productCharactersiticValueType)) {
-				return charValueValue.toString().equalsIgnoreCase(charValueValue.toString());
+				return charQuantity.toString().equalsIgnoreCase(charQuantity.toString());
 			}
 			
 			return false;

@@ -38,9 +38,6 @@ public class PriceService implements InitializingBean {
 	@Autowired
 	private PriceCalculatorFactory priceCalculatorFactory;
 	
-	@Autowired
-	private PriceAlterationCalculator priceAlterationCalculator;
-	
 	private ProductOfferingPriceApi popApi;
 	
 	@Override
@@ -60,7 +57,7 @@ public class PriceService implements InitializingBean {
 	    OrderPrice itemPrice = null;
 	    float orderTotalPriceAmount = 0F;
 	    for (ProductOrderItem item : order.getProductOrderItem()) {
-			Assert.state(!CollectionUtils.isEmpty(item.getItemTotalPrice()), "Cannot calculate price for order item with null or 0 itemTotalPrice attribute!");
+			Assert.state(!CollectionUtils.isEmpty(item.getItemTotalPrice()), "Cannot calculate price for order item with empty 'itemTotalPrice' attribute!");
 
 	    	// 1) retrieve from the server the ProductOfferingPrice
 	    	pop = getReferredProductOfferingPrice(item, popApi);
@@ -70,19 +67,14 @@ public class PriceService implements InitializingBean {
 	    	priceCalculator = priceCalculatorFactory.getPriceCalculator(pop);
 	    	// 3) calculates the price
 	    	itemPrice = priceCalculator.calculatePrice(item, pop);
-	    	// TODO: da cambiare l'alterations non può fare parte di un calcolo esterno al prezzo
-	    	// 4) calculates the alteration of the price
-			if (PriceUtils.hasRelationships(pop)) {
-				priceAlterationCalculator.applyAlterations(item, pop, itemPrice);
-			}
-			// 5) 
-			if (PriceUtils.hasAlterations(itemPrice))
-				orderTotalPriceAmount += PriceUtils.getAlteredDutyFreePrice(itemPrice);
-			else
-				orderTotalPriceAmount += PriceUtils.getDutyFreePrice(itemPrice);
+	    	
+	    	if (PriceUtils.hasAlterations(itemPrice))
+	    		orderTotalPriceAmount += PriceUtils.getAlteredDutyFreePrice(itemPrice);
+	    	else
+	    		orderTotalPriceAmount += PriceUtils.getDutyFreePrice(itemPrice);
 	    }
 	    
-	    // 6) calculates order total price
+	    // 4) calculates order total price
 		if (order.getOrderTotalPrice() != null)
 			order.setOrderTotalPrice(new ArrayList<OrderPrice>());
 		
@@ -94,7 +86,7 @@ public class PriceService implements InitializingBean {
 		orderTotal.setPrice(orderTotalPrice);
 		order.addOrderTotalPriceItem(orderTotal);
 		
-		logger.info("Calculated order total price: {} euro ", euro.getAmount());
+		logger.info("Calculated order total price: {} euro ", orderTotalPriceAmount);
 
 	    return itemPrice;
 	}

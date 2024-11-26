@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.springframework.util.CollectionUtils;
+
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.TimePeriod;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
@@ -44,12 +46,12 @@ public final class PriceUtils {
 	
 	
 	public static boolean hasRelationships(@NonNull ProductOfferingPrice pop) {
-		return (pop.getPopRelationship() != null && pop.getPopRelationship().size() > 0);
+		return !CollectionUtils.isEmpty(pop.getPopRelationship());
 	}
 	
 	
 	public static boolean hasBundledPops(@NonNull ProductOfferingPrice pop) {
-		return (pop.getBundledPopRelationship() != null && pop.getBundledPopRelationship().size() > 0);
+		return !CollectionUtils.isEmpty(pop.getBundledPopRelationship());
 	}
 	
 	
@@ -59,7 +61,7 @@ public final class PriceUtils {
 	
 	
 	public static boolean hasAlterations(@NonNull OrderPrice orderPrice) {
-		return (orderPrice.getPriceAlteration() != null && orderPrice.getPriceAlteration().size() > 0);
+		return !CollectionUtils.isEmpty(orderPrice.getPriceAlteration());
 	}
 	
 	

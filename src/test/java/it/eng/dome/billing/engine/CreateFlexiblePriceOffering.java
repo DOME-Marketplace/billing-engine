@@ -48,7 +48,7 @@ public class CreateFlexiblePriceOffering {
 			
 			// 1.1) Retrieve Product Specification
 			ProductSpecificationApi psApi = new ProductSpecificationApi(offeringClient);
-			ProductSpecification ps = psApi.retrieveProductSpecification("c614a91b-a8fc-4720-a697-d3ed6e19903c", null);
+			ProductSpecification ps = psApi.retrieveProductSpecification("5c7d123d-4ff3-43fd-a279-09bd2ac65f86", null);
 			System.out.println("Recuperato ProductSpecification con id: " + ps.getId() + ", href: " + ps.getHref());
 
 			//
@@ -429,7 +429,7 @@ public class CreateFlexiblePriceOffering {
 	
 	private ProductOfferingPriceCreate createStorageFixedPop(ProductSpecificationRef productSpecRef) throws URISyntaxException {
 		Money price = new Money();
-		price.value(60F).unit("EUR");
+		price.value(10F).unit("EUR");
 		
 		ProductOfferingPriceCreate pop = new ProductOfferingPriceCreate();
 		pop

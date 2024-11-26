@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
@@ -35,7 +36,7 @@ public class DiscountAlterationOperation implements PriceAlterationOperation{
 		.priceType(alterationPOP.getPriceType())
 		.setPrice(price);
 		
-		if (alterationPOP.getProductOfferingTerm() != null && alterationPOP.getProductOfferingTerm().size() > 0) {
+		if (!CollectionUtils.isEmpty(alterationPOP.getProductOfferingTerm())) {
 			ProductOfferingTerm term = alterationPOP.getProductOfferingTerm().get(0);
 			
 			priceAlteration

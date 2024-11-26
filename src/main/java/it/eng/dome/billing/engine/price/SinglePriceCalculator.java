@@ -4,11 +4,13 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
@@ -19,13 +21,22 @@ import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SinglePriceCalculator implements PriceCalculator {
 
+	@Autowired
+	private PriceAlterationCalculator priceAlterationCalculator;
+	
     private final Logger logger = LoggerFactory.getLogger(SinglePriceCalculator.class);
 
 	@Override
 	public OrderPrice calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
+		logger.debug("Starting single price calculation...");
+		// check if match prod chars and pop chars
 		
-		// retrieves the OrderPrice instance linked to the ProductOfferingPrice received
-		Optional<OrderPrice> orderPriceOpt = orderItem.getItemPrice()
+		// check if unit is null
+		Assert.state(pop.getUnitOfMeasure() == null, 
+				String.format("Unit of Measure of single price '%s' must be null!", pop.getId()));
+		
+		// 1) retrieves the OrderPrice instance linked to the ProductOfferingPrice received
+		Optional<OrderPrice> orderPriceOpt = orderItem.getItemTotalPrice()
 		.stream()
 		.filter( op -> (op.getProductOfferingPrice() != null && op.getProductOfferingPrice().getId().equals(pop.getId())))
 		.findFirst();
@@ -33,6 +44,7 @@ public class SinglePriceCalculator implements PriceCalculator {
 		Assert.state(orderPriceOpt.isPresent(), "Cannot retrieve OrderPrice instance linked to POP: " + pop.getId());
 		final OrderPrice orderItemPrice = orderPriceOpt.get();
 		
+		// 2 calculates base price
 		final Price itemPrice = new Price();
 		EuroMoney euro = new EuroMoney(pop.getPrice().getValue() * orderItem.getQuantity());
 		itemPrice.setDutyFreeAmount(euro.toMoney());
@@ -43,7 +55,16 @@ public class SinglePriceCalculator implements PriceCalculator {
 		orderItemPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodType());
 		orderItemPrice.setPrice(itemPrice);
 		
-		logger.info("Calculated item base price: {} euro", orderItemPrice.getPrice().getDutyFreeAmount().getValue());
+		logger.info("Price of item '{}': [quantity: {}, price: '{}'] = {} euro", 
+				orderItem.getId(), orderItem.getQuantity(), pop.getPrice().getValue(), euro.getAmount());
+		
+    	// 3) apply price alterations
+		if (PriceUtils.hasRelationships(pop)) {
+			priceAlterationCalculator.applyAlterations(orderItem, pop, orderItemPrice);
+			
+			logger.info("Price of item '{}' after alterations = {} euro", 
+					orderItem.getId(), PriceUtils.getAlteredDutyFreePrice(orderItemPrice));
+		}
 		
 		return orderItemPrice;
 	}

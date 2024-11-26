@@ -1,6 +1,7 @@
 package it.eng.dome.billing.engine.price;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
@@ -20,11 +23,9 @@ import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
-import it.eng.dome.tmforum.tmf622.v4.model.Product;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
-import it.eng.dome.tmforum.tmf622.v4.model.ProductPrice;
 
 @Component(value = "priceService")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -59,8 +60,12 @@ public class PriceService implements InitializingBean {
 	    OrderPrice itemPrice = null;
 	    float orderTotalPriceAmount = 0F;
 	    for (ProductOrderItem item : order.getProductOrderItem()) {
+			Assert.state(!CollectionUtils.isEmpty(item.getItemTotalPrice()), "Cannot calculate price for order item with null or 0 itemTotalPrice attribute!");
+
 	    	// 1) retrieve from the server the ProductOfferingPrice
-	    	pop = getProductOfferingPrice(item, popApi);
+	    	pop = getReferredProductOfferingPrice(item, popApi);
+			Assert.state(pop != null, "No valid ProductOfferingPrice found for item: '" + item.getId() + "' !");
+
 	    	// 2) retrieve the price calculator for the ProductOfferingPrice
 	    	priceCalculator = priceCalculatorFactory.getPriceCalculator(pop);
 	    	// 3) calculates the price
@@ -103,24 +108,30 @@ public class PriceService implements InitializingBean {
 	}
 	*/
 	
-	
-	private ProductOfferingPrice getProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws ApiException {
-		var itemPricesIterator = orderItem.getItemPrice().iterator();
-		OrderPrice currentOrderPrice;
-		ProductOfferingPriceRef currentPOPRef;
-		ProductOfferingPrice currentPOP;
-		while (itemPricesIterator.hasNext()) {
-			currentOrderPrice = itemPricesIterator.next();
-			currentPOPRef = currentOrderPrice.getProductOfferingPrice();
-			if (currentPOPRef == null || StringUtils.isBlank(currentPOPRef.getId()))
+	/*
+	 * Loops over list of OrderPrice named itemTotalPrice, to retrieve the first active ProductOfferingPrice
+	 * (pop.status == 'Launched' and today between pop.validFor)
+	 * 
+	 */
+	private ProductOfferingPrice getReferredProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws ApiException {
+		final Date today = new Date();
+		final var itemPrices = orderItem.getItemTotalPrice();
+		ProductOfferingPriceRef currentPopRef;
+		ProductOfferingPrice currentPop;
+		for (OrderPrice currentOrderPrice : itemPrices) {
+			currentPopRef = currentOrderPrice.getProductOfferingPrice();
+			if (currentPopRef == null || StringUtils.isBlank(currentPopRef.getId()))
 				continue;
 			
-			logger.debug("Retrieving from server POP with id: '{}'", currentPOPRef.getId());
-			currentPOP = popApi.retrieveProductOfferingPrice(currentPOPRef.getId(), null);
-			if (!PriceUtils.isActive(currentPOP))
+			logger.debug("Retrieving remote POP with id: '{}'", currentPopRef.getId());
+			currentPop = popApi.retrieveProductOfferingPrice(currentPopRef.getId(), null);
+			if (!PriceUtils.isActive(currentPop))
 				continue;
 			
-			return currentPOP;
+			if (!PriceUtils.isValid(today, currentPop.getValidFor()))
+				continue;
+			
+			return currentPop;
 		}
 		
 		return null;

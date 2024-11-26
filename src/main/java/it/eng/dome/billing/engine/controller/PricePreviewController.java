@@ -51,7 +51,7 @@ public class PricePreviewController {
 			// 1) parse request body to ProductOrder
 			ProductOrder order = ProductOrder.fromJson(orderJson);
 			// 2) calculate order price
-			OrderPrice orderPrice = priceService.calculateOrderPrice(order);
+			priceService.calculateOrderPrice(order);
 			// 3) return updated ProductOrder
 			return new ResponseEntity<String>(order.toJson(), HttpStatus.OK);
 		} catch (Exception e) {

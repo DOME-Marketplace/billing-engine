@@ -1,6 +1,7 @@
 package it.eng.dome.billing.engine.price;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +19,7 @@ import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
-import it.eng.dome.tmforum.tmf620.v4.model.CharacteristicValueSpecification;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
-import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationCharacteristicValueUse;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
 import it.eng.dome.tmforum.tmf622.v4.model.Characteristic;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
@@ -46,13 +45,14 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	
 	@Override
 	public OrderPrice calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
+		logger.debug("Starting bundled price calculation...");
 		Assert.state(orderItem.getProduct() != null, "Error! Cannot calculate price for a ProductOrderItem with a null Product");
 		// gets the characteristic chosen by the Customer
 		final var productChars = orderItem.getProduct().getProductCharacteristic();
 		Assert.state(productChars != null && productChars.size() > 0, "Error! Cannot calculate price for a ProductOrder with a null or empty ProductCharacteristic");
 		
 		// retrieves the OrderPrice instance linked to the ProductOfferingPrice received
-		Optional<OrderPrice> orderPriceOpt = orderItem.getItemPrice()
+		Optional<OrderPrice> orderPriceOpt = orderItem.getItemTotalPrice()
 		.stream()
 		.filter( op -> (op.getProductOfferingPrice() != null && op.getProductOfferingPrice().getId().equals(pop.getId())))
 		.findFirst();
@@ -60,7 +60,10 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 		final OrderPrice orderItemPrice = orderPriceOpt.get();
 		
 		// Retrieves list of bundled prices of pop
-		List<ProductOfferingPriceMatcher> bundledPops = getBundledPops(pop);
+		final PriceMatcher priceMatcher = new PriceMatcher();
+		final List<ProductOfferingPrice> bundledPops = getBundledPops(pop);
+		priceMatcher.initialize(bundledPops);
+		
 		// calculates price for each characteristic
 		if (orderItem.getItemPrice() != null)
 			orderItem.setItemPrice(new ArrayList<OrderPrice>());
@@ -68,11 +71,12 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 		ProductOfferingPrice matchingPop;
 		OrderPrice chPrice;
 		float itemTotalPrice = 0;
-		for (Characteristic ch : productChars) {
-			logger.debug("Calculating price for Characteristic: '{}' value '{}'", ch.getName(), ch.getValue());
-			matchingPop = findMatchingPop(ch, bundledPops);
-			Assert.state(matchingPop != null , String.format("Error! No matching POP found for Characteristic: '%s' value '%s'", ch.getName(), ch.getValue()));
-			chPrice = calculatePriceForCharacteristic(orderItem, matchingPop, ch);
+		final Date today = new Date();
+		for (Characteristic productCharacteristic : productChars) {
+			logger.debug("Calculating price for Characteristic: '{}' value '{}'", productCharacteristic.getName(), productCharacteristic.getValue());
+			matchingPop = priceMatcher.match(productCharacteristic, today);
+			Assert.state(matchingPop != null , String.format("Error! No matching POP found for Characteristic: '%s' value '%s'", productCharacteristic.getName(), productCharacteristic.getValue()));
+			chPrice = calculatePriceForCharacteristic(orderItem, matchingPop, productCharacteristic);
 			itemTotalPrice += chPrice.getPrice().getDutyFreeAmount().getValue();
 			orderItem.addItemPriceItem(chPrice);
 		}
@@ -94,27 +98,15 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	}
 	
 	
-	protected List<ProductOfferingPriceMatcher> getBundledPops(ProductOfferingPrice pop) throws ApiException {
-		final List<ProductOfferingPriceMatcher> bundledPops = new ArrayList<ProductOfferingPriceMatcher>();
-		var bundledPopRels = pop.getBundledPopRelationship().iterator();
+	protected List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop) throws ApiException {
+		final List<ProductOfferingPrice> bundledPops = new ArrayList<ProductOfferingPrice>();
 		
-		while (bundledPopRels.hasNext()) {
-			bundledPops.add(
-				new ProductOfferingPriceMatcher(popApi.retrieveProductOfferingPrice(bundledPopRels.next().getId(), null))
-			);
+		for (var bundledPopRel : pop.getBundledPopRelationship()) {
+			logger.debug("Retrieving remote POP with id: '{}'", bundledPopRel.getId());
+			bundledPops.add(popApi.retrieveProductOfferingPrice(bundledPopRel.getId(), null));
 		}
 		
 		return bundledPops;
-	}
-	
-	// TODO: must consider also the unit for fixed-price or dynamic-price
-	protected ProductOfferingPrice findMatchingPop(Characteristic characteristic, List<ProductOfferingPriceMatcher> bundledPops) {
-		for (ProductOfferingPriceMatcher popm : bundledPops) {
-			if (popm.match(characteristic))
-				return popm.getPop();
-		}
-		
-		return null;
 	}
 	
 	// TODO: must include price alterations
@@ -130,15 +122,16 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 		final String chName = ch.getName();
 		final Double chOrderValue = Double.parseDouble(ch.getValue().toString());
 
-		if (PriceUtils.isFixedPrice(pop)) {
+		if (PriceUtils.isForfaitPrice(pop)) {
 			chAmount = new EuroMoney(orderItem.getQuantity() * pop.getPrice().getValue());
-			logger.info("Calculated price for Characteristic: '{}' value '{}', using price: '{}', calculated price: {}", 
-					chName, chOrderValue, pop.getName(), chAmount.getAmount());
+			logger.info("Price of Characteristic '{}' '{}' [quantity: {}, price: '{}'] = {} euro", 
+					chName, chOrderValue, orderItem.getQuantity(), pop.getPrice().getValue(), chAmount.getAmount());
 		} else {
 			final Quantity unitOfMeasure = pop.getUnitOfMeasure();
 			chAmount = new EuroMoney(orderItem.getQuantity() * ((pop.getPrice().getValue() * chOrderValue) / unitOfMeasure.getAmount()));
-			logger.info("Calculated price for Characteristic: '{}' value '{}', using price: '{}' per '{} {}', calculated price: {}", 
-					chName, chOrderValue, pop.getPrice().getValue(), chOrderValue, unitOfMeasure.getUnits(), chAmount.getAmount());
+			logger.info("Price of Characteristic '{}' [quantity: {}, value: '{} {}', price: '{}' per '{} {}'] = {} euro", 
+					chName, orderItem.getQuantity(), chOrderValue, unitOfMeasure.getUnits(),
+					pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), chAmount.getAmount());
 		}
 		
 		chPrice.setDutyFreeAmount(chAmount.toMoney());
@@ -146,89 +139,6 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 		chOrderPrice.setPrice(chPrice);
 		
 		return chOrderPrice;
-	}
-	
-	
-	/*
-	 * Implemented only to provide business logic for matching 
-	 */
-	class ProductOfferingPriceMatcher {
-		private ProductOfferingPrice pop;
-		
-		ProductOfferingPriceMatcher(ProductOfferingPrice pop) {
-			this.pop = pop;
-		}
-		
-		public boolean match(Characteristic orderChar) {
-			final String name = orderChar.getName();
-			final Object value = orderChar.getValue();
-			// logger.debug("Evaluating match between Pop '{}' with Characteristic '{}' value '{}' ", this.pop.getName(), name, value);
-
-			if (pop.getProdSpecCharValueUse() == null) {
-				logger.warn("Pop {}({}) has no related ProdSpecCharValueUse.", this.pop.getId(), this.pop.getName());
-				return false;
-			}
-			
-			// filters only Characteristics having name equals to the passed name
-			var matchingChars = pop.getProdSpecCharValueUse()
-			.stream()
-			.filter(pscvu -> name.equalsIgnoreCase(pscvu.getName()))
-			.toList();
-			
-			// checks the value of the two characteristics to verify if they match
-			for (ProductSpecificationCharacteristicValueUse priceChar : matchingChars) {
-				for (CharacteristicValueSpecification priceCharValue : priceChar.getProductSpecCharacteristicValue()) {
-					if (PriceUtils.isFixedPrice(pop)) {
-						System.out.println("Invoking isSameValue()");
-						if (isSameValue(orderChar, priceCharValue)) {
-							logger.debug("Found perfect match between Pop '{}' with Characteristic '{}' value '{}' ", this.pop.getName(), name, value);
-							return true;
-						}
-					} else {
-						logger.debug("Found match between Pop '{}' with Characteristic '{}' value '{}' ", this.pop.getName(), name, value);
-						return true;
-					}
-				}
-			}
-
-			return false;
-		}
-		
-		/*
-		 * 
-		 */
-		private boolean isSameValue(Characteristic orderChar, CharacteristicValueSpecification priceChar) {
-			//if (!orderChar.getValueType().equalsIgnoreCase(priceChar.getValueType()))
-			//	return false;
-						
-			if ("number".equalsIgnoreCase(orderChar.getValueType())) {
-				double orderCharValue = 0;
-				if (orderChar.getValue() instanceof String) 
-					orderCharValue = Double.parseDouble(orderChar.getValue().toString());
-				else if (orderChar.getValue() instanceof Double)
-					orderCharValue = (Double)orderChar.getValue();
-				else if (orderChar.getValue() instanceof Integer)
-					orderCharValue = (Integer)orderChar.getValue();
-
-				double priceCharValue = 0;
-				if (priceChar.getValue() instanceof String) 
-					priceCharValue = Double.parseDouble(priceChar.getValue().toString());
-				else if (priceChar.getValue() instanceof Double)
-					priceCharValue = (Double)priceChar.getValue();
-				else if (priceChar.getValue() instanceof Integer)
-					priceCharValue = (Integer)priceChar.getValue();
-				
-				return orderCharValue == priceCharValue;
-			} else if ("string".equalsIgnoreCase(orderChar.getValueType())) {
-				return orderChar.getValue().toString().equalsIgnoreCase(priceChar.getValue().toString());
-			}
-			
-			return false;
-		}
-		
-		public ProductOfferingPrice getPop() {
-			return this.pop;
-		}
 	}
 	
 }

@@ -187,7 +187,7 @@ public class CreateFlexiblePriceOffering {
 			containerPopCreate.addBundledPopRelationshipItem(bp);
 		}
 		
-		// 4 of 7 - Storage Flexible discount
+		// 4 of 7 - Storage Flexible Discount
 		ProductOfferingPriceCreate discountPopCreate = createSixMonthsDiscount();
 		ProductOfferingPrice discountPop = popApi.createProductOfferingPrice(discountPopCreate);
 		System.out.println("Creato POP discount con id: " + discountPop.getId() + ", href: " + discountPop.getHref());
@@ -201,7 +201,6 @@ public class CreateFlexiblePriceOffering {
 			bp.id(storageFlexiblePop.getId()).href(storageFlexiblePop.getHref());
 			containerPopCreate.addBundledPopRelationshipItem(bp);
 		}
-		
 		
 		// 6 of 7 - Storage Fixed
 		ProductOfferingPriceCreate storageFixedPopCreate = createStorageFixedPop(productSpecRef);
@@ -349,13 +348,9 @@ public class CreateFlexiblePriceOffering {
 		.price(price);
 		
 		{
-			var cpuValue = new CharacteristicValueSpecification();
-			cpuValue.isDefault(true).value(1).valueType("number").unitOfMeasure("unit");
-			
 			var ramSpec = new ProductSpecificationCharacteristicValueUse();
 			ramSpec
 			.name("CPU")
-			.addProductSpecCharacteristicValueItem(cpuValue)
 			.setProductSpecification(productSpecRef);
 			
 			pop.addProdSpecCharValueUseItem(ramSpec);
@@ -408,14 +403,10 @@ public class CreateFlexiblePriceOffering {
 		.lifecycleStatus("Launched")
 		.price(price);
 		
-		{
-			var diskValue = new CharacteristicValueSpecification();
-			diskValue.isDefault(true).value(10).valueType("number").unitOfMeasure("GB");
-			
+		{			
 			var diskSpec = new ProductSpecificationCharacteristicValueUse();
 			diskSpec
 			.name("Storage")
-			.addProductSpecCharacteristicValueItem(diskValue)
 			.setProductSpecification(productSpecRef);
 			
 			pop.addProdSpecCharValueUseItem(diskSpec);
@@ -442,7 +433,7 @@ public class CreateFlexiblePriceOffering {
 		
 		ProductOfferingPriceCreate pop = new ProductOfferingPriceCreate();
 		pop
-		.name("Storage Flexible Price")
+		.name("Storage Fixed Price")
 		.description("Storage Fixed Price, 60GB, 10 eu per m, recurring prepaid")
 		.version("1.0")
 		.priceType("recurring-prepaid")

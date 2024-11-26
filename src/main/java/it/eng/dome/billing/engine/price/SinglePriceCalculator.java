@@ -26,10 +26,17 @@ public class SinglePriceCalculator implements PriceCalculator {
 	
     private final Logger logger = LoggerFactory.getLogger(SinglePriceCalculator.class);
 
+	/**
+	 * Calculates the price of a product item using only one price as a forfait price.
+	 * In this case, all the Characteristics of the product item are predefined by the
+	 * provider. The Order is composed of order items and every order items is composed 
+	 * by Characteristics each one with its own price and its own quantity defined by the provider.
+	 */
 	@Override
 	public OrderPrice calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
 		logger.debug("Starting single price calculation...");
 		// check if match prod chars and pop chars
+		// should check that all the Characteristics of the pop are the same of the ProductOrderItem
 		
 		// check if unit is null
 		Assert.state(pop.getUnitOfMeasure() == null, 

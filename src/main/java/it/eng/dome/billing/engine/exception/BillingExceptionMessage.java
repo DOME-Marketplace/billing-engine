@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 
 import lombok.Getter;
 
-public class BillingException {
+public class BillingExceptionMessage {
 	
+	@Getter
+	private int code;
 	@Getter
 	private HttpStatus status;
 	@Getter
@@ -15,12 +17,13 @@ public class BillingException {
 	@Getter
 	private OffsetDateTime date;
 	
-	public BillingException(HttpStatus status, Throwable exc) {
+	public BillingExceptionMessage(HttpStatus status, Throwable exc) {
 		this(status, exc.getMessage());
 	}
 
-	public BillingException(HttpStatus status, String message) {
+	public BillingExceptionMessage(HttpStatus status, String message) {
 		this.status = status;
+		this.code = status.value();
 		this.message = message;
 		date = OffsetDateTime.now();
 	}

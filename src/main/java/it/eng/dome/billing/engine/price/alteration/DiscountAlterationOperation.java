@@ -44,7 +44,7 @@ public class DiscountAlterationOperation implements PriceAlterationOperation{
 			.setUnitOfMeasure(term.getDuration().getUnits());
 		}
 		
-		logger.info("Applied discount of {}% to {}. Discounted price: {} euro", 
+		logger.info("Applied {}% discount to price of {} euro. Discounted price: {} euro", 
 				alterationPOP.getPercentage(), basePrice, euro.getAmount());
 		
 		return priceAlteration;

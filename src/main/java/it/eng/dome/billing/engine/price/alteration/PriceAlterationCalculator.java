@@ -1,5 +1,7 @@
 package it.eng.dome.billing.engine.price.alteration;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -50,6 +52,8 @@ public class PriceAlterationCalculator implements InitializingBean {
 		ProductOfferingPrice alterationPOP;
 		PriceAlterationOperation alterationCalculator;
 		PriceAlteration alteredPrice;
+		final Date today = new Date();
+		
 		// loops for all the alterations
 		for (ProductOfferingPriceRelationship popR : pop.getPopRelationship()) {
 			// retrieve pops from server
@@ -59,12 +63,15 @@ public class PriceAlterationCalculator implements InitializingBean {
 			if (!PriceUtils.isActive(alterationPOP))
 				continue;
 			
+			if (!PriceUtils.isValid(today, alterationPOP.getValidFor()))
+				continue;
+			
 			// the alteration type must be one of the types known
 			alterationCalculator = priceAlterationFactory.getPriceAlterationCalculator(alterationPOP);
 			if (alterationCalculator == null)
 				continue;
 			
-			logger.info("Applying alteration '{}' on base item price: {} euro", alterationPOP.getPriceType(), itemAlteredPrice);
+			logger.debug("Applying alteration '{}' on base item price: {} euro", alterationPOP.getPriceType(), itemAlteredPrice);
 			alteredPrice = alterationCalculator.applyAlteration(itemAlteredPrice, alterationPOP);
 			orderPrice.addPriceAlterationItem(alteredPrice);
 		}

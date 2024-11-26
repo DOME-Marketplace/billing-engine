@@ -10,11 +10,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.tmforum.tmf620.v4.ApiClient;
@@ -86,7 +86,7 @@ public class PriceService implements InitializingBean {
 		orderTotal.setPrice(orderTotalPrice);
 		order.addOrderTotalPriceItem(orderTotal);
 		
-		logger.info("Calculated order total price: {} euro ", orderTotalPriceAmount);
+		logger.info("Order total price: {} euro ", orderTotalPriceAmount);
 
 	    return itemPrice;
 	}
@@ -116,14 +116,22 @@ public class PriceService implements InitializingBean {
 				continue;
 			
 			logger.debug("Retrieving remote POP with id: '{}'", currentPopRef.getId());
-			currentPop = popApi.retrieveProductOfferingPrice(currentPopRef.getId(), null);
-			if (!PriceUtils.isActive(currentPop))
-				continue;
-			
-			if (!PriceUtils.isValid(today, currentPop.getValidFor()))
-				continue;
-			
-			return currentPop;
+			try {
+				currentPop = popApi.retrieveProductOfferingPrice(currentPopRef.getId(), null);
+				
+				if (!PriceUtils.isActive(currentPop))
+					continue;
+				
+				if (!PriceUtils.isValid(today, currentPop.getValidFor()))
+					continue;
+				
+				return currentPop;
+			} catch (ApiException exc) {
+				if (exc.getCode() == HttpStatus.NOT_FOUND.value())
+					throw new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", currentPopRef.getId()));
+				
+				throw exc;
+			}
 		}
 		
 		return null;

@@ -113,7 +113,7 @@ public class PriceService implements InitializingBean {
 	 * (pop.status == 'Launched' and today between pop.validFor)
 	 * 
 	 */
-	private ProductOfferingPrice getReferredProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws ApiException {
+	private ProductOfferingPrice getReferredProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws Exception {
 		final Date today = new Date();
 		final var itemPrices = orderItem.getItemTotalPrice();
 		ProductOfferingPriceRef currentPopRef;

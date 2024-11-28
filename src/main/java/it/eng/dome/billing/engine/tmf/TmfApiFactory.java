@@ -8,14 +8,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import it.eng.dome.billing.engine.BillingEngineApplication;
 import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.Configuration;
 
 @Component(value = "tmfApiFactory")
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public final class TmfApiFactory implements InitializingBean {
-	private String tmfEndpoint;
+	
+    @Value("${tmforumapi.tmf_endpoint}")
+    private String tmfEndpoint;
 	
 	@Value( "${tmforumapi.tmf620_catalog_path}" )
 	private String tmf620ProductCatalogPath;
@@ -59,7 +60,6 @@ public final class TmfApiFactory implements InitializingBean {
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		tmfEndpoint = BillingEngineApplication.accessNodeEndpoint.toString();
 		Assert.state(!StringUtils.isBlank(tmfEndpoint), "Billing Engine not properly configured. tmf620_catalog_base property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogPath), "Billing Engine not properly configured. tmf620_catalog_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf622ProductOrderingPath), "Billing Engine not properly configured. tmf622_ordering_path property has no value.");

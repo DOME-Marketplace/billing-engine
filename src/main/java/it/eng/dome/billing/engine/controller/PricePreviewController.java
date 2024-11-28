@@ -57,7 +57,7 @@ public class PricePreviewController {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-			throw (e.getCause() != null) ? e.getCause() : e;
+			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
 		}
 	}
 	

@@ -125,7 +125,7 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	}
 	
 	
-	protected List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop) throws ApiException {
+	protected List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop) throws Exception {
 		final List<ProductOfferingPrice> bundledPops = new ArrayList<ProductOfferingPrice>();
 		
 		for (var bundledPopRel : pop.getBundledPopRelationship()) {
@@ -136,7 +136,7 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 				if (exc.getCode() == HttpStatus.NOT_FOUND.value())
 					throw new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId()));
 				
-				throw exc;
+				throw new Exception(exc); //throw exc;
 			}
 		}
 		
@@ -154,7 +154,7 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 		chOrderPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodType());
 		
 		final Price chPrice = new Price();
-		EuroMoney chAmount = null;
+		EuroMoney chAmount;
 		final String chName = ch.getName();
 		final Double chOrderValue = Double.parseDouble(ch.getValue().toString());
 

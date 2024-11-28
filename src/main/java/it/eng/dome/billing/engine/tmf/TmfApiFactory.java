@@ -70,16 +70,18 @@ public final class TmfApiFactory implements InitializingBean {
 	}
 	
 	private String removeFinalSlash(String s) {
-		while (s.endsWith("/"))
-			s = s.substring(0, s.length() - 1);
+		String path = s;
+		while (path.endsWith("/"))
+			path = path.substring(0, path.length() - 1);
 
-		return s;
+		return path;
 	}
 	
 	private String removeInitialSlash(String s) {
-		while (s.startsWith("/"))
-			s = s.substring(1);
-		
-		return s;
+		String path = s;
+		while (path.startsWith("/")) {
+			path = path.substring(1);
+		}				
+		return path;
 	}	
 }

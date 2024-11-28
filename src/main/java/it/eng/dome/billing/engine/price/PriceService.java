@@ -135,10 +135,10 @@ public class PriceService implements InitializingBean {
 				
 				return currentPop;
 			} catch (ApiException exc) {
-				if (exc.getCode() == HttpStatus.NOT_FOUND.value())
-					throw new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", currentPopRef.getId()));
-				
-				throw new ApiException(exc);
+				if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
+					throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", currentPopRef.getId()));
+				}			
+				throw exc;
 			}
 		}
 		

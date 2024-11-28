@@ -113,7 +113,7 @@ public class PriceService implements InitializingBean {
 	 * (pop.status == 'Launched' and today between pop.validFor)
 	 * 
 	 */
-	private ProductOfferingPrice getReferredProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws Exception {
+	private ProductOfferingPrice getReferredProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws ApiException {
 		final Date today = new Date();
 		final var itemPrices = orderItem.getItemTotalPrice();
 		ProductOfferingPriceRef currentPopRef;
@@ -135,10 +135,11 @@ public class PriceService implements InitializingBean {
 				
 				return currentPop;
 			} catch (ApiException exc) {
-				if (exc.getCode() == HttpStatus.NOT_FOUND.value())
+				if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
 					throw new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", currentPopRef.getId()));
+				}
 				
-				throw new Exception(exc); //throw exc;
+				throw new ApiException(exc); //throw exc;
 			}
 		}
 		

@@ -133,10 +133,11 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 			try {
 				bundledPops.add(popApi.retrieveProductOfferingPrice(bundledPopRel.getId(), null));
 			} catch (ApiException exc) {
-				if (exc.getCode() == HttpStatus.NOT_FOUND.value())
+				if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
 					throw new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId()));
-				
-				throw new Exception(exc); //throw exc;
+				}
+							
+				throw new Exception(exc);
 			}
 		}
 		

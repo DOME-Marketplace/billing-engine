@@ -12,7 +12,8 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 tmforumapi:
-  tmf_endpoint: http://localhost:8100
+  tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
+   
 #  tmf_endpoint: http://localhost:8100
   tmf620_catalog_path: tmf-api/productCatalogManagement/v4
   tmf622_ordering_path: tmf-api/productOrderingManagement/v4

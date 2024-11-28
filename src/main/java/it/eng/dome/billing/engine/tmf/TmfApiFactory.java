@@ -8,49 +8,65 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import it.eng.dome.billing.engine.BillingEngineApplication;
 import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.Configuration;
 
 @Component(value = "tmfApiFactory")
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public final class TmfApiFactory implements InitializingBean {
-	@Value( "${tmforumapi.tmf620_catalog_base}" )
-	private String tmf620ProductCatalogBase;
+	private String tmfEndpoint;
 	
 	@Value( "${tmforumapi.tmf620_catalog_path}" )
 	private String tmf620ProductCatalogPath;
-		
-	@Value( "${tmforumapi.tmf622_ordering_base}" )
-	private String tmf622ProductOrderingBase;
 
 	@Value( "${tmforumapi.tmf622_ordering_path}" )
 	private String tmf622ProductOrderingPath;
 
+	@Value( "${tmforumapi.tmf637_inventory_path}" )
+	private String tmf637ProductInventoryPath;
+
+	@Value( "${tmforumapi.tmf678_billing_path}" )
+	private String tmf678CustomerBillPath;
+
+	@Value( "${tmforumapi.tmf632_party_management_path}" )
+	private String tmf632PartyManagementPath;
+
+	@Value( "${tmforumapi.tmf666_account_management_path}" )
+	private String tmf666AccountManagementPath;
+
 	
 	public ApiClient getTMF620ProductCatalogApiClient() {
 		final ApiClient apiClient = Configuration.getDefaultApiClient();
-		apiClient.setBasePath(tmf620ProductCatalogBase + "/" + tmf620ProductCatalogPath);
+		apiClient.setBasePath(tmfEndpoint + "/" + tmf620ProductCatalogPath);
 		return apiClient;
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogBase), "Billing Engine not properly configured. tmf620_catalog_base property has no value.");
-		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogPath), "Billing Engine not properly configured. tmf620_catalog_path property has no value.");
-		Assert.state(!StringUtils.isBlank(tmf622ProductOrderingBase), "Billing Engine not properly configured. tmf622_ordering_base property has no value.");
-		Assert.state(!StringUtils.isBlank(tmf622ProductOrderingPath), "Billing Engine not properly configured. tmf622_ordering_path property has no value.");
-			
-		if (tmf620ProductCatalogBase.endsWith("/")) tmf620ProductCatalogBase = removeFinalSlash(tmf620ProductCatalogBase);
-		if (tmf622ProductOrderingBase.endsWith("/")) tmf622ProductOrderingBase = removeFinalSlash(tmf622ProductOrderingBase);
-		
-		if (tmf620ProductCatalogPath.startsWith("/")) tmf620ProductCatalogPath = removeInitialSlash(tmf620ProductCatalogPath);
-		if (tmf622ProductOrderingPath.startsWith("/")) tmf622ProductOrderingPath = removeInitialSlash(tmf622ProductOrderingPath);
-	}
-
+	
 	public it.eng.dome.tmforum.tmf622.v4.ApiClient getTMF622ProductOrderingApiClient() {
 		final it.eng.dome.tmforum.tmf622.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf622.v4.Configuration.getDefaultApiClient();
-		apiClient.setBasePath(tmf622ProductOrderingBase + "/" + tmf622ProductOrderingPath);
+		apiClient.setBasePath(tmfEndpoint + "/" + tmf622ProductOrderingPath);
 		return apiClient;
+	}
+	
+
+	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678CustomerBillApiClient() {
+		final it.eng.dome.tmforum.tmf678.v4.ApiClient apiClient = it.eng.dome.tmforum.tmf678.v4.Configuration.getDefaultApiClient();
+		apiClient.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
+		return apiClient;
+	}
+
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		tmfEndpoint = BillingEngineApplication.accessNodeEndpoint.toString();
+		Assert.state(!StringUtils.isBlank(tmfEndpoint), "Billing Engine not properly configured. tmf620_catalog_base property has no value.");
+		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogPath), "Billing Engine not properly configured. tmf620_catalog_path property has no value.");
+		Assert.state(!StringUtils.isBlank(tmf622ProductOrderingPath), "Billing Engine not properly configured. tmf622_ordering_path property has no value.");
+			
+		if (tmfEndpoint.endsWith("/")) tmfEndpoint = removeFinalSlash(tmfEndpoint);		
+		if (tmf620ProductCatalogPath.startsWith("/")) tmf620ProductCatalogPath = removeInitialSlash(tmf620ProductCatalogPath);
+		if (tmf622ProductOrderingPath.startsWith("/")) tmf622ProductOrderingPath = removeInitialSlash(tmf622ProductOrderingPath);
 	}
 	
 	private String removeFinalSlash(String s) {

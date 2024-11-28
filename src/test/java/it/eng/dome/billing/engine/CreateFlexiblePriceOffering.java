@@ -28,18 +28,14 @@ import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationRef;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
 
 public class CreateFlexiblePriceOffering {
-	//private static String TMF_SERVER = "https://dome-dev.eng.it";
-	//private static String OFFERING_PORT = "80";
-	//private static String ORDERING_PORT = "80";
-	
-	private static String TMF_SERVER = "http://localhost";
-	private static String CATALOG_PORT = "8100";
+	private static String TMF_SERVER = "https://dome-dev.eng.it";
+	//private static String TMF_SERVER = "http://localhost:8100";
 
 
 	public static void main(String[] args) throws URISyntaxException {
 		try {
 			ApiClient offeringClient = Configuration.getDefaultApiClient();
-			offeringClient.setBasePath(TMF_SERVER + ":" + CATALOG_PORT + "/tmf-api/productCatalogManagement/v4");
+			offeringClient.setBasePath(TMF_SERVER + "/tmf-api/productCatalogManagement/v4");
 			
 			CreateFlexiblePriceOffering cfpo = new CreateFlexiblePriceOffering();
 			// 1) creates Product Specifications

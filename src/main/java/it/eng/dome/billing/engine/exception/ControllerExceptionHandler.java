@@ -1,6 +1,7 @@
 package it.eng.dome.billing.engine.exception;
 
 import java.net.ConnectException;
+import java.net.UnknownHostException;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -38,6 +39,11 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@ExceptionHandler(ConnectException.class)
 	protected ResponseEntity<Object> handleConnectionException(ConnectException ex) {
+		return buildResponseEntity(new BillingExceptionMessage(HttpStatus.SERVICE_UNAVAILABLE, ex));
+	}	
+	
+	@ExceptionHandler(UnknownHostException.class)
+	protected ResponseEntity<Object> handleConnectionException(UnknownHostException ex) {
 		return buildResponseEntity(new BillingExceptionMessage(HttpStatus.SERVICE_UNAVAILABLE, ex));
 	}
 	

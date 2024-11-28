@@ -26,18 +26,13 @@ import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationCreate;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationRef;
 
 public class CreateFixedPriceOffering {
-	//private static String TMF_SERVER = "https://dome-dev.eng.it";
-	//private static String OFFERING_PORT = "80";
-	//private static String ORDERING_PORT = "80";
-	
-	private static String TMF_SERVER = "http://localhost";
-	private static String CATALOG_PORT = "8100";
-
+	private static String TMF_SERVER = "https://dome-dev.eng.it";
+	//private static String TMF_SERVER = "http://localhost:8100";
 
 	public static void main(String[] args) throws URISyntaxException {
 		try {
 			ApiClient offeringClient = Configuration.getDefaultApiClient();
-			offeringClient.setBasePath(TMF_SERVER + ":" + CATALOG_PORT + "/tmf-api/productCatalogManagement/v4");
+			offeringClient.setBasePath(TMF_SERVER + "/tmf-api/productCatalogManagement/v4");
 			
 			CreateFixedPriceOffering cfpo = new CreateFixedPriceOffering();
 			// 1) creates Product Specifications
@@ -67,6 +62,7 @@ public class CreateFixedPriceOffering {
 		{
 			ProductSpecificationCharacteristic cpuChar = new ProductSpecificationCharacteristic();
 			cpuChar
+			.id("CPU_SPEC")
 			.name("CPU")
 			.configurable(true)
 			.valueType("number");
@@ -92,6 +88,7 @@ public class CreateFixedPriceOffering {
 		{
 			ProductSpecificationCharacteristic ramChar = new ProductSpecificationCharacteristic();
 			ramChar
+			.id("RAM_SPEC")
 			.name("RAM")
 			.configurable(true)
 			.valueType("number");
@@ -117,6 +114,7 @@ public class CreateFixedPriceOffering {
 		{
 			ProductSpecificationCharacteristic storageChar = new ProductSpecificationCharacteristic();
 			storageChar
+			.id("Storage_SPEC")
 			.name("Storage")
 			.configurable(true)
 			.valueType("number");
@@ -224,6 +222,7 @@ public class CreateFixedPriceOffering {
 			
 			var cpuSpec = new ProductSpecificationCharacteristicValueUse();
 			cpuSpec
+			.id("CPU_SPEC")
 			.name("CPU")
 			.valueType("number")
 			.addProductSpecCharacteristicValueItem(cpuValue)
@@ -238,6 +237,7 @@ public class CreateFixedPriceOffering {
 			
 			var ramSpec = new ProductSpecificationCharacteristicValueUse();
 			ramSpec
+			.id("RAM_SPEC")
 			.name("RAM")
 			.valueType("number")
 			.addProductSpecCharacteristicValueItem(ramValue)
@@ -252,6 +252,7 @@ public class CreateFixedPriceOffering {
 			
 			var diskSpec = new ProductSpecificationCharacteristicValueUse();
 			diskSpec
+			.id("Storage_SPEC")
 			.name("Storage")
 			.valueType("number")
 			.addProductSpecCharacteristicValueItem(diskValue)
@@ -287,6 +288,7 @@ public class CreateFixedPriceOffering {
 			
 			var cpuSpec = new ProductSpecificationCharacteristicValueUse();
 			cpuSpec
+			.id("CPU_SPEC")
 			.name("CPU")
 			.valueType("number")
 			.addProductSpecCharacteristicValueItem(cpuValue)
@@ -301,6 +303,7 @@ public class CreateFixedPriceOffering {
 			
 			var ramSpec = new ProductSpecificationCharacteristicValueUse();
 			ramSpec
+			.id("RAM_SPEC")
 			.name("RAM")
 			.valueType("number")
 			.addProductSpecCharacteristicValueItem(ramValue)
@@ -315,6 +318,7 @@ public class CreateFixedPriceOffering {
 			
 			var diskSpec = new ProductSpecificationCharacteristicValueUse();
 			diskSpec
+			.id("Storage_SPEC")
 			.name("Storage")
 			.valueType("number")
 			.addProductSpecCharacteristicValueItem(diskValue)

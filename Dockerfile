@@ -1,6 +1,9 @@
 
-# Use Java base image JDK 17
-FROM openjdk:17-jdk-alpine
+# Use a JDK17 as set in the dev environment
+FROM openjdk:17-jdk-alpine 
+
+# If there si the need to upgrade to a newer version of Java use the following FROM
+# FROM alpine/java:21-jdk
 
 # Set the workdir in the container
 WORKDIR /usr/app

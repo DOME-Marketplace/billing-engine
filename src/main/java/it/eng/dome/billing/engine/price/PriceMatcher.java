@@ -6,8 +6,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
@@ -55,7 +57,9 @@ public class PriceMatcher {
 		
 	}
 	
-	// TODO: must consider also the unit for fixed-price or dynamic-price
+	/*
+	 * Finds the best POP for a Characteristic
+	 */
 	public ProductOfferingPrice match (Characteristic productCharacteristic, Date when) {
 		// Filters all valid pops having a price for the passed characteristic
 		final String chName = productCharacteristic.getName();
@@ -179,12 +183,14 @@ public class PriceMatcher {
 		boolean hasValue() {
 			return charQuantity != null;
 		}
+		
 	
 		boolean valueMatch(Characteristic productCharacteristic) {
-			// TODO: also consider type at char value level
-			// TODO: must throw exception if no type is defined
-			
 			final String productCharactersiticValueType = productCharacteristic.getValueType();
+
+			Assert.state(!StringUtils.isEmpty(productCharactersiticValueType), 
+					String.format("Product Characteristic '%s' CANNOT have null valueType", productCharacteristic.getName()));
+			
 			final Object productCharactersiticValue = productCharacteristic.getValue();
 
 			if ("number".equalsIgnoreCase(productCharactersiticValueType)) {
@@ -207,10 +213,11 @@ public class PriceMatcher {
 				return productCharacteristicValueAsNumber == priceCharacteristicValueAsNumber;
 			} else if ("string".equalsIgnoreCase(productCharactersiticValueType)) {
 				return charQuantity.toString().equalsIgnoreCase(charQuantity.toString());
-			}
-			
-			return false;
+			} else
+				throw new IllegalArgumentException(String.format("Product Characteristic '%s' has invalid valueType: %s",
+						productCharacteristic.getName(), productCharacteristic.getValueType()));
 		}
+		
 		
 		boolean perfectMatch(Characteristic productCharacteristic) {
 			if (PriceUtils.isForfaitPrice(pop) && hasValue() && valueMatch(productCharacteristic)) {

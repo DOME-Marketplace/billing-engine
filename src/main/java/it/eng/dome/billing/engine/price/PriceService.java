@@ -1,5 +1,7 @@
 package it.eng.dome.billing.engine.price;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -59,12 +61,13 @@ public class PriceService implements InitializingBean {
 	    for (ProductOrderItem item : order.getProductOrderItem()) {
 			Assert.state(!CollectionUtils.isEmpty(item.getItemTotalPrice()), "Cannot calculate price for order item with empty 'itemTotalPrice' attribute!");
 
-	    	// 1) retrieve from the server the ProductOfferingPrice
+	    	// 1) retrieves from the server the ProductOfferingPrice
 	    	pop = getReferredProductOfferingPrice(item, popApi);
 			Assert.state(pop != null, "No valid ProductOfferingPrice found for item: '" + item.getId() + "' !");
 
-	    	// 2) retrieve the price calculator for the ProductOfferingPrice
+	    	// 2) retrieves the price calculator for the ProductOfferingPrice
 	    	priceCalculator = priceCalculatorFactory.getPriceCalculator(pop);
+	    	
 	    	// 3) calculates the price
 	    	itemPrice = priceCalculator.calculatePrice(item, pop);
 	    	
@@ -73,11 +76,16 @@ public class PriceService implements InitializingBean {
 	    	else
 	    		orderTotalPriceAmount += PriceUtils.getDutyFreePrice(itemPrice);
 	    }
-	    
+	    	    
 	    // 4) calculates order total price
 		if (order.getOrderTotalPrice() != null)
 			order.setOrderTotalPrice(new ArrayList<OrderPrice>());
 		
+	    // rounds total order price
+	    BigDecimal bd = new BigDecimal(orderTotalPriceAmount);
+	    bd = bd.setScale(2, RoundingMode.HALF_UP);
+	    orderTotalPriceAmount = bd.floatValue();
+
 		OrderPrice orderTotal = new OrderPrice();
 		Price orderTotalPrice = new Price();
 	    EuroMoney euro = new EuroMoney(orderTotalPriceAmount);

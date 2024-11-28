@@ -3,8 +3,20 @@
 server: 
   port: 8080
 
-
 # Logging Configuration
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - [%-5level] - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+tmforumapi:
+  tmf_endpoint: http://localhost:8100
+#  tmf_endpoint: http://localhost:8100
+  tmf620_catalog_path: tmf-api/productCatalogManagement/v4
+  tmf622_ordering_path: tmf-api/productOrderingManagement/v4
+  tmf637_inventory_path: tmf-api/productManagement/v4
+  tmf678_billing_path: tmf-api/customerBillManagement/v4
+  tmf632_party_management_path: tmf-api/party/v4
+  tmf666_account_management_path: tmf-api/accountManagement/v4

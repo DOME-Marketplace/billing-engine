@@ -36,26 +36,54 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
-        <!-- TMForum SDK dependencies -->
+        <!-- TMF622 Ordering -->
         <dependency>
             <groupId>it.eng.dome.tmforum-sdk</groupId>
             <artifactId>tmf622-v4</artifactId>
             <version>1.0.0</version>
-        </dependency> 
-        
+        </dependency>
+		<!-- TMF678 Customer Bill -->
+        <dependency>
+            <groupId>it.eng.dome.tmforum-sdk</groupId>
+            <artifactId>tmf678-v4</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+		<!-- TMF620 Catalog -->
+        <dependency>
+            <groupId>it.eng.dome.tmforum-sdk</groupId>
+            <artifactId>tmf620-v4</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!-- Springdoc OpenAPI dependency -->
 	    <dependency>
 	        <groupId>org.springdoc</groupId>
 	        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 	        <version>2.1.0</version>
 	    </dependency>
-           
+	    <!-- Lombok -->
+	    <dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
     </dependencies>
 
     <build>
         <finalName>billing-engine</finalName>
         <plugins>
+        	<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.34</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

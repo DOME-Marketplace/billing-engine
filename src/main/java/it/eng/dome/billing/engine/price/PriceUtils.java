@@ -30,8 +30,8 @@ public final class PriceUtils {
 			start = BEGIN;
 		
 		final Date end;
-		if (period.getStartDateTime() != null) {
-			var tmp = period.getStartDateTime();
+		if (period.getEndDateTime() != null) {
+			var tmp = period.getEndDateTime();
 			end = (new GregorianCalendar(tmp.getYear(), tmp.getMonthValue() - 1, tmp.getDayOfMonth())).getTime();
 		} else 
 			end = END;

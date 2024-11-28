@@ -17,7 +17,7 @@ public class PriceCalculatorFactory {
     private ApplicationContext applicationContext;
 	
 	public PriceCalculator getPriceCalculator(@NonNull ProductOfferingPrice pop) {
-		if (pop.getIsBundle() == false)
+		if ((pop.getIsBundle() == null) || (pop.getIsBundle() == false))
 			return (PriceCalculator)applicationContext.getBean("singlePriceCalculator");
 		else 
 			return (PriceCalculator)applicationContext.getBean("bundledPriceCalculator");

@@ -34,13 +34,13 @@ A Swagger APIs are available at this URL `http://localhost:8080/swagger-ui.html`
   java -jar target/billing-engine.jar
   ```
 
-**From Eclipse**
+- **From Eclipse**
 - Set the **Maven Build** configuration in eclipse; select in base directory the *billing-engine* workaspace, in the **goals** use `spring-boot:run`, and set the name (i.e. **billing-engine run**). 
 - To run in **debug mode**, set **Java Application** configuration in eclipse, browser the **billing-engine** project and select with **search** bottom the `it.eng.dome.billing.engine.BillingEngineApplication` class. 
 Don't forget to add breakpoint for debugging.
 
  
-**From Docker**
+- **From Docker**
 - Create the jar file following above compile instructions.
 - Create manually Billing Engine Docker image by running: `docker build . -t billing-engine:X.Y.Z` (where `X.Y.Z` represents the version tag: i.e. 0.0.2).
 - Run the Billing Engine Docker image by executing: `docker run -d -p8080:8080 billing-engine:X.Y.Z`

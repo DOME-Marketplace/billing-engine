@@ -35,17 +35,17 @@ A Swagger APIs are available at this URL `http://localhost:8080/swagger-ui.html`
   ```
 
 - **From Eclipse**
-- Set the **Maven Build** configuration in eclipse; select in base directory the *billing-engine* workaspace, in the **goals** use `spring-boot:run`, and set the name (i.e. **billing-engine run**). 
-- To run in **debug mode**, set **Java Application** configuration in eclipse, browser the **billing-engine** project and select with **search** bottom the `it.eng.dome.billing.engine.BillingEngineApplication` class. 
+Set the **Maven Build** configuration in eclipse; select in base directory the *billing-engine* workaspace, in the **goals** use `spring-boot:run`, and set the name (i.e. **billing-engine run**). 
+To run in **debug mode**, set **Java Application** configuration in eclipse, browser the **billing-engine** project and select with **search** bottom the `it.eng.dome.billing.engine.BillingEngineApplication` class. 
 Don't forget to add breakpoint for debugging.
 
  
 - **From Docker**
-- Create the jar file following above compile instructions.
-- Create manually Billing Engine Docker image by running: `docker build . -t billing-engine:X.Y.Z` (where `X.Y.Z` represents the version tag: i.e. 0.0.2).
-- Run the Billing Engine Docker image by executing: `docker run -d -p8080:8080 billing-engine:X.Y.Z`
-- If you want to give a name to the Billing Engine Docker image by run it as: `docker run -d -p8080:8080 --name billing-engine billing-engine:X.Y.Z`
-- If the Billing Engine has to connect a specific **TMForum URL**, please overwrite the **env vars** `TMF_ENDPOINT` using: `docker run -p8080:8080 --name billing-engine billing-engine:X.Y.Z -e TMF_ENDPOINT=https://my-tmfoum-endpoint`. Default URL is `https://dome-dev.eng.it`. 
+Create the jar file following above compile instructions.
+Create manually Billing Engine Docker image by running: `docker build . -t billing-engine:X.Y.Z` (where `X.Y.Z` represents the version tag: i.e. 0.0.2).
+Run the Billing Engine Docker image by executing: `docker run -d -p8080:8080 billing-engine:X.Y.Z`
+If you want to give a name to the Billing Engine Docker image by run it as: `docker run -d -p8080:8080 --name billing-engine billing-engine:X.Y.Z`
+If the Billing Engine has to connect a specific **TMForum URL**, please overwrite the **env vars** `TMF_ENDPOINT` using: `docker run -p8080:8080 --name billing-engine billing-engine:X.Y.Z -e TMF_ENDPOINT=https://my-tmfoum-endpoint`. Default URL is `https://dome-dev.eng.it`. 
 
 > [!NOTE]  
 > By default spring boot application starts on port number 8080. If port 8080 is occupied in your system then you can change the port number by uncomment and updating the **server.port** property inside the **application.yaml** file that is available inside the **src > main > resources** folder.

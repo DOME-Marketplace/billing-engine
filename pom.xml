@@ -1,93 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="https://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.10</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.10</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
 
-    <groupId>it.eng.dome.billing</groupId>
-    <artifactId>engine</artifactId>
-    <version>0.0.3</version>
-    <name>Billing Engine</name>
-    <description>Billing Engine for DOME project</description>
+	<groupId>it.eng.dome.billing</groupId>
+	<artifactId>engine</artifactId>
+	<version>0.0.3</version>
+	<name>Billing Engine</name>
+	<description>Billing Engine for DOME project</description>
 
-    <properties>
-        <java.version>17</java.version>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-    </properties>
+	<properties>
+		<java.version>17</java.version>
+		<timestamp>${maven.build.timestamp}</timestamp>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+	</properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- TMF622 Ordering -->
-        <dependency>
-            <groupId>it.eng.dome.tmforum-sdk</groupId>
-            <artifactId>tmf622-v4</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- TMF622 Ordering -->
+		<dependency>
+			<groupId>it.eng.dome.tmforum-sdk</groupId>
+			<artifactId>tmf622-v4</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		<!-- TMF678 Customer Bill -->
-        <dependency>
-            <groupId>it.eng.dome.tmforum-sdk</groupId>
-            <artifactId>tmf678-v4</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+		<dependency>
+			<groupId>it.eng.dome.tmforum-sdk</groupId>
+			<artifactId>tmf678-v4</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		<!-- TMF620 Catalog -->
-        <dependency>
-            <groupId>it.eng.dome.tmforum-sdk</groupId>
-            <artifactId>tmf620-v4</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <!-- Springdoc OpenAPI dependency -->
-	    <dependency>
-	        <groupId>org.springdoc</groupId>
-	        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-	        <version>2.1.0</version>
-	    </dependency>
-	    <!-- Lombok -->
-	    <dependency>
+		<dependency>
+			<groupId>it.eng.dome.tmforum-sdk</groupId>
+			<artifactId>tmf620-v4</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<!-- Springdoc OpenAPI dependency -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+		<!-- Lombok -->
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-    </dependencies>
+		<!-- Spring Boot Actuator -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+	</dependencies>
 
-    <build>
-        <finalName>billing-engine</finalName>
-        <plugins>
-        	<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.34</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
+	<build>
+		<finalName>billing-engine</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.34</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
 					<execution>
 						<id>build-info</id>
 						<goals>
@@ -100,8 +106,8 @@
 						</configuration>
 					</execution>
 				</executions>
-            </plugin>
-        </plugins>
-    </build>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

@@ -3,6 +3,11 @@
 **Release Notes** of the *Billing Engine* software:
 
 
+### <code>0.0.4</code> :calendar: 05/12/2024
+**Feature**
+* Included the **actuator** feature in `pom.xml` to get the **health** info via REST APIs (`http://localhost:9000/health`).
+
+
 ### <code>0.0.3</code> :calendar: 08/11/2024
 **Feature**
 * Add **price preview** functionality via `/price/order` REST APIs.

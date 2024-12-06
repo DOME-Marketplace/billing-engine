@@ -6,7 +6,7 @@ on:
 
 env:
   REPOSITORY: production.eng.it:8433 # URL Harbor
-  IMAGE_NAME: billing-scheduler	
+  IMAGE_NAME: billing-engine	
 
 jobs:
   build:

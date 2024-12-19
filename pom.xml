@@ -47,12 +47,18 @@
 		<dependency>
 			<groupId>it.eng.dome.tmforum-sdk</groupId>
 			<artifactId>tmf678-v4</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<!-- TMF620 Catalog -->
 		<dependency>
 			<groupId>it.eng.dome.tmforum-sdk</groupId>
 			<artifactId>tmf620-v4</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<!--  TMF637 Product Inventory Management  -->
+		<dependency>
+			<groupId>it.eng.dome.tmforum-sdk</groupId>
+			<artifactId>tmf637-v4</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 		<!-- Springdoc OpenAPI dependency -->

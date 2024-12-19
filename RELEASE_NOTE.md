@@ -2,6 +2,9 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>0.0.5</code> :calendar: 20/12/2024
+**Feature**
+* Add **calculate bill** functionality via `/billing/bill` REST APIs.
 
 ### <code>0.0.4</code> :calendar: 05/12/2024
 **Feature**

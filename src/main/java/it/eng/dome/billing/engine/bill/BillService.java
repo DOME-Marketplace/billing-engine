@@ -46,8 +46,8 @@ public class BillService implements InitializingBean{
 		
 	}
 	
-	public ArrayList<AppliedCustomerBillingRate> calculateBill(Product product, TimePeriod tp, List<ProductPrice> ppList) throws Exception{
-		ArrayList<AppliedCustomerBillingRate> appliedCustomerBillRateList=new ArrayList<AppliedCustomerBillingRate>();
+	public List<AppliedCustomerBillingRate> calculateBill(Product product, TimePeriod tp, List<ProductPrice> ppList) throws Exception{
+		List<AppliedCustomerBillingRate> appliedCustomerBillRateList=new ArrayList<AppliedCustomerBillingRate>();
 		Assert.state(!CollectionUtils.isEmpty(ppList), "Cannot calculate bill for empty 'productPrice' list!");
 		
 		// Instance of the AppliedCustomerBillingRate generated from inputs parameters

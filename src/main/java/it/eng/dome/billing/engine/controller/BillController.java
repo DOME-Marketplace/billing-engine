@@ -1,6 +1,7 @@
 package it.eng.dome.billing.engine.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -37,10 +38,10 @@ public class BillController {
     public ResponseEntity<String> calculateBill(@RequestBody BillingRequestDTO billRequestDTO) throws Throwable {
 		logger.info("Received request for calculating bill...");
 		
-		ArrayList<AppliedCustomerBillingRate> appliedCustomerBillingRateList;
+		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList;
 		Product product;
 		TimePeriod tp;
-		ArrayList<ProductPrice> ppList;
+		List<ProductPrice> ppList;
 		
 		try {
 			

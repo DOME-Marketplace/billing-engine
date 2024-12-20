@@ -62,6 +62,9 @@ public class BillService implements InitializingBean{
 		Assert.state(!Objects.isNull(product.getBillingAccount()), "Billing Account is missing in the product with ID: "+product.getId());
 		BillingAccountRef billingAccountRef= BillUtils.createAppliedCustomerRateBillingAccount(product.getBillingAccount());
 		
+		//Bugfix: need to set the Id for validation
+		appliedCustomerBillingRate.setId("dummy-id");
+		
 		// Set appliedCustomerBillingRate.billingAccount
 		appliedCustomerBillingRate.setBillingAccount(billingAccountRef);
 		

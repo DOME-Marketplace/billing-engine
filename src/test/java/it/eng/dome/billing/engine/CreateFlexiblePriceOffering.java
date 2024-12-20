@@ -44,7 +44,7 @@ public class CreateFlexiblePriceOffering {
 			
 			// 1.1) Retrieve Product Specification
 			ProductSpecificationApi psApi = new ProductSpecificationApi(offeringClient);
-			ProductSpecification ps = psApi.retrieveProductSpecification("5c7d123d-4ff3-43fd-a279-09bd2ac65f86", null);
+			ProductSpecification ps = psApi.retrieveProductSpecification("urn:ngsi-ld:product-specification:cc8764c7-552e-4eec-b798-0693519fd4dd", null);
 			System.out.println("Recuperato ProductSpecification con id: " + ps.getId() + ", href: " + ps.getHref());
 
 			//
@@ -211,7 +211,7 @@ public class CreateFlexiblePriceOffering {
 		// 7 of 7 - Container POP
 		ProductOfferingPrice containerPop = popApi.createProductOfferingPrice(containerPopCreate);
 		System.out.println("Creato container Pop con id: " + containerPop.getId() + ", href: " + containerPop.getHref());
-
+		System.out.println(containerPop.toJson());
 		// Crea la Product Offering
 	    final ProductOfferingApi offeringApi = new ProductOfferingApi(offeringClient);
 	    ProductOfferingCreate poc = createProductOffering();
@@ -224,6 +224,8 @@ public class CreateFlexiblePriceOffering {
 	    poc.setProductSpecification(productSpecRef);
 	    
 	    ProductOffering po = offeringApi.createProductOffering(poc);
+	    
+	    //System.out.println(po.toJson());
 		return po;
 	}
 	

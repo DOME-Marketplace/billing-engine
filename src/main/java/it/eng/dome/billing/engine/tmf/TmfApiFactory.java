@@ -66,7 +66,7 @@ public final class TmfApiFactory implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		
-		log.info("Billing Engine is using the following AccessNode endpoint: " + tmfEndpoint);	
+		log.info("Billing Engine is using the following TMForum endpoint prefix: " + tmfEndpoint);	
 		
 		Assert.state(!StringUtils.isBlank(tmfEndpoint), "Billing Engine not properly configured. tmf620_catalog_base property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogPath), "Billing Engine not properly configured. tmf620_catalog_path property has no value.");

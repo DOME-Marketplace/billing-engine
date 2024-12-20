@@ -1,4 +1,4 @@
-package it.eng.dome.brokerage.billing.dto;
+package it.eng.dome.billing.engine.dto;
 
 import java.util.ArrayList;
 import java.util.List;

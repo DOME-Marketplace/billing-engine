@@ -3,7 +3,7 @@ package it.eng.dome.billing.engine;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
-import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
+import it.eng.dome.billing.engine.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;

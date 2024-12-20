@@ -3,7 +3,6 @@ package it.eng.dome.billing.engine.controller;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.bill.BillService;
-import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
+import it.eng.dome.billing.engine.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import it.eng.dome.tmforum.tmf678.v4.JSON;

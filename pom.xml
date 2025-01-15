@@ -37,6 +37,15 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- Brokerage Utils dependencies -->
+		<dependency>
+			<groupId>it.eng.dome.brokerage</groupId>
+			<artifactId>brokerage-utils</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		
+		
 		<!-- TMF622 Ordering -->
 		<dependency>
 			<groupId>it.eng.dome.tmforum-sdk</groupId>

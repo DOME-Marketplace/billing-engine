@@ -36,11 +36,14 @@ management:
 
 tmforumapi:
   tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
+  
+  tmf_envoy:  ${TMF_ENVOY:true}
+  # valid only if envoy false
+  tmf_namespace:  ${TMF_NAMESPACE:marketplace}
+  tmf_postfix:  ${TMF_POSTFIX:svc.cluster.local}
+  tmf_port:  ${TMF_PORT:8080}
    
 #  tmf_endpoint: http://localhost:8100
   tmf620_catalog_path: tmf-api/productCatalogManagement/v4
   tmf622_ordering_path: tmf-api/productOrderingManagement/v4
-  tmf637_inventory_path: tmf-api/productManagement/v4
   tmf678_billing_path: tmf-api/customerBillManagement/v4
-  tmf632_party_management_path: tmf-api/party/v4
-  tmf666_account_management_path: tmf-api/accountManagement/v4

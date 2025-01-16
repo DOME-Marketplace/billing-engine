@@ -2,6 +2,12 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+
+### <code>0.0.6</code> :calendar: 16/01/2025
+**Improvements**
+* Add `apiProxy` settings via **environment variables**. Set TMF_ENVOY to `true`, TMF_NAMESPACE, TMF_POSTFIX, and TMF_PORT to apply it.
+
+
 ### <code>0.0.5</code> :calendar: 20/12/2024
 **Feature**
 * Add **calculate bill** functionality via `/billing/bill` REST APIs.

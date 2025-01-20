@@ -1,6 +1,5 @@
 package it.eng.dome.billing.engine.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,8 +67,9 @@ public class BillController {
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			logger.info("************************************************** {} ", e.getMessage());
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
+			throw (e.getCause() != null) ? e.getCause() : e;
 		}
 	}
     

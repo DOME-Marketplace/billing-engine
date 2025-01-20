@@ -33,6 +33,13 @@ public class BillController {
 	@Autowired
 	protected BillService billService;
     
+	 /**
+     * The POST /billing/bill REST API is invoked to calculate the bill of a Product (TMF637-v4) without taxes.
+     * 
+     * @param BillingRequestDTO The DTO contains information about the Product (TMF637-v4), the TimePeriod (TMF678-v4) and the list of ProductPrice (TMF637-v4) for which the bill must be calculated.
+     * @return The list of AppliedCustomerBillingRate as a Json without taxes
+     * @throws Throwable If an error occurs during the calculation of the bill for the Product
+     */ 
     @RequestMapping(value = "/bill", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity<String> calculateBill(@RequestBody BillingRequestDTO billRequestDTO) throws Throwable {
 		logger.info("Received request for calculating bill...");

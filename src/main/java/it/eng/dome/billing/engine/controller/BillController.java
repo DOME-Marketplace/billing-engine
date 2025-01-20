@@ -67,9 +67,8 @@ public class BillController {
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			logger.info("************************************************** {} ", e.getMessage());
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-			throw (e.getCause() != null) ? e.getCause() : e;
+			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
 		}
 	}
     

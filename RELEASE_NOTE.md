@@ -2,6 +2,9 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>0.0.7</code> :calendar: 20/01/2025
+**Improvements**
+* Deprecated **price preview** functionality via `/price/order` REST APIs in favour of **price preview** functionality via `/billing/previewPrice` REST APIs
 
 ### <code>0.0.6</code> :calendar: 16/01/2025
 **Improvements**

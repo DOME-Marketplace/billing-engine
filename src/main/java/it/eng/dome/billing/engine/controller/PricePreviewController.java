@@ -17,7 +17,7 @@ import it.eng.dome.billing.engine.price.PriceService;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 
 @RestController
-@RequestMapping("/price")
+//@RequestMapping("/price")
 @Tag(name = "Price Preview Controller", description = "APIs to manage the price calculation for orders")
 public class PricePreviewController {
 	
@@ -26,7 +26,7 @@ public class PricePreviewController {
 	@Autowired
 	protected PriceService priceService;
 	
-	/**
+	/*
 	 * Il calcolo va effettuato su un order prendendo in considerazioni i diversi 
 	 * ProductOrderItem che lo compongono. Ogni ProductOrderItem genera un prezzo.
 	 * 
@@ -41,8 +41,31 @@ public class PricePreviewController {
 	 * @param orderJson
 	 * @return
 	 * @throws Throwable 
+	 * @{@link Deprecated}
 	 */
-    @RequestMapping(value = "/order", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+	/**
+	 * The POST /price/order REST API is invoked to calculate the price preview (i.e., prices and taxes) of a ProcuctOrder (TMF622-v4).
+	 * 
+	 * @param The ProductOrder (TMF622-v4) as a Json string for which the prices and taxes must be calculated
+	 * @return The ProductOrder as a Json string with prices and taxes
+	 * @throws Throwable If an error occurs during the calculation of the product order's price preview
+	 * @deprecated As of release 0.0.7, replaced by {@link #calculateOrderPrice(String)}
+	 */
+	@Deprecated
+    @RequestMapping(value = "/price/order", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    public ResponseEntity<String> calculateOrderPrice_old(@RequestBody String orderJson) throws Throwable {
+		logger.warn("Invocation of a deprecated REST API: use POST /billing/previewPrice request to calculate pricePreview of a ProductOrder");
+		return this.calculateOrderPrice(orderJson);  	
+	}
+    
+    /**
+     * The POST /billing/previewPrice REST API is invoked to calculate the price preview (i.e., prices and taxes) of a ProcuctOrder (TMF622-v4).
+     * 
+     * @param orderJson The ProductOrder (TMF622-v4) as a Json string for which the prices and taxes must be calculated
+     * @return The ProductOrder as a Json string with prices and taxes
+     * @throws Throwable If an error occurs during the calculation of the product order's price preview
+     */ 
+    @RequestMapping(value = "/billing/previewPrice", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity<String> calculateOrderPrice(@RequestBody String orderJson) throws Throwable {
 		logger.info("Received request for calculating order price...");
 		Assert.state(!StringUtils.isBlank(orderJson), "Missing the instance of ProductOrder in the request body");

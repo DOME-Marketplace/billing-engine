@@ -2,9 +2,16 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+
+### <code>0.0.8</code> :calendar: 27/01/2025
+**Improvements**
+* Update new version of `brokerage-utils:0.0.3`.
+
+
 ### <code>0.0.7</code> :calendar: 20/01/2025
 **Improvements**
-* Deprecated **price preview** functionality via `/price/order` REST APIs in favour of **price preview** functionality via `/billing/previewPrice` REST APIs
+* Deprecated **price preview** functionality via `/price/order` REST APIs in favour of **price preview** functionality via `/billing/previewPrice` REST APIs.
+
 
 ### <code>0.0.6</code> :calendar: 16/01/2025
 **Improvements**

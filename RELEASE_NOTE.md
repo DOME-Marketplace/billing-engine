@@ -5,7 +5,7 @@
 
 ### <code>0.0.8</code> :calendar: 27/01/2025
 **Improvements**
-* Update new version of `brokerage-utils:0.0.3`.
+* Update to newest versions of `brokerage-utils` from 0.0 to 1.0 (`[0.0, 1.0)`).
 
 
 ### <code>0.0.7</code> :calendar: 20/01/2025

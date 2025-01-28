@@ -2,6 +2,8 @@
 # Spring Configuration
 server: 
   port: 8080
+  servlet:
+    context-path:  ${BILLING_PREFIX:/}
 
 # Logging Configuration
 logging:
@@ -12,7 +14,6 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - [%-5level] - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
 
 # Spring Boot Actuator
 management:

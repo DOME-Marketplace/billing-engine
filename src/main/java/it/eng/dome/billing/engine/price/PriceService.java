@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
+import it.eng.dome.billing.engine.utils.PriceTypeKey;
 import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
@@ -42,6 +46,8 @@ public class PriceService implements InitializingBean {
 	
 	private ProductOfferingPriceApi popApi;
 	
+	private HashMap<PriceTypeKey, List<OrderPrice>> orderPriceGroups;
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		final ApiClient apiClient = tmfApiFactory.getTMF620ProductCatalogApiClient();
@@ -53,11 +59,14 @@ public class PriceService implements InitializingBean {
 	 * @param pOrder: the order has been previously validated by the controller
 	 * @return
 	 */
-	public OrderPrice calculateOrderPrice(ProductOrder order) throws Exception {
+	public List<OrderPrice> calculateOrderPrice(ProductOrder order) throws Exception {
 	    ProductOfferingPrice pop;
 	    PriceCalculator priceCalculator;
 	    OrderPrice itemPrice = null;
-	    float orderTotalPriceAmount = 0F;
+	    List<OrderPrice> itemPriceList=new ArrayList<OrderPrice>();
+	    //float orderTotalPriceAmount = 0F;
+	    this.orderPriceGroups=new HashMap<PriceTypeKey, List<OrderPrice>>();
+	    
 	    for (ProductOrderItem item : order.getProductOrderItem()) {
 			Assert.state(!CollectionUtils.isEmpty(item.getItemTotalPrice()), "Cannot calculate price for order item with empty 'itemTotalPrice' attribute!");
 
@@ -71,42 +80,74 @@ public class PriceService implements InitializingBean {
 	    	// 3) calculates the price
 	    	itemPrice = priceCalculator.calculatePrice(item, pop);
 	    	
-	    	if (PriceUtils.hasAlterations(itemPrice))
+	    	updateOrderPriceGroups(itemPrice,pop);
+	    	
+	    	itemPriceList.add(itemPrice);
+	    	/*if (PriceUtils.hasAlterations(itemPrice))
 	    		orderTotalPriceAmount += PriceUtils.getAlteredDutyFreePrice(itemPrice);
 	    	else
-	    		orderTotalPriceAmount += PriceUtils.getDutyFreePrice(itemPrice);
+	    		orderTotalPriceAmount += PriceUtils.getDutyFreePrice(itemPrice);*/
 	    }
 	    	    
-	    // 4) calculates order total price
+	    // 4) calculates orderTotalPrice
 		if (order.getOrderTotalPrice() != null)
 			order.setOrderTotalPrice(new ArrayList<OrderPrice>());
 		
-	    // rounds total order price
+		// Calculate orderTotalPrice over groups aggregating for PriceTypeKey
+		Set<PriceTypeKey> keys= orderPriceGroups.keySet();
+		for(PriceTypeKey key: keys) {
+			
+			OrderPrice orderTotalPriceElement=calculateOrderTotalPriceElement(key);
+			order.addOrderTotalPriceItem(orderTotalPriceElement);
+			
+		}
+		
+	    return itemPriceList;
+	}
+
+	private OrderPrice calculateOrderTotalPriceElement(PriceTypeKey key) {
+		logger.info("Calculate order total price element for group with key "+key.toString());
+		
+		OrderPrice orderTotalPriceElement = new OrderPrice();
+		Price orderTotalPrice = new Price();
+		float orderTotalPriceAmount = 0F;
+		
+		List<OrderPrice> orderPrices=orderPriceGroups.get(key);
+		// rounds order prices in a group to calculate the orderTotalPriceAmount
+		for(OrderPrice op:orderPrices) {
+			if (PriceUtils.hasAlterations(op))
+				orderTotalPriceAmount += PriceUtils.getAlteredDutyFreePrice(op);
+			else
+				orderTotalPriceAmount += PriceUtils.getDutyFreePrice(op);			
+		}
+		
 	    BigDecimal bd = new BigDecimal(orderTotalPriceAmount);
 	    bd = bd.setScale(2, RoundingMode.HALF_UP);
 	    orderTotalPriceAmount = bd.floatValue();
 
-		OrderPrice orderTotal = new OrderPrice();
-		Price orderTotalPrice = new Price();
 	    EuroMoney euro = new EuroMoney(orderTotalPriceAmount);
 		orderTotalPrice.setDutyFreeAmount(euro.toMoney());
 		orderTotalPrice.setTaxIncludedAmount(null);
-		orderTotal.setPrice(orderTotalPrice);
-		order.addOrderTotalPriceItem(orderTotal);
+		orderTotalPriceElement.setPrice(orderTotalPrice);
+		orderTotalPriceElement.setPriceType(key.getPriceType());
+		orderTotalPriceElement.setRecurringChargePeriod(key.getRecurringChargePeriodLength()+" "+key.getRecurringChargePeriodType());
 		
 		logger.info("Order total price: {} euro ", orderTotalPriceAmount);
-
-	    return itemPrice;
+		return orderTotalPriceElement;
 	}
 
-	/*
-	public ProductPrice calculateProductPrice(Product product) throws Exception {
-		final ApiClient apiClient = tmfApiFactory.getTMF620ProductCatalogApiClient();
-	    final var popApi = new ProductOfferingPriceApi(apiClient);
-
-	    return null;
+	private void updateOrderPriceGroups(OrderPrice itemPrice, ProductOfferingPrice pop){
+		if(itemPrice!=null && pop!=null) {
+			PriceTypeKey key=new PriceTypeKey(pop.getPriceType(), pop.getRecurringChargePeriodType(), pop.getRecurringChargePeriodLength());
+			if(orderPriceGroups.containsKey(key)) {
+				orderPriceGroups.get(key).add(itemPrice);
+			}else {
+				List<OrderPrice> list=new ArrayList<OrderPrice>();
+				list.add(itemPrice);
+				orderPriceGroups.put(key, list);
+			}
+		}
 	}
-	*/
 	
 	/*
 	 * Loops over list of OrderPrice named itemTotalPrice, to retrieve the first active ProductOfferingPrice

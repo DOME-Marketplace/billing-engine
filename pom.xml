@@ -13,7 +13,7 @@
 
 	<groupId>it.eng.dome.billing</groupId>
 	<artifactId>engine</artifactId>
-	<version>0.0.8</version>
+	<version>0.0.9</version>
 	<name>Billing Engine</name>
 	<description>Billing Engine for DOME project</description>
 

@@ -2,6 +2,9 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>0.0.9</code> :calendar: 29/01/2025
+**Improvements**
+* Updated API `/billing/previewPrice` to include aggregation in OrderTotalPrice
 
 ### <code>0.0.8</code> :calendar: 27/01/2025
 **Improvements**

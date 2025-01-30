@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +47,7 @@ public class PriceService implements InitializingBean {
 	
 	private ProductOfferingPriceApi popApi;
 	
-	private HashMap<PriceTypeKey, List<OrderPrice>> orderPriceGroups;
+	private Map<PriceTypeKey, List<OrderPrice>> orderPriceGroups;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -63,7 +64,7 @@ public class PriceService implements InitializingBean {
 	    ProductOfferingPrice pop;
 	    PriceCalculator priceCalculator;
 	    OrderPrice itemPrice = null;
-	    List<OrderPrice> itemPriceList=new ArrayList<OrderPrice>();
+	    List<OrderPrice> itemPriceList = new ArrayList<OrderPrice>();
 	    //float orderTotalPriceAmount = 0F;
 	    this.orderPriceGroups=new HashMap<PriceTypeKey, List<OrderPrice>>();
 	    

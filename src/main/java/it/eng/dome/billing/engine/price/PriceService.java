@@ -63,9 +63,8 @@ public class PriceService implements InitializingBean {
 	public List<OrderPrice> calculateOrderPrice(ProductOrder order) throws Exception {
 	    ProductOfferingPrice pop;
 	    PriceCalculator priceCalculator;
-	    OrderPrice itemPrice = null;
 	    List<OrderPrice> itemPriceList = new ArrayList<OrderPrice>();
-	    //float orderTotalPriceAmount = 0F;
+
 	    this.orderPriceGroups=new HashMap<PriceTypeKey, List<OrderPrice>>();
 	    
 	    for (ProductOrderItem item : order.getProductOrderItem()) {
@@ -79,9 +78,9 @@ public class PriceService implements InitializingBean {
 	    	priceCalculator = priceCalculatorFactory.getPriceCalculator(pop);
 	    	
 	    	// 3) calculates the price
-	    	itemPrice = priceCalculator.calculatePrice(item, pop);
+	    	OrderPrice itemPrice = priceCalculator.calculatePrice(item, pop);
 	    	
-	    	updateOrderPriceGroups(itemPrice,pop);
+	    	updateOrderPriceGroups(itemPrice, pop);
 	    	
 	    	itemPriceList.add(itemPrice);
 	    	/*if (PriceUtils.hasAlterations(itemPrice))

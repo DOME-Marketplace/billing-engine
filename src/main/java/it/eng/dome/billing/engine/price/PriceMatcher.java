@@ -69,7 +69,7 @@ public class PriceMatcher {
 						} catch (Exception e) {
 							logger.error(e.getMessage(), e);
 							// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-							throw new RuntimeException(e.getMessage());
+							throw new RuntimeException(e);
 						}
 					})
 					.toList();
@@ -104,7 +104,9 @@ public class PriceMatcher {
 		}catch (RuntimeException e) {
 			logger.error(e.getMessage(), e);
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-			throw new BillingBadRequestException(e.getMessage()); //throw (e.getCause() != null) ? e.getCause() : e;
+			//throw new BillingBadRequestException(e.getMessage()); //throw (e.getCause() != null) ? e.getCause() : e;
+			throw (BillingBadRequestException)new BillingBadRequestException().initCause(e);
+			
 		}catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler

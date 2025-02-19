@@ -3,7 +3,6 @@ package it.eng.dome.billing.engine.price;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +12,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
@@ -49,87 +48,103 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	    popApi = new ProductOfferingPriceApi(apiClient);
 	}
 	
-	/**
+	/*
+	 * Calculates the prices (i.e., OrderPrice instance) for a bundled ProductOfferingPrice referenced in the specified ProductOrderItem.
 	 * A BundledPrice is a composite price, where there is one container price and
-	 * several contained prices. Each contained price is the price of one of 
+	 * several contained prices. A contained price could be the price of one of 
 	 * the Characteristics selected by the customer. 
 	 * 
-	 * An Order is composed of order items and every order items is composed by Characteristics
+	 * A ProductOrder is composed of ProductOrderItems and every ProductOrderItem can be composed by Characteristics
 	 * each one with its own price and its own quantity defined by the customer.
 	 */
 	@Override
-	public OrderPrice calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
+	public List<OrderPrice> calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
+			
 		logger.debug("Starting bundled price calculation...");
-		Assert.state(orderItem.getProduct() != null, "Error! Cannot calculate price for a ProductOrderItem with a null Product");
-		// gets the characteristic chosen by the Customer
-		final var productChars = orderItem.getProduct().getProductCharacteristic();
-		Assert.state(!CollectionUtils.isEmpty(productChars), "Error! Cannot calculate price for a ProductOrder with a null or empty ProductCharacteristic");
-		
-		// retrieves the OrderPrice instance linked to the ProductOfferingPrice received
-		Optional<OrderPrice> orderPriceOpt = orderItem.getItemTotalPrice()
-		.stream()
-		.filter( op -> (op.getProductOfferingPrice() != null && op.getProductOfferingPrice().getId().equals(pop.getId())))
-		.findFirst();
-		Assert.state(orderPriceOpt.isPresent(), "Error! Cannot retrieve OrderPrice instance linked to POP: " + pop.getId());
-		final OrderPrice orderItemPrice = orderPriceOpt.get();
-		
-		// Retrieves list of bundled prices of pop
-		final PriceMatcher priceMatcher = new PriceMatcher();
-		final List<ProductOfferingPrice> bundledPops = getBundledPops(pop);
-		priceMatcher.initialize(bundledPops);
-		
-		// calculates price for each characteristic
-		if (orderItem.getItemPrice() != null)
-			orderItem.setItemPrice(new ArrayList<OrderPrice>());
-			
-		ProductOfferingPrice matchingPop;
-		OrderPrice characteristicPrice;
-		float itemTotalPrice = 0;
-		final Date today = new Date();
-		for (Characteristic productCharacteristic : productChars) {
-			logger.debug("Calculating price for Characteristic: '{}' value '{}'", productCharacteristic.getName(), productCharacteristic.getValue());
-			// find matching POP
-			matchingPop = priceMatcher.match(productCharacteristic, today);
-			Assert.state(matchingPop != null , String.format("Error! No matching POP found for Characteristic: '%s' value '%s'", productCharacteristic.getName(), productCharacteristic.getValue()));
-			// calculates the base price of the Characteristic 
-			characteristicPrice = calculatePriceForCharacteristic(orderItem, matchingPop, productCharacteristic);
-			
-	    	// applies price alterations
-			if (PriceUtils.hasRelationships(matchingPop)) {
-				priceAlterationCalculator.applyAlterations(orderItem, matchingPop, characteristicPrice);
-				logger.info("Price of Characteristic '{}' '{}' after alterations: {} euro", 
-						productCharacteristic.getName(), productCharacteristic.getValue(), PriceUtils.getAlteredDutyFreePrice(characteristicPrice));
+		try {
+			List<OrderPrice> orderPriceList=new ArrayList<OrderPrice>();
+			if (orderItem.getItemPrice() != null)
+				orderItem.setItemPrice(new ArrayList<OrderPrice>());
 				
-				itemTotalPrice += PriceUtils.getAlteredDutyFreePrice(characteristicPrice);
-			} else {
-				itemTotalPrice += characteristicPrice.getPrice().getDutyFreeAmount().getValue();
+			
+			if(orderItem.getProduct()==null) {
+				throw new BillingBadRequestException(String.format("Error! Cannot calculate bundled price for a ProductOrderItem of a ProductOrder with a null Product"));
 			}
 			
-			orderItem.addItemPriceItem(characteristicPrice);
-		}
+			// gets the characteristic chosen by the Customer
+			final var productChars = orderItem.getProduct().getProductCharacteristic();
+			
+			if(CollectionUtils.isEmpty(productChars)) {
+				throw new BillingBadRequestException(String.format("Error! Cannot calculate bundled price for a ProductOrder with a null or empty ProductCharacteristic"));
+			}
+			
+			// Retrieves list of bundled prices of pop
+			final PriceMatcher priceMatcher = new PriceMatcher();
+			final List<ProductOfferingPrice> bundledPops = getBundledPops(pop);
+			if(bundledPops==null||bundledPops.isEmpty()) {
+				throw new BillingBadRequestException(String.format("Error! Started calculation of bundled ProductOfferingPrice %s but the 'bundledPopRelationship' is empty!" + pop.getId()));
+			}else {
+				for(ProductOfferingPrice bundledPop: bundledPops) {
+					if(bundledPop.getProdSpecCharValueUse()==null || bundledPop.getProdSpecCharValueUse().isEmpty()) {
+						OrderPrice op=PriceUtils.calculatePrice(bundledPop, orderItem, priceAlterationCalculator);
+					    op.setProductOfferingPrice(PriceUtils.createProductOfferingPriceRef(bundledPop));
+						orderPriceList.add(op);
+						// updated itemPrice element of the ProductOrderItem
+						orderItem.addItemPriceItem(op);
+					}
+					else {
+						priceMatcher.addPrice(bundledPop);
+					}
+				}
+			}
+
+			ProductOfferingPrice matchingPop;
+			OrderPrice characteristicPrice;
+			//float itemTotalPrice = 0;
+			final Date today = new Date();
+			for (Characteristic productCharacteristic : productChars) {
+				logger.debug("Calculating price for Characteristic: '{}' value '{}'", productCharacteristic.getName(), productCharacteristic.getValue());
+				// find matching POP
+				matchingPop = priceMatcher.match(productCharacteristic, today);
+				if(matchingPop==null) {
+					throw new BillingBadRequestException(String.format("Error! No matching ProductOfferingPrice found for Characteristic: '%s' value '%s'", productCharacteristic.getName(), productCharacteristic.getValue()));
+				}
 				
-		EuroMoney euro = new EuroMoney(itemTotalPrice);
-		final Price itemPrice = new Price();
-		itemPrice.setDutyFreeAmount(euro.toMoney());
-		itemPrice.setTaxIncludedAmount(null);
-		orderItemPrice.setName(pop.getName());
-		orderItemPrice.setDescription(pop.getDescription());
-		orderItemPrice.setPriceType(pop.getPriceType());
-		orderItemPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodType());
-		orderItemPrice.setPrice(itemPrice);
-		orderItem.addItemTotalPriceItem(orderItemPrice);
+				// calculates the base price of the Characteristic 
+				characteristicPrice = calculatePriceForCharacteristic(orderItem, matchingPop, productCharacteristic);
+				
+		    	// applies price alterations
+				if (PriceUtils.hasRelationships(matchingPop)) {
+					priceAlterationCalculator.applyAlterations(orderItem, matchingPop, characteristicPrice);
+					logger.info("Price of Characteristic '{}' '{}' after alterations: {} euro", 
+							productCharacteristic.getName(), productCharacteristic.getValue(), PriceUtils.getAlteredDutyFreePrice(characteristicPrice));
+					
+					//itemTotalPrice += PriceUtils.getAlteredDutyFreePrice(characteristicPrice);
+				} /*else {
+					itemTotalPrice += characteristicPrice.getPrice().getDutyFreeAmount().getValue();
+				}*/
+				
+				orderItem.addItemPriceItem(characteristicPrice);
+				orderPriceList.add(characteristicPrice);
+			}
 		
-		logger.info("Item '{}' total price: {} euro", orderItem.getId(), orderItemPrice.getPrice().getDutyFreeAmount().getValue());
-		
-		return orderItemPrice;
+			return orderPriceList;
+			
+		}catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
+			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
+		}
 	}
 	
-	
+    /*
+     * Returns the list of ProductOfferingPrice referenced in the bundle ProductOfferingPrice (i.e., stored in the bundledPopRelationship element of the ProductOfferingPrice)
+     */
 	protected List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop) throws Exception {
 		final List<ProductOfferingPrice> bundledPops = new ArrayList<ProductOfferingPrice>();
 		
 		for (var bundledPopRel : pop.getBundledPopRelationship()) {
-			logger.debug("Retrieving remote POP with id: '{}'", bundledPopRel.getId());
+			logger.debug("Retrieving remote ProductOfferingPrice with id: '{}'", bundledPopRel.getId());
 			try {
 				bundledPops.add(popApi.retrieveProductOfferingPrice(bundledPopRel.getId(), null));
 			} catch (ApiException exc) {
@@ -144,14 +159,18 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	}
 	
 	/*
-	 * 
+	 * Calculate the OrderPrice element for a ProductOfferingPrice and a Characteristic according to the quantity specified on the ProductOrderItem
 	 */
 	protected OrderPrice calculatePriceForCharacteristic(ProductOrderItem orderItem, ProductOfferingPrice pop, Characteristic ch) {
 		final OrderPrice chOrderPrice = new OrderPrice();
 		chOrderPrice.setName(pop.getName());
 		chOrderPrice.setDescription(pop.getDescription());
 		chOrderPrice.setPriceType(pop.getPriceType());
-		chOrderPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodType());
+		chOrderPrice.setProductOfferingPrice(PriceUtils.createProductOfferingPriceRef(pop));
+		
+		if(!("one time".equalsIgnoreCase(pop.getPriceType())) && !("one-time".equalsIgnoreCase(pop.getPriceType()))) {
+			chOrderPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodLength()+" "+pop.getRecurringChargePeriodType());
+		}
 		
 		final Price chPrice = new Price();
 		EuroMoney chAmount;

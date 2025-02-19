@@ -18,9 +18,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.billing.engine.utils.PriceTypeKey;
@@ -47,6 +47,7 @@ public class PriceService implements InitializingBean {
 	
 	private ProductOfferingPriceApi popApi;
 	
+	//Hash Map to manage aggregation of the OrderPrice
 	private Map<PriceTypeKey, List<OrderPrice>> orderPriceGroups;
 	
 	@Override
@@ -55,58 +56,87 @@ public class PriceService implements InitializingBean {
 	    popApi = new ProductOfferingPriceApi(apiClient);
 	}
 	
-	/**
-	 * 
-	 * @param pOrder: the order has been previously validated by the controller
-	 * @return
-	 */
-	public List<OrderPrice> calculateOrderPrice(ProductOrder order) throws Exception {
-	    ProductOfferingPrice pop;
-	    PriceCalculator priceCalculator;
-	    List<OrderPrice> itemPriceList = new ArrayList<OrderPrice>();
 
+    /*
+     * Calculate the prices of the ProductOrder and updates the ProductOrder with the calculate prices (i.e., OrderPrice instances)
+     *   
+     * @param order The ProductOrder for which the prices must be calculated
+     * @throws Exception If an error occurs during the price calculation
+     */
+	public void calculateOrderPrice(ProductOrder order) throws Exception {
+		ProductOfferingPrice pop;
+	    PriceCalculator priceCalculator;
+	    
+	    // HashMap to manage aggregation of OrderPrice
 	    this.orderPriceGroups=new HashMap<PriceTypeKey, List<OrderPrice>>();
 	    
-	    for (ProductOrderItem item : order.getProductOrderItem()) {
-			Assert.state(!CollectionUtils.isEmpty(item.getItemTotalPrice()), "Cannot calculate price for order item with empty 'itemTotalPrice' attribute!");
-
-	    	// 1) retrieves from the server the ProductOfferingPrice
-	    	pop = getReferredProductOfferingPrice(item, popApi);
-			Assert.state(pop != null, "No valid ProductOfferingPrice found for item: '" + item.getId() + "' !");
-
-	    	// 2) retrieves the price calculator for the ProductOfferingPrice
-	    	priceCalculator = priceCalculatorFactory.getPriceCalculator(pop);
-	    	
-	    	// 3) calculates the price
-	    	OrderPrice itemPrice = priceCalculator.calculatePrice(item, pop);
-	    	
-	    	updateOrderPriceGroups(itemPrice, pop);
-	    	
-	    	itemPriceList.add(itemPrice);
-	    	/*if (PriceUtils.hasAlterations(itemPrice))
-	    		orderTotalPriceAmount += PriceUtils.getAlteredDutyFreePrice(itemPrice);
-	    	else
-	    		orderTotalPriceAmount += PriceUtils.getDutyFreePrice(itemPrice);*/
-	    }
-	    	    
-	    // 4) calculates orderTotalPrice
-		if (order.getOrderTotalPrice() != null)
-			order.setOrderTotalPrice(new ArrayList<OrderPrice>());
-		
-		// Calculate orderTotalPrice over groups aggregating for PriceTypeKey
-		Set<PriceTypeKey> keys= orderPriceGroups.keySet();
-		for(PriceTypeKey key: keys) {
+		try {
+			if(order.getProductOrderItem()==null||order.getProductOrderItem().isEmpty())
+				throw new BillingBadRequestException("Cannot calculate price preview for a ProductOrder with empty 'productOrderItem' attribute!");
 			
-			OrderPrice orderTotalPriceElement=calculateOrderTotalPriceElement(key);
-			order.addOrderTotalPriceItem(orderTotalPriceElement);
+			// Iteration over the ProductOrderItem elements of the ProductOrder
+		    for (ProductOrderItem item : order.getProductOrderItem()) {
+		    	
+		    	List<OrderPrice> itemTotalPriceList = new ArrayList<OrderPrice>();
+		    	
+		    	if(CollectionUtils.isEmpty(item.getItemTotalPrice()))
+		    		throw new BillingBadRequestException("Cannot calculate price preview for a ProductOrderItem with empty 'itemTotalPrice' attribute!");
+		    		
+		    	pop=new ProductOfferingPrice();
+		    	for(OrderPrice op:item.getItemTotalPrice()) {
+		    		
+		    		// Retrieves from the server the ProductOfferingPrice
+		    		pop=getReferredProductOfferingPrice(op, popApi);
+		    	
+		    		if(pop==null) {
+		    			throw new BillingBadRequestException("No valid ProductOfferingPrice found for ProductOrdeItem element: '" + item.getId() + "' !");
+		    		}
+				
+		    		// Retrieves the price calculator for the ProductOfferingPrice
+		    		priceCalculator = priceCalculatorFactory.getPriceCalculator(pop);
+		    		
+		    		// Calculates the OrderPrice(s)
+		    		List<OrderPrice> itemPriceList = priceCalculator.calculatePrice(item, pop);
+		    	
+		    		itemTotalPriceList.addAll(itemPriceList);
+
+		    		updateOrderPriceGroups(itemPriceList);
+		    	}
+		    	
+		    	if(pop.getIsBundle()!=null && pop.getIsBundle())
+		    		continue;
+		    	else
+		    		// updates the itemTotalPrice element of the ProductOrderItem
+		    		item.setItemTotalPrice(itemTotalPriceList);
+		    }
+		    	    
+		    // Calculates orderTotalPrice element
+			if (order.getOrderTotalPrice() != null)
+				order.setOrderTotalPrice(new ArrayList<OrderPrice>());
 			
+			// Calculate orderTotalPrice over groups aggregating for PriceTypeKey
+			Set<PriceTypeKey> keys= orderPriceGroups.keySet();
+			for(PriceTypeKey key: keys) {
+				OrderPrice orderTotalPriceElement=calculateOrderTotalPriceElement(key);
+				order.addOrderTotalPriceItem(orderTotalPriceElement);
+			}
+			
+		}catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
+			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
 		}
-		
-	    return itemPriceList;
+	    
 	}
 
+	/*
+	 * Calculates the OrderPrice that will be added to the orderTotalPrice element of the ProductOrder aggregating according to the specified key.
+	 * 
+	 * @param key the PriceTypeKey considered for make the aggregation of the prices
+	 * @return the OrderPrice item of the orderTotalPrice element of the ProductOrder
+	 */
 	private OrderPrice calculateOrderTotalPriceElement(PriceTypeKey key) {
-		logger.info("Calculate order total price element for group with key "+key.toString());
+		logger.info("Calculate 'orderTotalPrice' for group with key "+key.toString());
 		
 		OrderPrice orderTotalPriceElement = new OrderPrice();
 		Price orderTotalPrice = new Price();
@@ -130,60 +160,71 @@ public class PriceService implements InitializingBean {
 		orderTotalPrice.setTaxIncludedAmount(null);
 		orderTotalPriceElement.setPrice(orderTotalPrice);
 		orderTotalPriceElement.setPriceType(key.getPriceType());
-		orderTotalPriceElement.setRecurringChargePeriod(key.getRecurringChargePeriodLength()+" "+key.getRecurringChargePeriodType());
+		if(!("one time".equalsIgnoreCase(key.getPriceType())) && !("one-time".equalsIgnoreCase(key.getPriceType()))) {
+			orderTotalPriceElement.setRecurringChargePeriod(key.getRecurringChargePeriod());
+		}
 		
 		logger.info("Order total price: {} euro ", orderTotalPriceAmount);
 		return orderTotalPriceElement;
 	}
-
-	private void updateOrderPriceGroups(OrderPrice itemPrice, ProductOfferingPrice pop){
-		if(itemPrice!=null && pop!=null) {
-			PriceTypeKey key=new PriceTypeKey(pop.getPriceType(), pop.getRecurringChargePeriodType(), pop.getRecurringChargePeriodLength());
-			if(orderPriceGroups.containsKey(key)) {
-				orderPriceGroups.get(key).add(itemPrice);
-			}else {
-				List<OrderPrice> list=new ArrayList<OrderPrice>();
-				list.add(itemPrice);
-				orderPriceGroups.put(key, list);
+	
+	/*
+	 * Updates the hash map of OrderPrice groups adding the specified OrderPrice list 
+	 * 
+	 * @param itemPriceList the list of OrderPrice to add to the hash map of OrderPrice 
+	 */
+	private void updateOrderPriceGroups(List<OrderPrice> itemPriceList){
+		if(itemPriceList!=null) {
+			for(OrderPrice op:itemPriceList) {
+				PriceTypeKey key;
+				if(("one time".equalsIgnoreCase(op.getPriceType()))||("one-time".equalsIgnoreCase(op.getPriceType())))
+					key=new PriceTypeKey("one-time", null);
+				else 
+					key=new PriceTypeKey(op.getPriceType(), op.getRecurringChargePeriod());
+						
+				if(orderPriceGroups.containsKey(key)) {
+					orderPriceGroups.get(key).add(op);
+				}else {
+					List<OrderPrice> list=new ArrayList<OrderPrice>();
+					list.add(op);
+					orderPriceGroups.put(key, list);
+				}
 			}
 		}
 	}
 	
 	/*
-	 * Loops over list of OrderPrice named itemTotalPrice, to retrieve the first active ProductOfferingPrice
-	 * (pop.status == 'Launched' and today between pop.validFor)
+	 * Gets the ProductOfferingPrice instance referred by the specified OrderPrice
 	 * 
+	 * @param orderPrice The OrderPrice instance
+	 * @param popApi The ProductOfferingPriceApi instance
+	 * @return the ProductOggeringPrice instance referred by the specified OrderPrice
+	 * @throws Exception If the ProductOfferingPrice referenced in the OrderPrice is not found
 	 */
-	private ProductOfferingPrice getReferredProductOfferingPrice(ProductOrderItem orderItem, ProductOfferingPriceApi popApi) throws Exception {
+	private ProductOfferingPrice getReferredProductOfferingPrice(OrderPrice orderPrice, ProductOfferingPriceApi popApi) throws Exception {
 		final Date today = new Date();
-		final var itemPrices = orderItem.getItemTotalPrice();
-		ProductOfferingPriceRef currentPopRef;
-		ProductOfferingPrice currentPop;
-		for (OrderPrice currentOrderPrice : itemPrices) {
-			currentPopRef = currentOrderPrice.getProductOfferingPrice();
-			if (currentPopRef == null || StringUtils.isBlank(currentPopRef.getId()))
-				continue;
-			
-			logger.debug("Retrieving remote POP with id: '{}'", currentPopRef.getId());
-			try {
-				currentPop = popApi.retrieveProductOfferingPrice(currentPopRef.getId(), null);
-				
-				if (!PriceUtils.isActive(currentPop))
-					continue;
-				
-				if (!PriceUtils.isValid(today, currentPop.getValidFor()))
-					continue;
-				
-				return currentPop;
-			} catch (ApiException exc) {
-				if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
-					throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", currentPopRef.getId())).initCause(exc);
-				}			
-				throw exc;
-			}
-		}
+
+		ProductOfferingPriceRef popRef;
+		ProductOfferingPrice pop;
+
+		popRef = orderPrice.getProductOfferingPrice();
+		if (popRef == null || StringUtils.isBlank(popRef.getId()))
+			return null;
 		
-		return null;
+		logger.debug("Retrieving remote POP with id: '{}'", popRef.getId());
+		try {
+			pop = popApi.retrieveProductOfferingPrice(popRef.getId(), null);
+			
+			if (!PriceUtils.isActive(pop) && !PriceUtils.isValid(today, pop.getValidFor()))
+				return null;
+			
+			return pop;
+		} catch (ApiException exc) {
+			if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
+				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", popRef.getId())).initCause(exc);
+			}			
+			throw exc;
+		}
 	}
 
 	

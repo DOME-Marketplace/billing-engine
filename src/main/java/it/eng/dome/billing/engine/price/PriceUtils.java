@@ -4,18 +4,28 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+import it.eng.dome.billing.engine.exception.BillingBadRequestException;
+import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
+import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.TimePeriod;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
+import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
+import it.eng.dome.tmforum.tmf622.v4.model.ProductOfferingPriceRef;
+import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
 import lombok.NonNull;
 
 public final class PriceUtils {
 
 	private final static Date BEGIN = (new GregorianCalendar(1900, Calendar.JANUARY, 1)).getTime();
 	private final static Date END = (new GregorianCalendar(2100, Calendar.DECEMBER, 31)).getTime();
+	
+	private final static Logger logger = LoggerFactory.getLogger(PriceUtils.class);
 
 	
 	public static final boolean isValid(@NonNull Date when, TimePeriod period) {
@@ -40,7 +50,9 @@ public final class PriceUtils {
 	}
 	
 	
-	public static final boolean  isActive (@NonNull ProductOfferingPrice pop) {
+	public static final boolean  isActive (@NonNull ProductOfferingPrice pop) throws Exception{
+		if(pop.getLifecycleStatus()==null || pop.getLifecycleStatus().isEmpty())
+			throw new BillingBadRequestException(String.format("The lifecycleStatus element of the ProductOfferingPrice '%s' is not set!", pop.getId()));
 		return ("active".equalsIgnoreCase(pop.getLifecycleStatus()) || "launched".equalsIgnoreCase(pop.getLifecycleStatus()));
 	}
 	
@@ -56,7 +68,8 @@ public final class PriceUtils {
 	
 	
 	public static boolean isForfaitPrice(@NonNull ProductOfferingPrice pop) {
-		return pop.getUnitOfMeasure() == null;
+		//return pop.getUnitOfMeasure() == null;
+		return ((pop.getUnitOfMeasure()==null) || (pop.getUnitOfMeasure()!=null && "unit".equalsIgnoreCase(pop.getUnitOfMeasure().getUnits()) && pop.getUnitOfMeasure().getAmount()==1));
 	}
 	
 	
@@ -77,5 +90,40 @@ public final class PriceUtils {
 	
 	public static float getDutyFreePrice(@NonNull OrderPrice orderPrice) {
 		return orderPrice.getPrice().getDutyFreeAmount().getValue();
+	}
+	
+	public static OrderPrice calculatePrice(@NonNull ProductOfferingPrice pop, @NonNull ProductOrderItem orderItem, @NonNull PriceAlterationCalculator pac) throws Exception{
+		OrderPrice orderPrice=new OrderPrice();
+	    final Price itemPrice = new Price();
+	    EuroMoney euro = new EuroMoney(pop.getPrice().getValue() * orderItem.getQuantity());
+		itemPrice.setDutyFreeAmount(euro.toMoney());
+		itemPrice.setTaxIncludedAmount(null);
+		orderPrice.setName(pop.getName());
+		orderPrice.setDescription(pop.getDescription());
+		orderPrice.setPriceType(pop.getPriceType());
+		if(!("one time".equalsIgnoreCase(pop.getPriceType()))&& !("one-time".equalsIgnoreCase(pop.getPriceType()))) {
+			orderPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodLength()+" "+pop.getRecurringChargePeriodType());
+		}
+		orderPrice.setPrice(itemPrice);
+						
+		logger.info("Price of item '{}': [quantity: {}, price: '{}'] = {} euro", 
+			orderItem.getId(), orderItem.getQuantity(), pop.getPrice().getValue(), euro.getAmount());
+						
+			// 3) apply price alterations
+		if (PriceUtils.hasRelationships(pop)) {
+			pac.applyAlterations(orderItem, pop, orderPrice);
+							
+			logger.info("Price of item '{}' after alterations = {} euro", 
+					orderItem.getId(), PriceUtils.getAlteredDutyFreePrice(orderPrice));
+		}			
+		
+		return orderPrice;
+	}
+	
+	public static ProductOfferingPriceRef createProductOfferingPriceRef(@NonNull ProductOfferingPrice pop) {
+		ProductOfferingPriceRef popRef= new ProductOfferingPriceRef();
+	    popRef.setName(pop.getName());
+	    popRef.setId(pop.getId());
+		return popRef;
 	}
 }

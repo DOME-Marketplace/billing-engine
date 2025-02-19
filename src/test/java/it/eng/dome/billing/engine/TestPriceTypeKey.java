@@ -29,11 +29,11 @@ public class TestPriceTypeKey {
 		OrderPrice op5=new OrderPrice();
 		op5.setName("recurring-1-month");
 		
-		PriceTypeKey ptk1=new PriceTypeKey("one-time", "", 0);
-		PriceTypeKey ptk2=new PriceTypeKey("one-time", "", 0);
-		PriceTypeKey ptk3=new PriceTypeKey("recurring", "month", 1);
-		PriceTypeKey ptk4=new PriceTypeKey("recurring", "month", 2);
-		PriceTypeKey ptk5=new PriceTypeKey("recurring", "month", 1);
+		PriceTypeKey ptk1=new PriceTypeKey("one-time", "");
+		PriceTypeKey ptk2=new PriceTypeKey("one-time", "");
+		PriceTypeKey ptk3=new PriceTypeKey("recurring", "1 month");
+		PriceTypeKey ptk4=new PriceTypeKey("recurring", "2 month");
+		PriceTypeKey ptk5=new PriceTypeKey("recurring", "1 month");
 		
 		TestPriceTypeKey test=new TestPriceTypeKey();
 		test.updateHashMap(op1, ptk1);
@@ -58,7 +58,7 @@ public class TestPriceTypeKey {
 	public void printList() {
 		Set<PriceTypeKey> keySet=hasMap.keySet();
 		for(PriceTypeKey key:keySet) {
-			System.out.println("Key: "+key.getPriceType()+"-"+key.getRecurringChargePeriodType()+"-"+key.getRecurringChargePeriodLength());
+			System.out.println("Key: "+key.getPriceType()+"-"+key.getRecurringChargePeriod());
 			List<OrderPrice> list =hasMap.get(key);
 			for(OrderPrice op:list) {
 				System.out.println(op.getName());

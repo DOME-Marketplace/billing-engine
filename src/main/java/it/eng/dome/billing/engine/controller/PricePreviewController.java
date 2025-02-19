@@ -44,11 +44,11 @@ public class PricePreviewController {
 	 * @{@link Deprecated}
 	 */
 	/**
-	 * The POST /price/order REST API is invoked to calculate the price preview (i.e., prices and taxes) of a ProcuctOrder (TMF622-v4).
+	 * The POST /price/order REST API is invoked to calculate the price preview of a ProcuctOrder (TMF622-v4).
 	 * 
-	 * @param The ProductOrder (TMF622-v4) as a Json string for which the prices and taxes must be calculated
-	 * @return The ProductOrder as a Json string with prices and taxes
-	 * @throws Throwable If an error occurs during the calculation of the product order's price preview
+	 * @param The ProductOrder (TMF622-v4) as a Json string for which the prices must be calculated
+	 * @return The ProductOrder as a Json string with prices
+	 * @throws Throwable If an error occurs during the calculation of the ProductOrder price preview
 	 * @deprecated As of release 0.0.7, replaced by {@link #calculateOrderPrice(String)}
 	 */
 	@Deprecated
@@ -59,14 +59,14 @@ public class PricePreviewController {
 	}
     
     /**
-     * The POST /billing/previewPrice REST API is invoked to calculate the price preview (i.e., prices and taxes) of a ProcuctOrder (TMF622-v4).
+     * The POST /billing/previewPrice REST API is invoked to calculate the price preview of a ProcuctOrder (TMF622-v4).
      * 
-     * @param orderJson The ProductOrder (TMF622-v4) as a Json string for which the prices and taxes must be calculated
-     * @return The ProductOrder as a Json string with prices and taxes
-     * @throws Throwable If an error occurs during the calculation of the product order's price preview
+     * @param orderJson The ProductOrder (TMF622-v4) as a Json string for which the prices must be calculated
+     * @return The ProductOrder as a Json string with prices
+     * @throws Exception If an error occurs during the calculation of the ProductOrder price preview
      */ 
     @RequestMapping(value = "/billing/previewPrice", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<String> calculateOrderPrice(@RequestBody String orderJson) throws Throwable {
+    public ResponseEntity<String> calculateOrderPrice(@RequestBody String orderJson) throws Exception {
 		logger.info("Received request for calculating order price...");
 		Assert.state(!StringUtils.isBlank(orderJson), "Missing the instance of ProductOrder in the request body");
 		try {
@@ -76,7 +76,7 @@ public class PricePreviewController {
 			priceService.calculateOrderPrice(order);
 			// 3) return updated ProductOrder
 			return new ResponseEntity<String>(order.toJson(), HttpStatus.OK);
-		} catch (Exception e) {
+		}catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
 			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;

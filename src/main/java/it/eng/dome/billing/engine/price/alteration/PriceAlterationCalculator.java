@@ -47,7 +47,7 @@ public class PriceAlterationCalculator implements InitializingBean {
 	 * @param orderPrice
 	 * @throws ApiException
 	 */
-	public void applyAlterations (ProductOrderItem orderItem, ProductOfferingPrice pop, OrderPrice orderPrice) throws ApiException {
+	public void applyAlterations (ProductOrderItem orderItem, ProductOfferingPrice pop, OrderPrice orderPrice) throws Exception {
 		final var itemAlteredPrice = orderPrice.getPrice().getDutyFreeAmount().getValue();
 		ProductOfferingPrice alterationPOP;
 		PriceAlterationOperation alterationCalculator;

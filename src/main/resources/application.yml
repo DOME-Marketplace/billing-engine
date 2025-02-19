@@ -9,7 +9,7 @@ server:
 logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
-    org.apache.coyote.http11.Http11Processor: DEBUG
+    org.apache.coyote.http11: ERROR
     # org.springframework.boot.actuate: DEBUG
     # org.springframework.boot.actuate.endpoint.web.servlet: DEBUG
   pattern:

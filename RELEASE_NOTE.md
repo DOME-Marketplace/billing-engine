@@ -4,7 +4,9 @@
 
 ### <code>1.0.0</code> :calendar: 19/02/2025
 **Bug fixing**
-* Updated API `/billing/previewPrice` to manage the correct price calculation for ProductOrder with customer configuration
+* Updated API `/billing/previewPrice` to manage the correct price calculation for ProductOrder with customer configuration.
+* Set `org.apache.coyote.http11: ERROR` to avoid the `Error parsing HTTP request header`.
+
 
 ### <code>0.0.9</code> :calendar: 29/01/2025
 **Improvements**

@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.0.1</code> :calendar: 07/03/2025
+**Improvements**
+* Updated API `/billing/bill` to calculate the correct amount of the Bill of a Product.
+
 ### <code>1.0.0</code> :calendar: 19/02/2025
 **Bug fixing**
 * Updated API `/billing/previewPrice` to manage the correct price calculation for ProductOrder with customer configuration.

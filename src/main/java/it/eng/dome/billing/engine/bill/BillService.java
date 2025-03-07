@@ -52,7 +52,7 @@ public class BillService implements InitializingBean {
 		List<AppliedCustomerBillingRate> appliedCustomerBillRateList = new ArrayList<AppliedCustomerBillingRate>();
 
 		// Instance of the AppliedCustomerBillingRate generated from inputs parameters
-		AppliedCustomerBillingRate appliedCustomerBillingRate = new AppliedCustomerBillingRate();
+		AppliedCustomerBillingRate appliedCustomerBillingRate;
 		
 		// gets the characteristic chosen by the Customer
 		final var productChars = product.getProductCharacteristic();

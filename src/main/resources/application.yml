@@ -10,10 +10,8 @@ logging:
   level:
     it.eng.dome: ${LOG_LEVEL:DEBUG}
     org.apache.coyote.http11: ERROR
-    # org.springframework.boot.actuate: DEBUG
-    # org.springframework.boot.actuate.endpoint.web.servlet: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - [%-5level] - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%-5level] %logger{36} - %msg%n" 
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 # Spring Boot Actuator

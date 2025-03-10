@@ -1,0 +1,68 @@
+{
+	"id": "urn:ResourceSpecification:1234",
+	"name": "My Linux VM",
+	"description": "This resource defines a Linux VM",
+	"version": "1.0",
+	"lifecycleStatus": "Active",
+	"resourceSpecCharacteristic": [
+		{
+			"id": "urn:Characteristic:1234",
+			"name": "CPU",
+			"configurable": true,
+			"valueType": "number",
+			"resourceSpecCharacteristicValue": [
+				{
+					"isDefault": true,
+					"value": "4",
+					"unitOfMeasure": "cpus"
+				},
+				{
+					"isDefault": false,
+					"value": "8",
+					"unitOfMeasure": "cpus"
+				}
+			]
+		},
+		{
+			"id": "urn:Characteristic:5678",
+			"name": "RAM Memory",
+			"configurable": true,
+			"valueType": "number",
+			"resourceSpecCharacteristicValue": [
+				{
+					"isDefault": true,
+					"value": "8",
+					"unitOfMeasure": "gb"
+				},
+				{
+					"isDefault": false,
+					"value": "16",
+					"unitOfMeasure": "gb"
+				}
+			]
+		},
+		{
+			"id": "urn:Characteristic:09876",
+			"name": "Storage",
+			"configurable": true,
+			"valueType": "number",
+			"resourceSpecCharacteristicValue": [
+				{
+					"isDefault": true,
+					"value": "10",
+					"unitOfMeasure": "gb"
+				},
+				{
+					"isDefault": false,
+					"value": "30",
+					"unitOfMeasure": "gb"
+				},
+				{
+					"isDefault": false,
+					"value": "50",
+					"unitOfMeasure": "gb"
+				}
+			]
+		}
+	]
+}

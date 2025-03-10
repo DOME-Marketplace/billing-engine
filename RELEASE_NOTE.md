@@ -2,6 +2,15 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.0.1</code> :calendar: 10/03/2025
+**Improvements**
+* Updated API `/billing/bill` to calculate the correct amount of the Bill of a Product.
+* Add `StartupListener` listener to log (display) the current version of *Billing Engine* at startup.
+
+**BugFixing**
+* Set pattern console to `%d{yyyy-MM-dd HH:mm:ss} [%-5level] %logger{36} - %msg%n`.
+
+
 ### <code>1.0.0</code> :calendar: 19/02/2025
 **Bug fixing**
 * Updated API `/billing/previewPrice` to manage the correct price calculation for ProductOrder with customer configuration.

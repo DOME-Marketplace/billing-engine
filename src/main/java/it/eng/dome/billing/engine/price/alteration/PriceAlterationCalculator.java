@@ -18,6 +18,7 @@ import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPriceRelationship;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
+import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
 
@@ -75,6 +76,37 @@ public class PriceAlterationCalculator implements InitializingBean {
 			alteredPrice = alterationCalculator.applyAlteration(itemAlteredPrice, alterationPOP);
 			orderPrice.addPriceAlterationItem(alteredPrice);
 		}
+	}
+	
+	public Price applyAlterations (ProductOfferingPrice pop, Price basePrice) throws Exception {
+		final var itemAlteredPrice = basePrice.getDutyFreeAmount().getValue();
+		ProductOfferingPrice alterationPOP;
+		PriceAlterationOperation alterationCalculator;
+		PriceAlteration alteredPrice=new PriceAlteration();
+		final Date today = new Date();
+		
+		// loops for all the alterations
+		for (ProductOfferingPriceRelationship popR : pop.getPopRelationship()) {
+			// retrieve pops from server
+			alterationPOP = popApi.retrieveProductOfferingPrice(popR.getId(), null);
+			
+			// to be used, the alteration must be active
+			if (!PriceUtils.isActive(alterationPOP))
+				continue;
+			
+			if (!PriceUtils.isValid(today, alterationPOP.getValidFor()))
+				continue;
+			
+			// the alteration type must be one of the types known
+			alterationCalculator = priceAlterationFactory.getPriceAlterationCalculator(alterationPOP);
+			if (alterationCalculator == null)
+				continue;
+			
+			logger.debug("Applying alteration '{}' on base item price: {} euro", alterationPOP.getPriceType(), itemAlteredPrice);
+			alteredPrice = alterationCalculator.applyAlteration(itemAlteredPrice, alterationPOP);
+		}
+		
+		return alteredPrice.getPrice();
 	}
 
 }

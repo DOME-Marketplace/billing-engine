@@ -114,7 +114,6 @@ public class PriceMatcher {
 		}
 	}
 	
-	
 	/*
 	 * This class represents the price of a Characteristic in a specific period
 	 * and for a specific value (or range of value) of the Characteristic.
@@ -249,6 +248,7 @@ public class PriceMatcher {
 			
 			return false;
 		}
+		
 	}
 
 }

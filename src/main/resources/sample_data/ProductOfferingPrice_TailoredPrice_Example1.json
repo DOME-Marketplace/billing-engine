@@ -1,0 +1,23 @@
+{
+	"id": "urn:ProductOfferingPrice:1745",
+	"href": "urn:ProductOfferingPrice:1745",
+	"name": "Tailored Price",
+	"description": "Tailored price plan",
+	"version": "1.0",
+	"isBundle": true,
+	"lifecycleStatus": "Active",
+	"bundledPopRelationship": [
+		{
+			"id": "urn:ProductOfferingPrice:1111",
+			"href": "urn:ProductOfferingPrice:1111"
+		},
+		{
+			"id": "urn:ProductOfferingPrice:1112",
+			"href": "urn:ProductOfferingPrice:1112"
+		},
+		{
+			"id": "urn:ProductOfferingPrice:1113",
+			"href": "urn:ProductOfferingPrice:1113"
+		}
+	]
+}

@@ -1,0 +1,30 @@
+{
+	"id": "urn:ProductOfferingPrice:1111",
+	"href": "urn:ProductOfferingPrice:1111",
+	"name": "CPU Price component",
+	"description": "1.50 eu per CPU per month",
+	"version": "1.0",
+	"priceType": "recurring-prepaid",
+	"recurringChargePeriodType": "month",
+	"recurringChargePeriodLength": 1,
+	"isBundle": false,
+	"lifecycleStatus": "Active",
+	"unitOfMeasure": {
+		"amount": 1,
+		"units": "cpu"
+	},
+	"price": {
+		"unit": "EUR",
+		"value": 1.5
+	},
+	"prodSpecCharValueUse": [
+		{
+			"id": "urn:Characteristic:1234",
+			"name": "CPU",
+			"productSpecification": {
+				"id": "urn:ProductSpecification:12345",
+				"href": "urn:ProductSpecification:12345"
+			}
+		}
+	]
+}

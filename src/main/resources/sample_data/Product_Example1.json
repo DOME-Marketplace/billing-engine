@@ -1,0 +1,84 @@
+{
+	"name": "",
+	"status": "created",
+	"productOffering": {
+		"id": "urn:ProductOffering:1234",
+		"href": "urn:ProductOffering:1234"
+	},
+	"productCharacteristic": [
+		{
+			"name": "CPU",
+			"value": "4"
+		},
+		{
+			"name": "RAM Memory",
+			"value": "8"
+		},
+		{
+			"name": "Storage",
+			"value": "10"
+		}
+	],
+	"productPrice": [
+		{
+			"name": "CPU Price component",
+			"priceType": "recurring-prepaid",
+			"recurringChargePeriod": "1 month",
+			"price": {
+				"taxRate": 0.2,
+				"dutyFreeAmount": {
+					"unit": "EUR",
+					"value": 6
+				},
+				"taxIncludedAmount": {
+					"unit": "EUR",
+					"value": 7.2
+				}
+			},
+			"productOfferingPrice": {
+				"id": "urn:ProductOfferingPrice:1111",
+				"href": "urn:ProductOfferingPrice:1111"
+			}
+		},
+		{
+			"name": "RAM Price component",
+			"priceType": "recurring-prepaid",
+			"recurringChargePeriod": "1 month",
+			"price": {
+				"taxRate": 0.2,
+				"dutyFreeAmount": {
+					"unit": "EUR",
+					"value": 8
+				},
+				"taxIncludedAmount": {
+					"unit": "EUR",
+					"value": 9.6
+				}
+			},
+			"productOfferingPrice": {
+				"id": "urn:ProductOfferingPrice:1112",
+				"href": "urn:ProductOfferingPrice:1112"
+			}
+		},
+		{
+			"name": "HD Price component",
+			"priceType": "recurring-prepaid",
+			"recurringChargePeriod": "1 month",
+			"price": {
+				"taxRate": 0.2,
+				"dutyFreeAmount": {
+					"unit": "EUR",
+					"value": 2
+				},
+				"taxIncludedAmount": {
+					"unit": "EUR",
+					"value": 2.4
+				}
+			},
+			"productOfferingPrice": {
+				"id": "urn:ProductOfferingPrice:1113",
+				"href": "urn:ProductOfferingPrice:1113"
+			}
+		}
+	]
+}

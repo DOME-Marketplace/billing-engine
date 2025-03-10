@@ -1,0 +1,34 @@
+{
+	"id": "urn:ProductOffering:1234",
+	"href": "urn:ProductOffering:1234",
+	"description": "string",
+	"isBundle": false,
+	"lifecycleStatus": "Active",
+	"name": "Offering 1",
+	"productOfferingPrice": [
+		{
+			"id": "urn:ProductOfferingPrice:1745",
+			"href": "urn:ProductOfferingPrice:1745",
+			"name": "Tailored Price"
+		},
+		{
+			"id": "urn:ProductOfferingPrice:1747",
+			"href": "urn:ProductOfferingPrice:1747",
+			"name": "Price Small"
+		},
+		{
+			"id": "urn:ProductOfferingPrice:1748",
+			"href": "urn:ProductOfferingPrice:1748",
+			"name": "Price Medium"
+		},
+		{
+			"id": "urn:ProductOfferingPrice:1749",
+			"href": "urn:ProductOfferingPrice:1749",
+			"name": "Price Large"
+		}
+	],
+	"productSpecification": {
+		"id": "urn:ProductSpecification:12345",
+		"href": "urn:ProductSpecification:12345"
+	}
+}

@@ -1,14 +1,12 @@
 package it.eng.dome.billing.engine.controller;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.bill.BillService;
+import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
@@ -37,7 +36,7 @@ public class BillController {
      * The POST /billing/bill REST API is invoked to calculate the bill of a Product (TMF637-v4) without taxes.
      * 
      * @param BillingRequestDTO The DTO contains information about the Product (TMF637-v4), the TimePeriod (TMF678-v4) and the list of ProductPrice (TMF637-v4) for which the bill must be calculated.
-     * @return The list of AppliedCustomerBillingRate as a Json without taxes
+     * @return An AppliedCustomerBillingRate as a Json without taxes
      * @throws Throwable If an error occurs during the calculation of the bill for the Product
      */ 
     @RequestMapping(value = "/bill", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -53,22 +52,25 @@ public class BillController {
 			
 			// 1) retrieve the Product, TimePeriod and ProductPrice list from the BillingRequestDTO
 			product=billRequestDTO.getProduct();
-			Assert.state(!Objects.isNull(product),  "Missing the instance of Product in the BillingRequestDTO");
+			if(product==null)
+				throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");
 			
 			tp=billRequestDTO.getTimePeriod();
-			Assert.state(!Objects.isNull(tp),  "Missing the instance of TimePeriod in the BillingRequestDTO");
+			if(tp==null) 
+				throw new BillingBadRequestException("Missing the instance of TimePeriod in the BillingRequestDTO");
 			
 			ppList=billRequestDTO.getProductPrice();
-			Assert.state(!Objects.isNull(ppList),  "Missing the instance of ProductPrice list in the BillingRequestDTO");
+			if(ppList==null)
+				throw new BillingBadRequestException("Missing the instance of ProductPrice list in the BillingRequestDTO");
 			
-			logger.info("for Product with ID: "+product.getId());
-			logger.info("for TimePeriod with startDate: "+tp.getStartDateTime()+" and endDate: "+tp.getEndDateTime());
-			logger.info("for ProductPrice list with "+ppList.size()+" element(s)");
+			logger.info("Product with ID: "+product.getId());
+			logger.info("TimePeriod with startDate: "+tp.getStartDateTime()+" and endDate: "+tp.getEndDateTime());
+			logger.info("ProductPrice list with "+ppList.size()+" element(s)");
 			
 			// 2) calculate the list of the AppliedCustomerBillingRates for the Product, TimePeriod and ProductPrice List
 			appliedCustomerBillingRateList=billService.calculateBill(product,tp, ppList);
 			
-			// 3) return the AppliedCustomerBillingRate List
+			// 3) return the AppliedCustomerBillingRate
 			return new ResponseEntity<String>(JSON.getGson().toJson(appliedCustomerBillingRateList), HttpStatus.OK);
 			 
 

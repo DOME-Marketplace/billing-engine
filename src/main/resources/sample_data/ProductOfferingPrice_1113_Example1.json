@@ -1,0 +1,30 @@
+{
+	"id": "urn:ProductOfferingPrice:1113",
+	"href": "urn:ProductOfferingPrice:1113",
+	"name": "HD Price component",
+	"description": "0.2 eu per GB per m",
+	"version": "1.0",
+	"priceType": "recurring-prepaid",
+	"recurringChargePeriodType": "month",
+	"recurringChargePeriodLength": 1,
+	"isBundle": false,
+	"lifecycleStatus": "Active",
+	"unitOfMeasure": {
+		"amount": 1,
+		"units": "gb"
+	},
+	"price": {
+		"unit": "EUR",
+		"value": 0.2
+	},
+	"prodSpecCharValueUse": [
+		{
+			"id": "urn:Characteristic:09876",
+			"name": "Storage",
+			"productSpecification": {
+				"id": "urn:ProductSpecification:12345",
+				"href": "urn:ProductSpecification:12345"
+			}
+		}
+	]
+}

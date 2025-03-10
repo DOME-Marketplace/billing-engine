@@ -15,6 +15,7 @@ import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingTerm;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
+import jakarta.validation.constraints.NotNull;
 
 @Component(value = "discountAlterationOperation")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -22,7 +23,7 @@ public class DiscountAlterationOperation implements PriceAlterationOperation{
     private final Logger logger = LoggerFactory.getLogger(DiscountAlterationOperation.class);
 
 	@Override
-	public PriceAlteration applyAlteration(float basePrice, ProductOfferingPrice alterationPOP) {
+	public PriceAlteration applyAlteration(float basePrice,  @NotNull ProductOfferingPrice alterationPOP) {
 		BigDecimal discount = new BigDecimal(basePrice * (alterationPOP.getPercentage() / 100));
 		discount = discount.setScale(2, RoundingMode.HALF_EVEN);
 		EuroMoney euro = new EuroMoney((basePrice - discount.floatValue()) < 0 ? 0 : basePrice - discount.floatValue());

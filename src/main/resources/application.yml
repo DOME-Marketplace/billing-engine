@@ -35,7 +35,7 @@ management:
       enabled: true	
 
 tmforumapi:
-  tmf_endpoint: ${TMF_ENDPOINT:https://dome-dev.eng.it}
+  tmf_endpoint: ${TMF_ENDPOINT:http://tm-forum-api}
   
   tmf_envoy:  ${TMF_ENVOY:true}
   # valid only if envoy false

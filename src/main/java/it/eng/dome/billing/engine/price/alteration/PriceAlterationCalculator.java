@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
-import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPriceRelationship;

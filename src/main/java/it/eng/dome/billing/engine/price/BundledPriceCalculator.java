@@ -10,7 +10,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -19,8 +18,6 @@ import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
-import it.eng.dome.tmforum.tmf620.v4.ApiClient;
-import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
 import it.eng.dome.tmforum.tmf622.v4.model.Characteristic;

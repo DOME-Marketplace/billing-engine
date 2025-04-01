@@ -2,6 +2,11 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.1.0</code> :calendar: 01/04/2025
+**Improvements**
+* Usage of `2.0.0` version of `Brokerage Utils`.
+
+
 ### <code>1.0.1</code> :calendar: 10/03/2025
 **Improvements**
 * Updated API `/billing/bill` to calculate the correct amount of the Bill of a Product.

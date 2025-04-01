@@ -6,11 +6,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
-import it.eng.dome.tmforum.tmf620.v4.ApiException;
-import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
+import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
@@ -30,18 +28,22 @@ public final class BillUtils {
 		return product.getProductPrice();
 	}
 	
-	public static String getPriceTypeFromProductPrice(@NonNull ProductPrice productPrice, @NonNull ProductOfferingPriceApi popApi) throws Exception{
+	public static String getPriceTypeFromProductPrice(@NonNull ProductPrice productPrice, @NonNull ProductOfferingPriceApis popApis) throws Exception{
 		ProductOfferingPriceRef productOfferingPriceRef=productPrice.getProductOfferingPrice();
-		try {
-			ProductOfferingPrice pop=popApi.retrieveProductOfferingPrice(productOfferingPriceRef.getId(), null);
-			return pop.getPriceType();
+		//try {
+			ProductOfferingPrice pop = popApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
+			if (pop != null) {
+				return pop.getPriceType();
+			}else {
+				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", productOfferingPriceRef.getId()));
+			}			
 
-		} catch (ApiException exc) {
+		/*} catch (ApiException exc) {
 			if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
 				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", productOfferingPriceRef.getId())).initCause(exc);
 			}
 			throw exc;
-		}
+		}*/
 		
 		
 	}
@@ -106,19 +108,26 @@ public final class BillUtils {
 	/*
      * Returns the list of ProductOfferingPrice referenced in the bundle ProductOfferingPrice (i.e., stored in the bundledPopRelationship element of the ProductOfferingPrice)
      */
-	public static List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop, ProductOfferingPriceApi popApi) throws Exception {
+	public static List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop, ProductOfferingPriceApis popApi) throws Exception {
 		final List<ProductOfferingPrice> bundledPops = new ArrayList<ProductOfferingPrice>();
 		
 		for (var bundledPopRel : pop.getBundledPopRelationship()) {
 			logger.debug("Retrieving remote ProductOfferingPrice with id: '{}'", bundledPopRel.getId());
-			try {
-				bundledPops.add(popApi.retrieveProductOfferingPrice(bundledPopRel.getId(), null));
+			ProductOfferingPrice productOfferingPrice = popApi.getProductOfferingPrice(bundledPopRel.getId(), null);
+			if (productOfferingPrice != null) {
+				bundledPops.add(productOfferingPrice);
+			}else {
+				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId()));
+			}
+			
+			/*try {
+				bundledPops.add(popApi.getProductOfferingPrice(bundledPopRel.getId(), null));
 			} catch (ApiException exc) {
 				if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
 					throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId())).initCause(exc);
 				}
 				throw exc;
-			}
+			}*/
 		}
 		
 		return bundledPops;

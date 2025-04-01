@@ -18,9 +18,9 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
+import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
-import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
 import it.eng.dome.tmforum.tmf622.v4.model.Characteristic;
@@ -38,14 +38,13 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	@Autowired
 	private PriceAlterationCalculator priceAlterationCalculator;
 	
-	private ProductOfferingPriceApi popApi;
+	private ProductOfferingPriceApis productOfferingPriceApis;
 	
     private final Logger logger = LoggerFactory.getLogger(BundledPriceCalculator.class);
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final ApiClient apiClient = tmfApiFactory.getTMF620ProductCatalogApiClient();
-	    popApi = new ProductOfferingPriceApi(apiClient);
+		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 	}
 	
 	/*
@@ -145,14 +144,22 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 		
 		for (var bundledPopRel : pop.getBundledPopRelationship()) {
 			logger.debug("Retrieving remote ProductOfferingPrice with id: '{}'", bundledPopRel.getId());
-			try {
-				bundledPops.add(popApi.retrieveProductOfferingPrice(bundledPopRel.getId(), null));
-			} catch (ApiException exc) {
+			
+			ProductOfferingPrice productOfferingPrice = productOfferingPriceApis.getProductOfferingPrice(bundledPopRel.getId(), null);
+			if (productOfferingPrice != null) {
+				bundledPops.add(productOfferingPriceApis.getProductOfferingPrice(bundledPopRel.getId(), null));
+			}else {
+				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId()));
+			}
+			
+			/*try {
+				bundledPops.add(productOfferingPriceApis.getProductOfferingPrice(bundledPopRel.getId(), null));
+			  } catch (ApiException exc) {
 				if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
 					throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId())).initCause(exc);
 				}
 				throw exc;
-			}
+			}*/	
 		}
 		
 		return bundledPops;

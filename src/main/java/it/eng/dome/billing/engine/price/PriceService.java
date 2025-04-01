@@ -24,9 +24,9 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.billing.engine.utils.PriceTypeKey;
+import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.tmforum.tmf620.v4.ApiClient;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
-import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
@@ -45,15 +45,14 @@ public class PriceService implements InitializingBean {
 	@Autowired
 	private PriceCalculatorFactory priceCalculatorFactory;
 	
-	private ProductOfferingPriceApi popApi;
+	private ProductOfferingPriceApis productOfferingPriceApis;
 	
 	//Hash Map to manage aggregation of the OrderPrice
 	private Map<PriceTypeKey, List<OrderPrice>> orderPriceGroups;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final ApiClient apiClient = tmfApiFactory.getTMF620ProductCatalogApiClient();
-	    popApi = new ProductOfferingPriceApi(apiClient);
+		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 	}
 	
 
@@ -86,7 +85,7 @@ public class PriceService implements InitializingBean {
 		    	for(OrderPrice op:item.getItemTotalPrice()) {
 		    		
 		    		// Retrieves from the server the ProductOfferingPrice
-		    		pop=getReferredProductOfferingPrice(op, popApi);
+		    		pop=getReferredProductOfferingPrice(op, productOfferingPriceApis);
 		    	
 		    		if(pop==null) {
 		    			throw new BillingBadRequestException("No valid ProductOfferingPrice found for ProductOrdeItem element: '" + item.getId() + "' !");
@@ -201,7 +200,7 @@ public class PriceService implements InitializingBean {
 	 * @return the ProductOggeringPrice instance referred by the specified OrderPrice
 	 * @throws Exception If the ProductOfferingPrice referenced in the OrderPrice is not found
 	 */
-	private ProductOfferingPrice getReferredProductOfferingPrice(OrderPrice orderPrice, ProductOfferingPriceApi popApi) throws Exception {
+	private ProductOfferingPrice getReferredProductOfferingPrice(OrderPrice orderPrice, ProductOfferingPriceApis popApis) throws Exception {
 		final Date today = new Date();
 
 		ProductOfferingPriceRef popRef;
@@ -213,7 +212,7 @@ public class PriceService implements InitializingBean {
 		
 		logger.debug("Retrieving remote POP with id: '{}'", popRef.getId());
 		try {
-			pop = popApi.retrieveProductOfferingPrice(popRef.getId(), null);
+			pop = popApis.getProductOfferingPrice(popRef.getId(), null);
 			
 			if (!PriceUtils.isActive(pop) && !PriceUtils.isValid(today, pop.getValidFor()))
 				return null;

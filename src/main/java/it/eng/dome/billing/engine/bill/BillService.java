@@ -15,8 +15,7 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.tmforum.tmf620.v4.ApiClient;
-import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
+import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
@@ -38,13 +37,11 @@ public class BillService implements InitializingBean {
 	@Autowired
 	private PriceAlterationCalculator priceAlterationCalculator; 
 
-	private ProductOfferingPriceApi popApi;
+	private ProductOfferingPriceApis productOfferingPriceApis;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final ApiClient apiClient = tmfApiFactory.getTMF620ProductCatalogApiClient();
-		popApi = new ProductOfferingPriceApi(apiClient);
-
+		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 	}
 
 	public List<AppliedCustomerBillingRate> calculateBill(Product product, TimePeriod tp, List<ProductPrice> ppList) throws Exception {
@@ -76,7 +73,7 @@ public class BillService implements InitializingBean {
 				throw new BillingBadRequestException("The ProductOfferingPrice reference is missing in the ProductPrice " + productPrice.getName());
 			
 			// 2) retrieves from the server the ProductOfferingPrice
-			ProductOfferingPrice pop = popApi.retrieveProductOfferingPrice(productOfferingPriceRef.getId(), null);
+			ProductOfferingPrice pop = productOfferingPriceApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
 			logger.info("Calculate price for the price component with ProductOfferingPrice: "+pop.getId());
 			
 			// if POP is not bundle
@@ -89,7 +86,7 @@ public class BillService implements InitializingBean {
 			else {
 				logger.info("ProductOfferingPrice: "+pop.getId()+" is bundled");
 				
-				List<ProductOfferingPrice> bundledPops=BillUtils.getBundledPops(pop, popApi);
+				List<ProductOfferingPrice> bundledPops=BillUtils.getBundledPops(pop, productOfferingPriceApis);
 				if(bundledPops==null||bundledPops.isEmpty()) {
 					throw new BillingBadRequestException(String.format("Error! Started calculation of bundled ProductOfferingPrice %s but the 'bundledPopRelationship' is empty!" + pop.getId()));
 				}

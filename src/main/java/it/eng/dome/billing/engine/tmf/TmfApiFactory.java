@@ -56,7 +56,7 @@ public final class TmfApiFactory implements InitializingBean {
 				apiClientTmf620.setBasePath(tmfEndpoint + "/" + tmf620ProductCatalogPath);
 			}else {
 				// use direct access on specific TMForum APIs software	
-				apiClientTmf620.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
+				apiClientTmf620.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf620ProductCatalogPath);		
 			}
 			log.debug("Invoke Product Catalog API at endpoint: " + apiClientTmf620.getBasePath());
 		}
@@ -71,7 +71,7 @@ public final class TmfApiFactory implements InitializingBean {
 				apiClientTmf622.setBasePath(tmfEndpoint + "/" + tmf622ProductOrderingPath);
 			}else {
 				// use direct access on specific TMForum APIs software	
-				apiClientTmf622.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-ordering-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
+				apiClientTmf622.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-ordering-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf622ProductOrderingPath);		
 			}		
 			log.debug("Invoke Product Ordering API at endpoint: " + apiClientTmf622.getBasePath());
 		}
@@ -86,7 +86,7 @@ public final class TmfApiFactory implements InitializingBean {
 				apiClientTmf678.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
 			}else {
 				// use direct access on specific TMForum APIs software	
-				apiClientTmf678.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
+				apiClientTmf678.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf678CustomerBillPath);		
 			}		
 			log.debug("Invoke Customer Billing API at endpoint: " + apiClientTmf678.getBasePath());
 		}

@@ -107,7 +107,7 @@ public class BillService implements InitializingBean {
 		logger.info("Bill total amount {} euro", 
 				taxExcludedAmount.getValue());
 		
-		appliedCustomerBillingRate=BillUtils.createAppliedCustomerBillingRate(product, tp, taxExcludedAmount, appliedBillingRateType);
+		appliedCustomerBillingRate=BillUtils.createAppliedCustomerBillingRate(product, tp, taxExcludedAmount, appliedBillingRateType,tmfApiFactory.getSchemaLocationRelatedParty());
 		
 		// Add the generate appliedCustomerBillingRate to the AppliedCustomerBillingRate list (at the moment only one element is present on the list)
 		appliedCustomerBillRateList.add(appliedCustomerBillingRate);

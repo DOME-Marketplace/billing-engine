@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.bill.BillService;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
+import it.eng.dome.billing.engine.tmf.TmfApiFactory;
+import it.eng.dome.brokerage.api.ProductApis;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
@@ -25,12 +28,22 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 @RestController
 @RequestMapping("/billing")
 @Tag(name = "Billing Controller", description = "APIs to manage the calculation og the bills")
-public class BillController {
+public class BillController implements InitializingBean{
 	
 	protected final Logger logger = LoggerFactory.getLogger(BillController.class);
 	
 	@Autowired
 	protected BillService billService;
+	
+	@Autowired
+	private TmfApiFactory tmfApiFactory;
+	
+	private ProductApis producApis;
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		producApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
+	}
     
 	 /**
      * The POST /billing/bill REST API is invoked to calculate the bill of a Product (TMF637-v4) without taxes.
@@ -51,7 +64,8 @@ public class BillController {
 		try {
 			
 			// 1) retrieve the Product, TimePeriod and ProductPrice list from the BillingRequestDTO
-			product=billRequestDTO.getProduct();
+			product=producApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			
 			if(product==null)
 				throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");
 			

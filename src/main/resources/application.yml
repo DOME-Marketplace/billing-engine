@@ -47,3 +47,8 @@ tmforumapi:
   tmf620_catalog_path: tmf-api/productCatalogManagement/v4
   tmf622_ordering_path: tmf-api/productOrderingManagement/v4
   tmf678_billing_path: tmf-api/customerBillManagement/v4
+  tmf637_billing_path: tmf-api/productInventory/v4
+  
+# schemaLocation relatedParty entity
+schema:
+  schemaLocation_relatedParty: https://raw.githubusercontent.com/DOME-Marketplace/dome-odrl-profile/refs/heads/main/schemas/simplified/RelatedPartyRef.schema.json 

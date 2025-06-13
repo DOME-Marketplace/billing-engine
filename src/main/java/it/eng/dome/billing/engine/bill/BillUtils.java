@@ -1,5 +1,6 @@
 package it.eng.dome.billing.engine.bill;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
+import it.eng.dome.tmforum.tmf637.v4.model.RelatedParty;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import it.eng.dome.tmforum.tmf678.v4.model.Money;
 import it.eng.dome.tmforum.tmf678.v4.model.ProductRef;
@@ -63,7 +65,7 @@ public final class BillUtils {
 		 return billingAccountRef;
 	}
 	
-	public static AppliedCustomerBillingRate createAppliedCustomerBillingRate(@NonNull Product product, @NonNull TimePeriod tp, @NonNull Money taxExcludedAmount, @NonNull String appliedBillingRateType) throws Exception{
+	public static AppliedCustomerBillingRate createAppliedCustomerBillingRate(@NonNull Product product, @NonNull TimePeriod tp, @NonNull Money taxExcludedAmount, @NonNull String appliedBillingRateType, @NonNull String schemaLocation) throws Exception{
 		
 		AppliedCustomerBillingRate appliedCustomerBillingRate = new AppliedCustomerBillingRate();
 
@@ -102,6 +104,21 @@ public final class BillUtils {
 		// Set appliedCustomerBillingRate.taxExcludedAmount
 		appliedCustomerBillingRate.setTaxExcludedAmount(taxExcludedAmount);
 		
+		// Set appliedCustomerBillingRate.schemaLocation
+		appliedCustomerBillingRate.setAtSchemaLocation(URI.create(schemaLocation));
+		
+		// Set appliedCustomerBillingRate.relatedParty (if present in the Product)
+		List<RelatedParty> prodRelatedParty=product.getRelatedParty();
+		
+		if(prodRelatedParty!=null) {
+			logger.debug("List of relatedParty from Product - size= "+prodRelatedParty.size());
+			
+			for(RelatedParty rp: prodRelatedParty) {
+				it.eng.dome.tmforum.tmf678.v4.model.RelatedParty rpTMF678=createRelatedParty_TMF678(rp);
+				appliedCustomerBillingRate.addRelatedPartyItem(rpTMF678);
+			}
+		}
+		
 		return appliedCustomerBillingRate;
 	}
 	
@@ -131,6 +148,27 @@ public final class BillUtils {
 		}
 		
 		return bundledPops;
+	}
+	
+	/*
+	 * This method creates a relatedParty TMF678 and sets its attributes with the same values of the relatedParty in input (TMF637).
+	 *
+	 * @param rpTMF637 The relatedParty entity of TMF637 specification
+	 * @return the relatedParty entity of TMF678 specification with the same value of the relatedParty in input
+	 */
+	public static it.eng.dome.tmforum.tmf678.v4.model.RelatedParty createRelatedParty_TMF678(RelatedParty rpTMF637){
+		it.eng.dome.tmforum.tmf678.v4.model.RelatedParty rpTMF678=new it.eng.dome.tmforum.tmf678.v4.model.RelatedParty();
+		
+		rpTMF678.setAtBaseType(rpTMF637.getAtBaseType());
+		rpTMF678.setAtReferredType(rpTMF637.getAtReferredType());
+		rpTMF678.setAtSchemaLocation(rpTMF637.getAtSchemaLocation());
+		rpTMF678.setAtType(rpTMF637.getAtType());
+		rpTMF678.setHref(URI.create(rpTMF637.getHref()));
+		rpTMF678.setId(rpTMF637.getId());
+		rpTMF678.setName(rpTMF637.getName());
+		rpTMF678.setRole(rpTMF637.getRole());
+		
+		return rpTMF678;
 	}
 	
 	

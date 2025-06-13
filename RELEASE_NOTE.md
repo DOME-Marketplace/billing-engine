@@ -2,6 +2,11 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.3.0</code> :calendar: 13/06/2025
+**Improvements**
+* Add `RelatedParty` to the `AppliedCustomerBillingRate` using the `@schemaLocation`
+* Bug fixing.
+
 ### <code>1.2.0</code> :calendar: 03/06/2025
 **Improvements**
 * Set of `[2.1.0, 2.2.0)` version of `Brokerage Utils`.

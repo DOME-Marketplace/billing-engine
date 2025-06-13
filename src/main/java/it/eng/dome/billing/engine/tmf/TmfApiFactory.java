@@ -42,9 +42,17 @@ public final class TmfApiFactory implements InitializingBean {
 	@Value( "${tmforumapi.tmf678_billing_path}" )
 	private String tmf678CustomerBillPath;
 	
+	@Value( "${tmforumapi.tmf637_billing_path}" )
+	private String tmf637ProductInventoryPath;
+	
+	@Value( "${schema.schemaLocation_relatedParty}" )
+	private String schemaLocationRelatedParty;
+	
+	
 	private it.eng.dome.tmforum.tmf620.v4.ApiClient apiClientTmf620;
 	private it.eng.dome.tmforum.tmf622.v4.ApiClient apiClientTmf622;
 	private it.eng.dome.tmforum.tmf678.v4.ApiClient apiClientTmf678;
+	private it.eng.dome.tmforum.tmf637.v4.ApiClient apiClientTmf637;
 	
 
 	
@@ -92,6 +100,25 @@ public final class TmfApiFactory implements InitializingBean {
 		}
 		return apiClientTmf678;
 	}
+	
+	public it.eng.dome.tmforum.tmf637.v4.ApiClient getTMF637ProductInventoryApiClient() {
+		if (apiClientTmf637 == null) {
+			apiClientTmf637 = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();
+			if (tmfEnvoy) {
+				// usage of envoyProxy to access on TMForum APIs
+				apiClientTmf637.setBasePath(tmfEndpoint + "/" + tmf637ProductInventoryPath);
+			}else {
+				// use direct access on specific TMForum APIs software	
+				apiClientTmf637.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-inventory-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort + "/" + tmf637ProductInventoryPath);		
+			}		
+			log.debug("Invoke Product Inventory API at endpoint: " + apiClientTmf637.getBasePath());
+		}
+		return apiClientTmf637;
+	}
+	
+	public String getSchemaLocationRelatedParty() {
+		return schemaLocationRelatedParty;
+	}
 
 	
 	@Override
@@ -108,7 +135,9 @@ public final class TmfApiFactory implements InitializingBean {
 		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogPath), "Billing Engine not properly configured. tmf620_catalog_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf622ProductOrderingPath), "Billing Engine not properly configured. tmf622_ordering_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf678CustomerBillPath), "Billing Engine not properly configured. tmf632PartyManagementPath property has no value.");
-			
+		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Engine not properly configured. tmf637ProductInventoryPath property has no value.");
+		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Engine not properly configured. schemaLocation_relatedParty property has no value");
+		
 		if (tmfEndpoint.endsWith("/")) {
 			tmfEndpoint = removeFinalSlash(tmfEndpoint);		
 		}
@@ -123,6 +152,9 @@ public final class TmfApiFactory implements InitializingBean {
 		
 		if (tmf678CustomerBillPath.startsWith("/")) {
 			tmf678CustomerBillPath = removeInitialSlash(tmf678CustomerBillPath);
+		}
+		if (tmf637ProductInventoryPath.startsWith("/")) {
+			tmf637ProductInventoryPath = removeInitialSlash(tmf637ProductInventoryPath);
 		}
 	}
 	

@@ -162,7 +162,7 @@ public final class BillUtils {
 		rpTMF678.setAtBaseType(rpTMF637.getAtBaseType());
 		rpTMF678.setAtReferredType(rpTMF637.getAtReferredType());
 		rpTMF678.setAtSchemaLocation(rpTMF637.getAtSchemaLocation());
-		rpTMF678.setAtType(rpTMF637.getAtType());
+		//rpTMF678.setAtType(rpTMF637.getAtType()); // Bad Request => The request contained invalid data - Did not receive a valid entity: Client 'ngsi'.
 		rpTMF678.setHref(URI.create(rpTMF637.getHref()));
 		rpTMF678.setId(rpTMF637.getId());
 		rpTMF678.setName(rpTMF637.getName());

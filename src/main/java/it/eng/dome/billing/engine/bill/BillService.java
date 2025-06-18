@@ -17,11 +17,14 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
+import it.eng.dome.brokerage.api.ProductApis;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
+import it.eng.dome.tmforum.tmf635.v4.model.RatedProductUsage;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
+import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
@@ -43,11 +46,13 @@ public class BillService implements InitializingBean {
 
 	private ProductOfferingPriceApis productOfferingPriceApis;
 	private UsageManagementApis usageManagementApis;
+	private ProductApis productApis;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 		usageManagementApis = new UsageManagementApis(tmfApiFactory.getTMF635UsageManagementApiClient());
+		productApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
 	}
 
 	public List<AppliedCustomerBillingRate> calculateBill(Product product, TimePeriod tp, List<ProductPrice> ppList) throws Exception {
@@ -61,7 +66,7 @@ public class BillService implements InitializingBean {
 		final var productChars = product.getProductCharacteristic();
 		
 		// All calculated prices
-		List<Price> prices=new ArrayList<Price>();
+		List<Price> prices = new ArrayList<Price>();
 
 		// Bill taxExcludedAmount
 		Money taxExcludedAmount = new Money();
@@ -87,7 +92,7 @@ public class BillService implements InitializingBean {
 				prices.add(PriceUtils.calculatePrice(pop,productChars,priceAlterationCalculator));
 				// Set the appliedBillingRateType if not set yet
 				if(appliedBillingRateType == null) {
-					appliedBillingRateType=pop.getPriceType();
+					appliedBillingRateType = pop.getPriceType();
 				}
 			} else {
 				logger.info("ProductOfferingPrice: "+pop.getId()+" is bundled");
@@ -99,7 +104,7 @@ public class BillService implements InitializingBean {
 				for(ProductOfferingPrice bundledPop: bundledPops) {
 					prices.add(PriceUtils.calculatePrice(bundledPop,productChars, priceAlterationCalculator));
 					// Set the appliedBillingRateType if not set yet
-					if(appliedBillingRateType==null) {
+					if(appliedBillingRateType == null) {
 						appliedBillingRateType=bundledPop.getPriceType();
 					}
 				}
@@ -150,12 +155,54 @@ public class BillService implements InitializingBean {
 	private float getPayPerUse(TimePeriod tp) {
 		
 		Map<String, String> filter = new HashMap<String, String>();
-		filter.put("usageDate.gt", tp.getStartDateTime().toString());
-		filter.put("usageDate.lt", tp.getEndDateTime().toString());
+		//filter.put("usageDate.gt", tp.getStartDateTime().toString());
+		//filter.put("usageDate.lt", tp.getEndDateTime().toString());
 		
 		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
 		logger.info("Usage found: {}", usages.size());
 		
-		return 1.2f;
+		float amount = 0;
+		
+		//TODO - must be implemented
+		for (Usage usage : usages) {
+			if (usage.getRatedProductUsage() != null && usage.getRatedProductUsage().size() > 0) {
+				
+				Map<String, Object> usageData = new HashMap<String, Object>();
+				//usage.getRelatedParty();
+				
+				List<UsageCharacteristic> usageCharacteristics = usage.getUsageCharacteristic();
+				for (UsageCharacteristic usageCharacteristic : usageCharacteristics) {
+					usageData.put(usageCharacteristic.getName(), usageCharacteristic.getValue());					
+				}
+				
+				List<RatedProductUsage> rates = usage.getRatedProductUsage();
+				for (RatedProductUsage rate: rates) {
+					String idProduct = rate.getProductRef().getId();
+					Product product = productApis.getProduct(idProduct, null);
+					if (product.getProductPrice() != null) {
+						List<ProductPrice> pprices = product.getProductPrice();
+						if (pprices != null && !pprices.isEmpty()) {
+							
+							for (ProductPrice pprice : pprices) {
+								// retrieve price
+								String key = pprice.getName();
+								if (usageData.containsKey(key)) {
+									Object value = usageData.get(key);
+									if (value instanceof Number) {
+										Float price = (float) pprice.getPrice().getTaxIncludedAmount().getValue();
+										amount += price * (float)value;
+									}
+								}
+								
+							}
+						}
+					}
+				}
+			} else {
+				logger.warn("RatedProductUsage cannot be null for usage: {}", usage.getId());
+			}
+		}
+		
+		return amount;
 	}
 }

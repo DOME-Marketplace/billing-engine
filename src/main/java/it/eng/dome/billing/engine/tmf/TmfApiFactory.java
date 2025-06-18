@@ -40,6 +40,9 @@ public final class TmfApiFactory implements InitializingBean {
 
 	@Value( "${tmforumapi.tmf622_ordering_path}" )
 	private String tmf622ProductOrderingPath;
+	
+	@Value( "${tmforumapi.tmf635_usage_path}" )
+	private String tmf635UsageManagementPath;
 
 	@Value( "${tmforumapi.tmf678_billing_path}" )
 	private String tmf678CustomerBillPath;
@@ -53,6 +56,7 @@ public final class TmfApiFactory implements InitializingBean {
 	private it.eng.dome.tmforum.tmf620.v4.ApiClient apiClientTmf620;
 	private it.eng.dome.tmforum.tmf622.v4.ApiClient apiClientTmf622;
 	private it.eng.dome.tmforum.tmf678.v4.ApiClient apiClientTmf678;
+	private it.eng.dome.tmforum.tmf635.v4.ApiClient apiClientTmf635;
 	private it.eng.dome.tmforum.tmf637.v4.ApiClient apiClientTmf637;
 	
 	
@@ -86,6 +90,22 @@ public final class TmfApiFactory implements InitializingBean {
 		}
 		
 		return apiClientTmf622;
+	}
+	
+	public it.eng.dome.tmforum.tmf635.v4.ApiClient getTMF635UsageManagementApiClient() {	
+		if (apiClientTmf635 == null) {
+			apiClientTmf635 = it.eng.dome.tmforum.tmf635.v4.Configuration.getDefaultApiClient(); 
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "usage-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf635.setBasePath(basePath + "/" + tmf635UsageManagementPath);
+			log.debug("Invoke Product Ordering API at endpoint: " + apiClientTmf635.getBasePath());
+		}
+		
+		return apiClientTmf635;
 	}
 	
 	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678CustomerBillApiClient() {

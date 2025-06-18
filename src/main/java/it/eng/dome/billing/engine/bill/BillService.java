@@ -1,7 +1,9 @@
 package it.eng.dome.billing.engine.bill;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,10 @@ import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
+import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
@@ -38,10 +42,12 @@ public class BillService implements InitializingBean {
 	private PriceAlterationCalculator priceAlterationCalculator; 
 
 	private ProductOfferingPriceApis productOfferingPriceApis;
+	private UsageManagementApis usageManagementApis;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
+		usageManagementApis = new UsageManagementApis(tmfApiFactory.getTMF635UsageManagementApiClient());
 	}
 
 	public List<AppliedCustomerBillingRate> calculateBill(Product product, TimePeriod tp, List<ProductPrice> ppList) throws Exception {
@@ -80,21 +86,22 @@ public class BillService implements InitializingBean {
 			if(!pop.getIsBundle()) {
 				prices.add(PriceUtils.calculatePrice(pop,productChars,priceAlterationCalculator));
 				// Set the appliedBillingRateType if not set yet
-				if(appliedBillingRateType==null)
+				if(appliedBillingRateType == null) {
 					appliedBillingRateType=pop.getPriceType();
-			}
-			else {
+				}
+			} else {
 				logger.info("ProductOfferingPrice: "+pop.getId()+" is bundled");
 				
 				List<ProductOfferingPrice> bundledPops=BillUtils.getBundledPops(pop, productOfferingPriceApis);
-				if(bundledPops==null||bundledPops.isEmpty()) {
+				if (bundledPops == null || bundledPops.isEmpty()) {
 					throw new BillingBadRequestException(String.format("Error! Started calculation of bundled ProductOfferingPrice %s but the 'bundledPopRelationship' is empty!" + pop.getId()));
 				}
 				for(ProductOfferingPrice bundledPop: bundledPops) {
 					prices.add(PriceUtils.calculatePrice(bundledPop,productChars, priceAlterationCalculator));
 					// Set the appliedBillingRateType if not set yet
-					if(appliedBillingRateType==null)
+					if(appliedBillingRateType==null) {
 						appliedBillingRateType=bundledPop.getPriceType();
+					}
 				}
 			}
 		}
@@ -104,8 +111,7 @@ public class BillService implements InitializingBean {
 			taxExcludedAmount.setValue(newTaxExcludedAmount);
 		}
 		
-		logger.info("Bill total amount {} euro", 
-				taxExcludedAmount.getValue());
+		logger.info("Bill total amount {} euro", taxExcludedAmount.getValue());
 		
 		appliedCustomerBillingRate=BillUtils.createAppliedCustomerBillingRate(product, tp, taxExcludedAmount, appliedBillingRateType,tmfApiFactory.getSchemaLocationRelatedParty());
 		
@@ -114,5 +120,42 @@ public class BillService implements InitializingBean {
 
 		return appliedCustomerBillRateList;
 	}
+	
 
+	public List<AppliedCustomerBillingRate> calculatePayPerUse(Product product, TimePeriod tp) throws Exception {
+		List<AppliedCustomerBillingRate> appliedCustomerBillRateList = new ArrayList<AppliedCustomerBillingRate>();
+
+		// Instance of the AppliedCustomerBillingRate generated from inputs parameters
+		AppliedCustomerBillingRate appliedCustomerBillingRate;
+
+		// Bill taxExcludedAmount
+		Money taxExcludedAmount = new Money();
+		taxExcludedAmount.setUnit("EUR");
+		taxExcludedAmount.setValue(getPayPerUse(tp));
+
+		logger.info("Bill pay-per-use total amount {} euro", taxExcludedAmount.getValue());
+		
+		String appliedBillingRateType = "pay-per-use";
+
+		appliedCustomerBillingRate = BillUtils.createAppliedCustomerBillingRate(product, tp, taxExcludedAmount, appliedBillingRateType, tmfApiFactory.getSchemaLocationRelatedParty());
+		
+		// Add the generate appliedCustomerBillingRate to the AppliedCustomerBillingRate list (at the moment only one element is present on the list)
+		appliedCustomerBillRateList.add(appliedCustomerBillingRate);
+
+		return appliedCustomerBillRateList;
+	}
+	
+	
+	// TODO implement method to get PPU value
+	private float getPayPerUse(TimePeriod tp) {
+		
+		Map<String, String> filter = new HashMap<String, String>();
+		filter.put("usageDate.gt", tp.getStartDateTime().toString());
+		filter.put("usageDate.lt", tp.getEndDateTime().toString());
+		
+		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
+		logger.info("Usage found: {}", usages.size());
+		
+		return 1.2f;
+	}
 }

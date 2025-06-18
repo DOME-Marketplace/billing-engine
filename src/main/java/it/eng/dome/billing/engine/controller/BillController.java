@@ -1,5 +1,6 @@
 package it.eng.dome.billing.engine.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -56,45 +57,70 @@ public class BillController implements InitializingBean{
     public ResponseEntity<String> calculateBill(@RequestBody BillingRequestDTO billRequestDTO) throws Throwable {
 		logger.info("Received request for calculating bill...");
 		
-		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList;
+		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList = new ArrayList<AppliedCustomerBillingRate>();
 		Product product;
 		TimePeriod tp;
 		List<ProductPrice> ppList;
-		
+				
 		try {
 			
 			// 1) retrieve the Product, TimePeriod and ProductPrice list from the BillingRequestDTO
-			product=producApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			product = producApis.getProduct(billRequestDTO.getProduct().getId(), null);
 			
-			if(product==null)
+			if (product == null) {
 				throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");
+			}
 			
-			tp=billRequestDTO.getTimePeriod();
-			if(tp==null) 
+			tp = billRequestDTO.getTimePeriod();
+			if (tp == null) {
 				throw new BillingBadRequestException("Missing the instance of TimePeriod in the BillingRequestDTO");
+			}
 			
-			ppList=billRequestDTO.getProductPrice();
-			if(ppList==null)
+			ppList = billRequestDTO.getProductPrice();
+			if (ppList == null) {
 				throw new BillingBadRequestException("Missing the instance of ProductPrice list in the BillingRequestDTO");
+			}
 			
 			logger.info("Product with ID: "+product.getId());
 			logger.info("TimePeriod with startDate: "+tp.getStartDateTime()+" and endDate: "+tp.getEndDateTime());
 			logger.info("ProductPrice list with "+ppList.size()+" element(s)");
 			
 			// 2) calculate the list of the AppliedCustomerBillingRates for the Product, TimePeriod and ProductPrice List
-			appliedCustomerBillingRateList=billService.calculateBill(product,tp, ppList);
 			
-			// 3) return the AppliedCustomerBillingRate
-			return new ResponseEntity<String>(JSON.getGson().toJson(appliedCustomerBillingRateList), HttpStatus.OK);
+			//TODO - choice pay-per-use or recurring
+			if (product.getProductPrice() != null && product.getProductPrice().size() > 0) {
+				if (isPayPerUse(product.getProductPrice().get(0).getPriceType())) {
+					// pay per use
+					appliedCustomerBillingRateList = billService.calculatePayPerUse(product, tp);
+				} else {
+					// all recurring types
+					appliedCustomerBillingRateList = billService.calculateBill(product, tp, ppList);
+				}
+				// 3) return the AppliedCustomerBillingRate
+				return new ResponseEntity<String>(JSON.getGson().toJson(appliedCustomerBillingRateList), HttpStatus.OK);
+			}			
+			
+			throw new BillingBadRequestException("Cannot manage the calculateBill request. ProductPrice is null or empty");
 			 
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Error: {}", e.getMessage());
 			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
 			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
 		}
 	}
     
+    
+    private boolean isPayPerUse(String value) {
+    	String normalized = value
+	            .toLowerCase()
+	            .trim()
+	            .replaceAll("\\s+", "-")
+	            .replace("-", "_");
+    	logger.info("PriceType found: {}", normalized);
+    	
+    	return "pay_per_use".equalsIgnoreCase(normalized);
+    }
  
 
 }

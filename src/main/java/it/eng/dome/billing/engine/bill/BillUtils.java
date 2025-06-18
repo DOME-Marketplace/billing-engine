@@ -52,7 +52,7 @@ public final class BillUtils {
 	
 	public static it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef createAppliedCustomerRateBillingAccount(@NonNull it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef productBillingAccountRef) {
 		
-		 it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef billingAccountRef=new it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef();
+		 it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef billingAccountRef = new it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef();
 		 
 		 billingAccountRef.setId(productBillingAccountRef.getId());
 		 billingAccountRef.setName(productBillingAccountRef.getName());
@@ -70,7 +70,7 @@ public final class BillUtils {
 		AppliedCustomerBillingRate appliedCustomerBillingRate = new AppliedCustomerBillingRate();
 
 		// Bugfix: need to set the Id for validation
-		appliedCustomerBillingRate.setId("bill" + product.getId().replace("urn:ngsi-ld:", "-"));
+		// appliedCustomerBillingRate.setId("bill" + product.getId().replace("urn:ngsi-ld:", "-"));
 
 		// Set appliedCustomerBillingRate.billingAccount
 		if(product.getBillingAccount()==null)
@@ -110,8 +110,8 @@ public final class BillUtils {
 		// Set appliedCustomerBillingRate.relatedParty (if present in the Product)
 		List<RelatedParty> prodRelatedParty=product.getRelatedParty();
 		
-		if(prodRelatedParty!=null) {
-			logger.debug("List of relatedParty from Product - size= "+prodRelatedParty.size());
+		if (prodRelatedParty != null) {
+			logger.debug("List of relatedParty from Product - size {} ", prodRelatedParty.size());
 			
 			for(RelatedParty rp: prodRelatedParty) {
 				it.eng.dome.tmforum.tmf678.v4.model.RelatedParty rpTMF678=createRelatedParty_TMF678(rp);

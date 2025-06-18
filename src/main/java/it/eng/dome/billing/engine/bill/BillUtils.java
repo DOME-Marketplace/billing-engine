@@ -73,8 +73,9 @@ public final class BillUtils {
 		// appliedCustomerBillingRate.setId("bill" + product.getId().replace("urn:ngsi-ld:", "-"));
 
 		// Set appliedCustomerBillingRate.billingAccount
-		if(product.getBillingAccount()==null)
+		if(product.getBillingAccount() == null) {
 			throw new BillingBadRequestException("Billing Account is missing in the product with ID: " + product.getId());
+		}
 		
 		appliedCustomerBillingRate.setBillingAccount(BillUtils.createAppliedCustomerRateBillingAccount(product.getBillingAccount()));
 
@@ -82,7 +83,7 @@ public final class BillUtils {
 		appliedCustomerBillingRate.setDate(OffsetDateTime.now());
 
 		// Set appliedCustomerBillingRate.description
-		appliedCustomerBillingRate.setDescription("Bill for product with ID: " + product.getId() + " TimePeriod " + tp.getStartDateTime() + "/" + tp.getEndDateTime());
+		appliedCustomerBillingRate.setDescription("Generated bill for product " + product.getId() + " with TimePeriod " + tp.getStartDateTime() + "/" + tp.getEndDateTime());
 
 		// Set appliedCustomerBillingRate.isBilled to false because the billingAccount is valorised
 		appliedCustomerBillingRate.setIsBilled(false);

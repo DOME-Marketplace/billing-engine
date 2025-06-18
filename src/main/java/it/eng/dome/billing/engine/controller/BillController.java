@@ -89,7 +89,10 @@ public class BillController implements InitializingBean{
 			
 			//TODO - choice pay-per-use or recurring
 			if (product.getProductPrice() != null && product.getProductPrice().size() > 0) {
-				if (isPayPerUse(product.getProductPrice().get(0).getPriceType())) {
+				String priceType = normalize(product.getProductPrice().get(0).getPriceType()); 
+				logger.info("Billing management for PriceType: {}", priceType);
+				
+				if ("pay_per_use".equalsIgnoreCase(priceType)) {
 					// pay per use
 					appliedCustomerBillingRateList = billService.calculatePayPerUse(product, tp);
 				} else {
@@ -109,18 +112,9 @@ public class BillController implements InitializingBean{
 			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
 		}
 	}
-    
-    
-    private boolean isPayPerUse(String value) {
-    	String normalized = value
-	            .toLowerCase()
-	            .trim()
-	            .replaceAll("\\s+", "-")
-	            .replace("-", "_");
-    	logger.info("PriceType found: {}", normalized);
-    	
-    	return "pay_per_use".equalsIgnoreCase(normalized);
-    }
- 
 
+	private String normalize(String value) {
+		return value.toLowerCase().trim().replaceAll("\\s+", "-").replace("-", "_");
+	}
+   
 }

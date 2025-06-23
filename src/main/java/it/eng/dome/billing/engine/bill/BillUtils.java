@@ -109,7 +109,7 @@ public final class BillUtils {
 		appliedCustomerBillingRate.setAtSchemaLocation(URI.create(schemaLocation));
 		
 		// Set appliedCustomerBillingRate.relatedParty (if present in the Product)
-		List<RelatedParty> prodRelatedParty=product.getRelatedParty();
+		List<RelatedParty> prodRelatedParty = product.getRelatedParty();
 		
 		if (prodRelatedParty != null) {
 			logger.debug("List of relatedParty from Product - size {} ", prodRelatedParty.size());

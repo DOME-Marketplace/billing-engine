@@ -81,9 +81,9 @@ public class BillController implements InitializingBean{
 				throw new BillingBadRequestException("Missing the instance of ProductPrice list in the BillingRequestDTO");
 			}
 			
-			logger.info("Product with ID: "+product.getId());
-			logger.info("TimePeriod with startDate: "+tp.getStartDateTime()+" and endDate: "+tp.getEndDateTime());
-			logger.info("ProductPrice list with "+ppList.size()+" element(s)");
+			logger.info("Product with ID: {}", product.getId());
+			logger.info("TimePeriod with startDate: {} and endDate: {}", tp.getStartDateTime(), tp.getEndDateTime());
+			logger.info("ProductPrice list with {}", ppList.size()+" element(s)");
 			
 			// 2) calculate the list of the AppliedCustomerBillingRates for the Product, TimePeriod and ProductPrice List
 			

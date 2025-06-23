@@ -172,7 +172,9 @@ public class BillService implements InitializingBean {
 				
 				List<UsageCharacteristic> usageCharacteristics = usage.getUsageCharacteristic();
 				for (UsageCharacteristic usageCharacteristic : usageCharacteristics) {
-					usageData.put(usageCharacteristic.getName(), usageCharacteristic.getValue());					
+					if (usageCharacteristic != null) {
+						usageData.put(usageCharacteristic.getName(), usageCharacteristic.getValue());
+					}
 				}
 				
 				List<RatedProductUsage> rates = usage.getRatedProductUsage();

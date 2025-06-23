@@ -176,6 +176,7 @@ public final class TmfApiFactory implements InitializingBean {
 		if (tmf678CustomerBillPath.startsWith("/")) {
 			tmf678CustomerBillPath = UrlPathUtils.removeInitialSlash(tmf678CustomerBillPath);
 		}
+		
 		if (tmf637ProductInventoryPath.startsWith("/")) {
 			tmf637ProductInventoryPath = UrlPathUtils.removeInitialSlash(tmf637ProductInventoryPath);
 		}

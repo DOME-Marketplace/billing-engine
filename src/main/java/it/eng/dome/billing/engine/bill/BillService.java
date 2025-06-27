@@ -78,8 +78,9 @@ public class BillService implements InitializingBean {
 			
 			// 1) retrieves the productOfferingPrice reference from the ProductPrice
 			ProductOfferingPriceRef productOfferingPriceRef = productPrice.getProductOfferingPrice();
-			if(productOfferingPriceRef == null)
+			if(productOfferingPriceRef == null) {
 				throw new BillingBadRequestException("The ProductOfferingPrice reference is missing in the ProductPrice " + productPrice.getName());
+			}
 			
 			// 2) retrieves from the server the ProductOfferingPrice
 			ProductOfferingPrice pop = productOfferingPriceApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
@@ -93,7 +94,7 @@ public class BillService implements InitializingBean {
 					appliedBillingRateType = pop.getPriceType();
 				}
 			} else {
-				logger.info("ProductOfferingPrice: "+pop.getId()+" is bundled");
+				logger.info("ProductOfferingPrice: {}", pop.getId()+" is bundled");
 				
 				List<ProductOfferingPrice> bundledPops = BillUtils.getBundledPops(pop, productOfferingPriceApis);
 				if (bundledPops == null || bundledPops.isEmpty()) {
@@ -114,9 +115,9 @@ public class BillService implements InitializingBean {
 			taxExcludedAmount.setValue(newTaxExcludedAmount);
 		}
 		
-		logger.info("Bill total amount {} euro", taxExcludedAmount.getValue());
+		logger.info("Bill total amount for priceType {}: {} euro", appliedBillingRateType, taxExcludedAmount.getValue());
 		
-		appliedCustomerBillingRate = BillUtils.createAppliedCustomerBillingRate(product, tp, taxExcludedAmount, appliedBillingRateType,tmfApiFactory.getSchemaLocationRelatedParty());
+		appliedCustomerBillingRate = BillUtils.createAppliedCustomerBillingRate(product, tp, taxExcludedAmount, appliedBillingRateType, tmfApiFactory.getSchemaLocationRelatedParty());
 		
 		// Add the generate appliedCustomerBillingRate to the AppliedCustomerBillingRate list (at the moment only one element is present on the list)
 		appliedCustomerBillRateList.add(appliedCustomerBillingRate);
@@ -136,9 +137,8 @@ public class BillService implements InitializingBean {
 		taxExcludedAmount.setUnit("EUR");
 		taxExcludedAmount.setValue(getPayPerUse(product, tp));
 
-		logger.info("Bill pay-per-use total amount {} euro", taxExcludedAmount.getValue());
-		
 		String appliedBillingRateType = "pay-per-use";
+		logger.info("Bill total amount for priceType {}: {} euro", appliedBillingRateType, taxExcludedAmount.getValue());	
 
 		appliedCustomerBillingRate = BillUtils.createAppliedCustomerBillingRate(product, tp, taxExcludedAmount, appliedBillingRateType, tmfApiFactory.getSchemaLocationRelatedParty());
 		
@@ -207,7 +207,7 @@ public class BillService implements InitializingBean {
 		
 		//TODO - details for view can be add in the characteristic of appliedCustomerBillingRate
 		if (amount == 0) {
-			throw new BillingBadRequestException("No pay-per-use amount found!!!!");
+			throw new BillingBadRequestException("No pay-per-use amount found! No match key for: " + usageData.keySet());
 		}
 		return amount;
 	}

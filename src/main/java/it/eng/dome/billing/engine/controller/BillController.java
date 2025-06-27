@@ -83,7 +83,7 @@ public class BillController implements InitializingBean{
 			
 			logger.info("Product with ID: {}", product.getId());
 			logger.info("TimePeriod with startDate: {} and endDate: {}", tp.getStartDateTime(), tp.getEndDateTime());
-			logger.info("ProductPrice list with {}", ppList.size()+" element(s)");
+			logger.info("ProductPrice list with {} element(s)", ppList.size());
 			
 			// 2) calculate the list of the AppliedCustomerBillingRates for the Product, TimePeriod and ProductPrice List
 			

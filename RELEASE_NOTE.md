@@ -2,9 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
-### <code>1.3.0</code> :calendar: 13/06/2025
+### <code>1.3.0</code> :calendar: 10/07/2025
 **Improvements**
 * Add `RelatedParty` to the `AppliedCustomerBillingRate` using the `@schemaLocation`
+* Updated Billing service to manage the pay-per-use use case.
 * Bug fixing.
 
 ### <code>1.2.0</code> :calendar: 03/06/2025

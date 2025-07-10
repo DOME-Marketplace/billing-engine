@@ -1,0 +1,21 @@
+{
+    "id": "urn:ngsi-ld:product-offering-price:3b2cec95-4b14-435d-98ed-2a0794b4132d",
+    "href": "urn:ngsi-ld:product-offering-price:3b2cec95-4b14-435d-98ed-2a0794b4132d",
+    "description": "POP3 to test ppu",
+    "isBundle": false,
+    "lastUpdate": "2025-07-09T16:06:52.724776028Z",
+    "lifecycleStatus": "Launched",
+    "name": "POP3 to test ppu",
+    "priceType": "pay-per-use",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "version": "1.0",
+    "price": {
+        "unit": "EUR",
+        "value": 3.0
+    },
+    "unitOfMeasure": {
+        "amount": 2.0,
+        "units": "DISK_GB_hour"
+    }
+}

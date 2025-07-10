@@ -1,0 +1,35 @@
+{
+	"product": {
+		"id": "urn:ngsi-ld:product:19402bf1-0889-46e5-9f6c-6fc458be024f", 
+		"description": "Test Product for PPU",
+		"isBundle": false,
+		"billingAccount": {
+			"id": "urn:ngsi-ld:billing-account:3bf025cb-1b58-48be-b0ae-bb0967d09d3b",
+			"name": "My Billing Account"
+		}
+	},
+	"timePeriod": {
+		"endDateTime": "2024-12-20T00:16:56.9640635+01:00",
+		"startDateTime": "2024-12-20T00:16:56.962064+01:00"
+	},
+	"productPrice": [
+		{
+			"priceType": "pay-per-use",
+			"productOfferingPrice": {
+				"id": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b"
+			}
+		},
+		{
+			"priceType": "pay-per-use",
+			"productOfferingPrice": {
+				"id": "urn:ngsi-ld:product-offering-price:a62c83f4-3aeb-4cba-a42c-28739cf2b2f3"
+			}
+		},
+		{
+			"priceType": "pay-per-use",
+			"productOfferingPrice": {
+				"id": "urn:ngsi-ld:product-offering-price:3b2cec95-4b14-435d-98ed-2a0794b4132d"
+			}
+		}
+	]
+}

@@ -126,7 +126,7 @@ public class BillService implements InitializingBean {
 	}
 	
 
-	public List<AppliedCustomerBillingRate> calculatePayPerUse(Product product, TimePeriod tp) throws Exception {
+	public List<AppliedCustomerBillingRate> calculateBillForPayPerUse(Product product, TimePeriod tp, List<ProductPrice> ppList) throws Exception {
 		List<AppliedCustomerBillingRate> appliedCustomerBillRateList = new ArrayList<AppliedCustomerBillingRate>();
 
 		// Instance of the AppliedCustomerBillingRate generated from inputs parameters
@@ -135,7 +135,7 @@ public class BillService implements InitializingBean {
 		// Bill taxExcludedAmount
 		Money taxExcludedAmount = new Money();
 		taxExcludedAmount.setUnit("EUR");
-		taxExcludedAmount.setValue(getPayPerUse(product, tp));
+		taxExcludedAmount.setValue(getPayPerUseAmount(product, tp, ppList));
 
 		String appliedBillingRateType = "pay-per-use";
 		logger.info("Bill total amount for priceType {}: {} euro", appliedBillingRateType, taxExcludedAmount.getValue());	
@@ -149,66 +149,64 @@ public class BillService implements InitializingBean {
 	}
 	
 	
-	// TODO implement method to get PPU value
-	private float getPayPerUse(Product product, TimePeriod tp) {
+	// Method to get PPU amount to pay 
+	private float getPayPerUseAmount(Product product, TimePeriod tp,  List<ProductPrice> ppList) {
 		
+		float amount = 0;
+		List<Price> usagePrices=new ArrayList<Price>();
+		
+		// add filter for usages 
+		// Get all Usage related to the product and within the TimePerios
 		Map<String, String> filter = new HashMap<String, String>();
-		//filter.put("usageDate.gt", tp.getStartDateTime().toString());
-		//filter.put("usageDate.lt", tp.getEndDateTime().toString());
-		
+		filter.put("ratedProductUsage.productRef", product.getId());
+		filter.put("usageDate.lt", tp.getEndDateTime().toString());
+		filter.put("usageDate.gt", tp.getStartDateTime().toString());
+	
+		//TODO: TO FIX - due to the current bug in TMForum APIs
 		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
 		logger.info("Usage found: {}", usages.size());
 		
+		// TODO: TO REMOVE is only for test purposes
+		//Usage usageA=BillUtils.getUsageExampleA();
+		//Usage usageB=BillUtils.getUsageExampleB();
+		//List<Usage> usages=new ArrayList<Usage>();
+		//usages.add(usageA);
+		//usages.add(usageB);
 		
-		Map<String, Object> usageData = new HashMap<String, Object>();
-		float amount = 0;
+		// Create the Map with key the usageCharacteristic.name and value a list of UsageCharacteritic
+		Map<String, List<UsageCharacteristic>> usageData= BillUtils.createUsageDataMap(usages);
 		
-		//TODO - improvement this method
-		for (Usage usage : usages) {
-			if (usage.getRatedProductUsage() != null && usage.getRatedProductUsage().size() > 0) {
+		logger.info("Created UsageDataMap with keys "+usageData.keySet().toString());
+		
+		if (ppList != null && !ppList.isEmpty()) {	
+			for (ProductPrice pprice : ppList) {
+				// Retrieve ProductOfferingPrice
+				if(pprice.getProductOfferingPrice()==null)
+					throw new BillingBadRequestException(String.format("Error! Started calculation of the pay-per-use bill for the product %s but the ProductOfferingOPrice of a price component is null!",product.getId()));
 				
-				List<UsageCharacteristic> usageCharacteristics = usage.getUsageCharacteristic();
-				for (UsageCharacteristic usageCharacteristic : usageCharacteristics) {
-					if (usageCharacteristic != null) {
-						usageData.put(usageCharacteristic.getName(), usageCharacteristic.getValue());
-					}
-				}
+				String popId=pprice.getProductOfferingPrice().getId();
+				ProductOfferingPrice pop=productOfferingPriceApis.getProductOfferingPrice(popId, null);
 				
-			} else {
-				logger.warn("RatedProductUsage cannot be null for usage: {}", usage.getId());
+				// Retrieve the metric from the unitOfMeasure of the POP
+				String metric=pop.getUnitOfMeasure().getUnits();
+				logger.debug("UnitOfMeasure of POP {}: units {}, value {}",popId, pop.getUnitOfMeasure().getUnits(), pop.getUnitOfMeasure().getAmount());
+				
+				List<UsageCharacteristic> usageChForMetric=usageData.get(metric);
+				logger.debug("Size of the list of UsageCharacteristic for metric {}: {}",metric,usageChForMetric.size());
+				
+				for(UsageCharacteristic usageCh:usageChForMetric) {
+					Price usageChPrice= PriceUtils.calculatePriceForUsageCharacteristic(pop, usageCh);
+					usagePrices.add(usageChPrice);
+				}	
 			}
 		}
 		
-		if (product.getProductPrice() != null) {
-			List<ProductPrice> pprices = product.getProductPrice();
-			if (pprices != null && !pprices.isEmpty()) {
-				
-				for (ProductPrice pprice : pprices) {
-					// retrieve price
-					String key = pprice.getName();
-					
-					if (usageData.containsKey(key)) {
-											
-						//FIXME - DutyFreeAmount = NULL in the usage API
-						Float dutyFreeAmount = (float) pprice.getPrice().getTaxRate();
-						//Float dutyFreeAmount = (float) pprice.getPrice().getTaxIncludedAmount().getValue();
-						logger.info("DutyFreeAmount: {}", dutyFreeAmount);
-						
-						Object value = usageData.get(key);
-						float price = Float.valueOf(value.toString()) ;
-						logger.info("Price: {}", price);
-
-						amount +=  dutyFreeAmount * price;
-					}
-					
-				}
-			}
+		for(Price price:usagePrices) {
+			amount += price.getDutyFreeAmount().getValue();
 		}
 		
-		//TODO - details for view can be add in the characteristic of appliedCustomerBillingRate
-		if (amount == 0) {
-			throw new BillingBadRequestException("No pay-per-use amount found! No match key for: " + usageData.keySet());
-		}
+		logger.info("Total amount of usageData for the Product '{}' in the TimePeriod '{}'-'{}': ", product.getId(), tp.getStartDateTime(), tp.getEndDateTime(), amount);
+		
 		return amount;
 	}
 }

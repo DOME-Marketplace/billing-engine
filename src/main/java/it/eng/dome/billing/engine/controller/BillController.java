@@ -56,10 +56,10 @@ public class BillController implements InitializingBean{
     public ResponseEntity<String> calculateBill(@RequestBody BillingRequestDTO billRequestDTO) throws Throwable {
 		logger.info("Received request for calculating bill...");
 		
-		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList = null;
-		Product product = null;
-		TimePeriod tp = null;
-		List<ProductPrice> ppList = null;
+		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList;
+		Product product;
+		TimePeriod tp;
+		List<ProductPrice> ppList;
 				
 		try {
 			

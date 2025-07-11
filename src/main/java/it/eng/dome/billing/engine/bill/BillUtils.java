@@ -215,8 +215,7 @@ public final class BillUtils {
 			usageA.setId("usageA");
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error: {}", e.getMessage());
 		}
 			
 		return usageA;
@@ -234,8 +233,7 @@ public final class BillUtils {
 			usageB.setId("usageB");
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error: {}", e.getMessage());
 		}
 		
 		return usageB;

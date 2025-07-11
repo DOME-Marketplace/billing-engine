@@ -1,6 +1,5 @@
 package it.eng.dome.billing.engine.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -57,10 +56,10 @@ public class BillController implements InitializingBean{
     public ResponseEntity<String> calculateBill(@RequestBody BillingRequestDTO billRequestDTO) throws Throwable {
 		logger.info("Received request for calculating bill...");
 		
-		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList = new ArrayList<AppliedCustomerBillingRate>();
-		Product product;
-		TimePeriod tp;
-		List<ProductPrice> ppList;
+		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList = null;
+		Product product = null;
+		TimePeriod tp = null;
+		List<ProductPrice> ppList = null;
 				
 		try {
 			
@@ -88,7 +87,7 @@ public class BillController implements InitializingBean{
 			// 2) calculate the list of the AppliedCustomerBillingRates for the Product, TimePeriod and ProductPrice List
 			
 			//TODO - choice pay-per-use or recurring
-			if (ppList!=null && ppList.size() > 0) {
+			if (ppList != null && !ppList.isEmpty()) {
 				String priceType = normalize(ppList.get(0).getPriceType()); 
 				logger.info("Billing management for PriceType: {}", priceType);
 				

@@ -2,14 +2,14 @@
 
 **Release Notes** of the *Billing Engine* software:
 
-### <code>1.3.0</code> :calendar: 10/07/2025
+### <code>1.3.0</code> :calendar: 14/07/2025
 **Improvements**
 * Add `RelatedParty` to the `AppliedCustomerBillingRate` using the `@schemaLocation`
 * Updated *Billing Service* to manage the `pay-per-use` use case.
 * Display `ENV VARs` in the Listener at beginning.
 
 **BugFixing**
-* Solved bug fix in the calculate billing.
+* Solved *bug fix* in the bill calculate.
 
 ### <code>1.2.0</code> :calendar: 03/06/2025
 **Improvements**

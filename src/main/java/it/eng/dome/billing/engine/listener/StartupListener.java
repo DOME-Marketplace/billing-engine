@@ -93,7 +93,7 @@ public class StartupListener implements ApplicationListener<ApplicationReadyEven
             }
         }
 
-        logger.debug("Displaying ENV VARs for Billing Scheduler:");
+        logger.debug("Displaying ENV VARs for Billing Engine:");
         for (Map.Entry<String, String> entry : vars.entrySet()) {
             logger.debug("- {} = {}", entry.getKey(), entry.getValue());
         }

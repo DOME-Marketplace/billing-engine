@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import it.eng.dome.brokerage.billing.utils.UrlPathUtils;
+
 
 @Component(value = "tmfApiFactory")
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -38,59 +40,107 @@ public final class TmfApiFactory implements InitializingBean {
 
 	@Value( "${tmforumapi.tmf622_ordering_path}" )
 	private String tmf622ProductOrderingPath;
+	
+	@Value( "${tmforumapi.tmf635_usage_path}" )
+	private String tmf635UsageManagementPath;
 
 	@Value( "${tmforumapi.tmf678_billing_path}" )
 	private String tmf678CustomerBillPath;
 	
+	@Value( "${tmforumapi.tmf637_billing_path}" )
+	private String tmf637ProductInventoryPath;
+	
+	@Value( "${schema.schemaLocation_relatedParty}" )
+	private String schemaLocationRelatedParty;
+	
 	private it.eng.dome.tmforum.tmf620.v4.ApiClient apiClientTmf620;
 	private it.eng.dome.tmforum.tmf622.v4.ApiClient apiClientTmf622;
 	private it.eng.dome.tmforum.tmf678.v4.ApiClient apiClientTmf678;
+	private it.eng.dome.tmforum.tmf635.v4.ApiClient apiClientTmf635;
+	private it.eng.dome.tmforum.tmf637.v4.ApiClient apiClientTmf637;
 	
-
 	
 	public it.eng.dome.tmforum.tmf620.v4.ApiClient getTMF620ProductCatalogApiClient() {
 		if (apiClientTmf620 == null) {
 			apiClientTmf620 = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs
-				apiClientTmf620.setBasePath(tmfEndpoint + "/" + tmf620ProductCatalogPath);
-			}else {
-				// use direct access on specific TMForum APIs software	
-				apiClientTmf620.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-catalog" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
 			}
-			log.debug("Invoke Product Catalog API at endpoint: " + apiClientTmf620.getBasePath());
+			
+			apiClientTmf620.setBasePath(basePath + "/" + tmf620ProductCatalogPath);
+			log.debug("Invoke Catalog API at endpoint: " + apiClientTmf620.getBasePath());			
 		}
+		
 		return apiClientTmf620;
 	}	
 	
-	public it.eng.dome.tmforum.tmf622.v4.ApiClient getTMF622ProductOrderingApiClient() {
+	public it.eng.dome.tmforum.tmf622.v4.ApiClient getTMF622ProductOrderingApiClient() {	
 		if (apiClientTmf622 == null) {
-			apiClientTmf622 = it.eng.dome.tmforum.tmf622.v4.Configuration.getDefaultApiClient();
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs
-				apiClientTmf622.setBasePath(tmfEndpoint + "/" + tmf622ProductOrderingPath);
-			}else {
-				// use direct access on specific TMForum APIs software	
-				apiClientTmf622.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "product-ordering-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
-			}		
+			apiClientTmf622 = it.eng.dome.tmforum.tmf622.v4.Configuration.getDefaultApiClient(); 
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-ordering-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf622.setBasePath(basePath + "/" + tmf637ProductInventoryPath);
 			log.debug("Invoke Product Ordering API at endpoint: " + apiClientTmf622.getBasePath());
 		}
+		
 		return apiClientTmf622;
 	}
 	
+	public it.eng.dome.tmforum.tmf635.v4.ApiClient getTMF635UsageManagementApiClient() {	
+		if (apiClientTmf635 == null) {
+			apiClientTmf635 = it.eng.dome.tmforum.tmf635.v4.Configuration.getDefaultApiClient(); 
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "usage-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf635.setBasePath(basePath + "/" + tmf635UsageManagementPath);
+			log.debug("Invoke Product Ordering API at endpoint: " + apiClientTmf635.getBasePath());
+		}
+		
+		return apiClientTmf635;
+	}
+	
 	public it.eng.dome.tmforum.tmf678.v4.ApiClient getTMF678CustomerBillApiClient() {
-		if (apiClientTmf678 == null) {
+		if (apiClientTmf678 == null) { 
 			apiClientTmf678 = it.eng.dome.tmforum.tmf678.v4.Configuration.getDefaultApiClient();
-			if (tmfEnvoy) {
-				// usage of envoyProxy to access on TMForum APIs
-				apiClientTmf678.setBasePath(tmfEndpoint + "/" + tmf678CustomerBillPath);
-			}else {
-				// use direct access on specific TMForum APIs software	
-				apiClientTmf678.setBasePath(tmfEndpoint + TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort);		
-			}		
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "customer-bill-management" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf678.setBasePath(basePath + "/" + tmf678CustomerBillPath);
 			log.debug("Invoke Customer Billing API at endpoint: " + apiClientTmf678.getBasePath());
 		}
 		return apiClientTmf678;
+	}
+	
+	public it.eng.dome.tmforum.tmf637.v4.ApiClient getTMF637ProductInventoryApiClient() {
+		if (apiClientTmf637 == null) {
+			apiClientTmf637 = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient(); 
+			
+			String basePath = tmfEndpoint;
+			if (!tmfEnvoy) { // no envoy specific path
+				basePath += TMF_ENDPOINT_CONCAT_PATH + "product-inventory" + "." + tmfNamespace + "." + tmfPostfix + ":" + tmfPort;
+			}
+			
+			apiClientTmf637.setBasePath(basePath + "/" + tmf637ProductInventoryPath);
+			log.debug("Invoke Product Inventory API at endpoint: " + apiClientTmf637.getBasePath());
+		}
+		
+		return apiClientTmf637;
+	}
+	
+	public String getSchemaLocationRelatedParty() {
+		return schemaLocationRelatedParty;
 	}
 
 	
@@ -108,37 +158,28 @@ public final class TmfApiFactory implements InitializingBean {
 		Assert.state(!StringUtils.isBlank(tmf620ProductCatalogPath), "Billing Engine not properly configured. tmf620_catalog_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf622ProductOrderingPath), "Billing Engine not properly configured. tmf622_ordering_path property has no value.");
 		Assert.state(!StringUtils.isBlank(tmf678CustomerBillPath), "Billing Engine not properly configured. tmf632PartyManagementPath property has no value.");
-			
+		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Engine not properly configured. tmf637ProductInventoryPath property has no value.");
+		Assert.state(!StringUtils.isBlank(tmf637ProductInventoryPath), "Billing Engine not properly configured. schemaLocation_relatedParty property has no value");
+		
 		if (tmfEndpoint.endsWith("/")) {
-			tmfEndpoint = removeFinalSlash(tmfEndpoint);		
+			tmfEndpoint = UrlPathUtils.removeFinalSlash(tmfEndpoint);		
 		}
 		
 		if (tmf620ProductCatalogPath.startsWith("/")) {
-			tmf620ProductCatalogPath = removeInitialSlash(tmf620ProductCatalogPath);
+			tmf620ProductCatalogPath = UrlPathUtils.removeInitialSlash(tmf620ProductCatalogPath);
 		}
 		
 		if (tmf622ProductOrderingPath.startsWith("/")) {
-			tmf622ProductOrderingPath = removeInitialSlash(tmf622ProductOrderingPath);
+			tmf622ProductOrderingPath = UrlPathUtils.removeInitialSlash(tmf622ProductOrderingPath);
 		}
 		
 		if (tmf678CustomerBillPath.startsWith("/")) {
-			tmf678CustomerBillPath = removeInitialSlash(tmf678CustomerBillPath);
+			tmf678CustomerBillPath = UrlPathUtils.removeInitialSlash(tmf678CustomerBillPath);
+		}
+		
+		if (tmf637ProductInventoryPath.startsWith("/")) {
+			tmf637ProductInventoryPath = UrlPathUtils.removeInitialSlash(tmf637ProductInventoryPath);
 		}
 	}
-	
-	private String removeFinalSlash(String s) {
-		String path = s;
-		while (path.endsWith("/"))
-			path = path.substring(0, path.length() - 1);
 
-		return path;
-	}
-	
-	private String removeInitialSlash(String s) {
-		String path = s;
-		while (path.startsWith("/")) {
-			path = path.substring(1);
-		}				
-		return path;
-	}	
 }

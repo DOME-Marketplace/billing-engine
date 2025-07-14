@@ -21,6 +21,7 @@ import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
+import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Characteristic;
 import lombok.NonNull;
 
@@ -220,6 +221,28 @@ public final class PriceUtils {
 		chPrice.setTaxIncludedAmount(null);
 		
 		return chPrice;
+	}
+	
+	public static Price calculatePriceForUsageCharacteristic(ProductOfferingPrice pop, UsageCharacteristic usageCh) {
+		
+		logger.debug("Calculating price for Usage Characteristic with id '{}' [name:'{}' value: '{}']", usageCh.getId(), usageCh.getName(), usageCh.getValue());
+		
+		final Price usageChPrice = new Price();
+		EuroMoney usageChAmount;
+		final String usageChName = usageCh.getName();
+		final Double usageChValue = Double.parseDouble(usageCh.getValue().toString());
+		
+		final Quantity unitOfMeasure = pop.getUnitOfMeasure();
+		usageChAmount = new EuroMoney(((pop.getPrice().getValue() * usageChValue) / unitOfMeasure.getAmount()));
+		logger.info("Price of UsageCharacteristic '{}' with id '{}' [quantity: {}, price: '{}' per '{} {}'] = {} euro", 
+					usageChName, usageCh.getId(), usageChValue,
+					pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), usageChAmount.getAmount());
+
+
+		usageChPrice.setDutyFreeAmount(usageChAmount.toMoney());
+		usageChPrice.setTaxIncludedAmount(null);
+		
+		return usageChPrice;
 	}
 	
 }

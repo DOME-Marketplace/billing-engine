@@ -12,9 +12,8 @@ import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.tmforum.tmf620.v4.ApiClient;
+import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
-import it.eng.dome.tmforum.tmf620.v4.api.ProductOfferingPriceApi;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPriceRelationship;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
@@ -33,12 +32,11 @@ public class PriceAlterationCalculator implements InitializingBean {
 	@Autowired
 	private PriceAlterationFactory priceAlterationFactory;
 	
-	private ProductOfferingPriceApi popApi;
+	private ProductOfferingPriceApis productOfferingPriceApis;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final ApiClient apiClient = tmfApiFactory.getTMF620ProductCatalogApiClient();
-	    popApi = new ProductOfferingPriceApi(apiClient);
+		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 	}
 	
 	/**
@@ -58,7 +56,7 @@ public class PriceAlterationCalculator implements InitializingBean {
 		// loops for all the alterations
 		for (ProductOfferingPriceRelationship popR : pop.getPopRelationship()) {
 			// retrieve pops from server
-			alterationPOP = popApi.retrieveProductOfferingPrice(popR.getId(), null);
+			alterationPOP = productOfferingPriceApis.getProductOfferingPrice(popR.getId(), null);
 			
 			// to be used, the alteration must be active
 			if (!PriceUtils.isActive(alterationPOP))
@@ -88,7 +86,7 @@ public class PriceAlterationCalculator implements InitializingBean {
 		// loops for all the alterations
 		for (ProductOfferingPriceRelationship popR : pop.getPopRelationship()) {
 			// retrieve pops from server
-			alterationPOP = popApi.retrieveProductOfferingPrice(popR.getId(), null);
+			alterationPOP = productOfferingPriceApis.getProductOfferingPrice(popR.getId(), null);
 			
 			// to be used, the alteration must be active
 			if (!PriceUtils.isActive(alterationPOP))

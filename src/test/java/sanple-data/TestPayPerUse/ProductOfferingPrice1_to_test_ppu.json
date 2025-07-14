@@ -1,0 +1,21 @@
+{
+    "id": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+    "href": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+    "description": "POP1 to test ppu",
+    "isBundle": false,
+    "lastUpdate": "2025-07-09T16:05:43.975791084Z",
+    "lifecycleStatus": "Launched",
+    "name": "POP1 to test ppu",
+    "priceType": "pay-per-use",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "version": "1.0",
+    "price": {
+        "unit": "EUR",
+        "value": 2.0
+    },
+    "unitOfMeasure": {
+        "amount": 1.0,
+        "units": "CORE_hour"
+    }
+}

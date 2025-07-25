@@ -86,18 +86,10 @@ public class BillController implements InitializingBean{
 			
 			// 2) calculate the list of the AppliedCustomerBillingRates for the Product, TimePeriod and ProductPrice List
 			
-			//TODO - choice pay-per-use or recurring
 			if (ppList != null && !ppList.isEmpty()) {
-				String priceType = normalize(ppList.get(0).getPriceType()); 
-				logger.info("Billing management for PriceType: {}", priceType);
 				
-				if ("pay_per_use".equalsIgnoreCase(priceType)) {
-					// pay per use
-					appliedCustomerBillingRateList = billService.calculateBillForPayPerUse(product, tp, ppList);
-				} else {
-					// all recurring types
-					appliedCustomerBillingRateList = billService.calculateBill(product, tp, ppList);
-				}
+				appliedCustomerBillingRateList = billService.calculateBill(product, tp, ppList);
+				
 				// 3) return the AppliedCustomerBillingRate
 				return new ResponseEntity<String>(JSON.getGson().toJson(appliedCustomerBillingRateList), HttpStatus.OK);
 			}			

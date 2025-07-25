@@ -1,17 +1,21 @@
 package it.eng.dome.billing.engine.price;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+import it.eng.dome.billing.engine.bill.BillUtils;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
+import it.eng.dome.billing.engine.utils.BillingPriceType;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationCharacteristicValueUse;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
@@ -21,6 +25,7 @@ import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
+import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Characteristic;
 import lombok.NonNull;
@@ -97,7 +102,7 @@ public final class PriceUtils {
 		return orderPrice.getPrice().getDutyFreeAmount().getValue();
 	}
 	
-	public static OrderPrice calculatePrice(@NonNull ProductOfferingPrice pop, @NonNull ProductOrderItem orderItem, @NonNull PriceAlterationCalculator pac) throws Exception{
+	public static OrderPrice calculateOrderPrice(@NonNull ProductOfferingPrice pop, @NonNull ProductOrderItem orderItem, @NonNull PriceAlterationCalculator pac) throws Exception{
 		OrderPrice orderPrice=new OrderPrice();
 	    final Price itemPrice = new Price();
 	    EuroMoney euro = new EuroMoney(pop.getPrice().getValue() * orderItem.getQuantity());
@@ -105,14 +110,66 @@ public final class PriceUtils {
 		itemPrice.setTaxIncludedAmount(null);
 		orderPrice.setName(pop.getName());
 		orderPrice.setDescription(pop.getDescription());
-		orderPrice.setPriceType(pop.getPriceType());
-		if(!("one time".equalsIgnoreCase(pop.getPriceType()))&& !("one-time".equalsIgnoreCase(pop.getPriceType()))) {
+		String priceTypeNormalized=BillingPriceType.normalize(pop.getPriceType());
+		orderPrice.setPriceType(priceTypeNormalized);
+		//if(!("one time".equalsIgnoreCase(pop.getPriceType()))&& !("one-time".equalsIgnoreCase(pop.getPriceType()))) {
+		if(!priceTypeNormalized.equalsIgnoreCase(BillingPriceType.ONE_TIME.getNormalizedKey())) {
 			orderPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodLength()+" "+pop.getRecurringChargePeriodType());
 		}
 		orderPrice.setPrice(itemPrice);
 						
 		logger.info("Price of item '{}': [quantity: {}, price: '{}'] = {} euro", 
 			orderItem.getId(), orderItem.getQuantity(), pop.getPrice().getValue(), euro.getAmount());
+						
+		// apply price alterations
+		if (PriceUtils.hasRelationships(pop)) {
+			pac.applyAlterations(orderItem, pop, orderPrice);
+							
+			logger.info("Price of item '{}' after alterations = {} euro", 
+					orderItem.getId(), PriceUtils.getAlteredDutyFreePrice(orderPrice));
+		}			
+		
+		return orderPrice;
+	}
+	
+	public static OrderPrice calculateOrderPriceForUsageCharacterisic(@NonNull ProductOfferingPrice pop, @NonNull ProductOrderItem orderItem, @NonNull PriceAlterationCalculator pac, List<UsageCharacteristic> usageChForMetric) throws Exception{
+		OrderPrice orderPrice=new OrderPrice();
+	    final Price itemPrice = new Price();
+	    
+	    List<Price> usagePrices=new ArrayList<Price>();
+	    float amount = 0;
+	    int quantity=1; 
+	    
+	    // If the quantity is set in the order item otherwise by default is set to 1 
+	    if(orderItem.getQuantity()!=null && orderItem.getQuantity()!=0)
+	    	quantity=orderItem.getQuantity();  	
+		
+		for(UsageCharacteristic usageCh:usageChForMetric) {
+			Price usageChPrice= PriceUtils.calculatePriceForUsageCharacteristic(pop, usageCh);
+			usagePrices.add(usageChPrice);
+		}	
+		
+		for(Price price:usagePrices) {
+			amount += price.getDutyFreeAmount().getValue();
+		}
+		
+		logger.debug("Total order item amount: "+amount);
+	    
+	    EuroMoney euro = new EuroMoney(amount * quantity);
+	    
+	    logger.debug("Total order item amount for order quantity {}: {}", quantity,euro.getAmount()); 
+	    
+		itemPrice.setDutyFreeAmount(euro.toMoney());
+		itemPrice.setTaxIncludedAmount(null);
+		orderPrice.setName(pop.getName());
+		orderPrice.setDescription(pop.getDescription());
+		orderPrice.setPriceType(pop.getPriceType());
+		
+		orderPrice.setRecurringChargePeriod(pop.getRecurringChargePeriodLength()+" "+pop.getRecurringChargePeriodType());
+		orderPrice.setPrice(itemPrice);
+						
+		logger.info("Price of item '{}': [quantity: {}, price: '{}'] = {} euro with {} simulated usage data", 
+			orderItem.getId(), quantity, pop.getPrice().getValue(), euro.getAmount(), usageChForMetric.size());
 						
 		// apply price alterations
 		if (PriceUtils.hasRelationships(pop)) {
@@ -195,6 +252,52 @@ public final class PriceUtils {
 		return itemPrice;
 	}
 	
+
+	public static Price calculatePriceForPayPerUse(@NonNull ProductOfferingPrice pop, @NonNull Map<String, List<UsageCharacteristic>> usageData,
+			@NonNull PriceAlterationCalculator pac) throws Exception{
+		
+		Price itemPrice = new Price();
+		float amount=0;
+
+		// Retrieve the metric from the unitOfMeasure of the POP
+		if(pop.getUnitOfMeasure()==null)
+			throw new BillingBadRequestException("The unitOfMeasure is missing in the ProductOfferingPrice but it is required for the pay-per-use price type");
+		
+		String metric=pop.getUnitOfMeasure().getUnits();
+		logger.debug("UnitOfMeasure of POP {}: units {}, value {}",pop.getId(), pop.getUnitOfMeasure().getUnits(), pop.getUnitOfMeasure().getAmount());
+		
+		List<UsageCharacteristic> usageChForMetric= BillUtils.getUsageCharacteristicsForMetric(usageData, metric);
+		
+		if(usageChForMetric!=null && !usageChForMetric.isEmpty()) {
+			logger.debug("Size of the list of UsageCharacteristic for metric {}: {}",metric,usageChForMetric.size());
+			
+			for(UsageCharacteristic usageCh:usageChForMetric) {
+				Price usageChPrice= PriceUtils.calculatePriceForUsageCharacteristic(pop, usageCh);
+				amount+=usageChPrice.getDutyFreeAmount().getValue();
+			}
+		}
+		else {
+			logger.warn("No usage data fount for the metric '{}' in the TimePeriod [{}-{}]",metric);
+		}
+		
+		EuroMoney euro = new EuroMoney(amount);
+		itemPrice.setDutyFreeAmount(euro.toMoney());
+		itemPrice.setTaxIncludedAmount(null);
+		
+		logger.info("Price of ProductOfferingPrice '{}' = {} euro", pop.getId(), euro.getAmount());
+		
+		// apply price alterations
+		if (PriceUtils.hasRelationships(pop)) {
+			Price alteretedPrice=pac.applyAlterations(pop, itemPrice);
+											
+			logger.info("Price of ProductOfferingPrice '{}' after alterations = {} euro", 
+					pop.getId(), alteretedPrice.getDutyFreeAmount());	
+		
+			return alteretedPrice;
+		}
+	
+		return itemPrice;
+	}
 	
 	protected static Price calculatePriceForCharacteristic(ProductOfferingPrice pop, Characteristic ch) {
 		
@@ -225,7 +328,7 @@ public final class PriceUtils {
 	
 	public static Price calculatePriceForUsageCharacteristic(ProductOfferingPrice pop, UsageCharacteristic usageCh) {
 		
-		logger.debug("Calculating price for Usage Characteristic with id '{}' [name:'{}' value: '{}']", usageCh.getId(), usageCh.getName(), usageCh.getValue());
+		logger.debug("Calculating price for Usage Characteristic with [name:'{}' value: '{}']", usageCh.getName(), usageCh.getValue());
 		
 		final Price usageChPrice = new Price();
 		EuroMoney usageChAmount;
@@ -234,8 +337,8 @@ public final class PriceUtils {
 		
 		final Quantity unitOfMeasure = pop.getUnitOfMeasure();
 		usageChAmount = new EuroMoney(((pop.getPrice().getValue() * usageChValue) / unitOfMeasure.getAmount()));
-		logger.info("Price of UsageCharacteristic '{}' with id '{}' [quantity: {}, price: '{}' per '{} {}'] = {} euro", 
-					usageChName, usageCh.getId(), usageChValue,
+		logger.info("Price of UsageCharacteristic '{}' with [quantity: '{}', price: '{}' per '{} {}'] = {} euro", 
+					usageChName, usageChValue,
 					pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), usageChAmount.getAmount());
 
 
@@ -243,6 +346,16 @@ public final class PriceUtils {
 		usageChPrice.setTaxIncludedAmount(null);
 		
 		return usageChPrice;
+	}
+	
+	public static List<Price> calculatePriceForUsageCharacteristic(@NonNull ProductOfferingPrice pop, @NonNull List<UsageCharacteristic> usageChs){
+		List<Price> prices=new ArrayList<Price>();
+		
+		for(UsageCharacteristic usageCh:usageChs) {
+			Price usageChPrice= PriceUtils.calculatePriceForUsageCharacteristic(pop, usageCh);
+			prices.add(usageChPrice);
+		}
+		return prices;
 	}
 	
 }

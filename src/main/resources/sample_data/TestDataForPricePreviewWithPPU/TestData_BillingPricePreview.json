@@ -1,0 +1,316 @@
+# product-offering-price one-time
+{
+	"id": "urn:ngsi-ld:product-offering-price:d557e90c-f85d-472d-a403-5ba66946d02a",
+	"href": "urn:ngsi-ld:product-offering-price:d557e90c-f85d-472d-a403-5ba66946d02a",
+	"description": "POP one-time",
+	"lastUpdate": "2025-02-13T11:09:28.205744513Z",
+	"lifecycleStatus": "Active",
+	"name": "Initial",
+	"priceType": "one time",
+	"price": {
+		"unit": "EUR",
+		"value": 100.0
+	},
+	"validFor": {
+		"startDateTime": "2025-01-31T13:22:55.517Z"
+	}
+}
+
+# product-offering-price recurring prepaid 1 month
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:326663a1-e2d6-4cf9-b3fd-0856ced48e5c",
+    "href": "urn:ngsi-ld:product-offering-price:326663a1-e2d6-4cf9-b3fd-0856ced48e5c",
+    "description": "POP recurring-prepaid 1 month",
+    "isBundle": false,
+    "lastUpdate": "2025-02-11T13:01:33.989412039Z",
+    "lifecycleStatus": "active",
+    "name": "Price test bill - recurring-prepaid 1 month",
+    "priceType": "recurring-prepaid",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "price": {
+        "unit": "EUR",
+        "value": 10.0
+    },
+	"validFor": {
+		"startDateTime": "2025-01-31T13:22:55.517Z"
+	}
+}
+
+# product-offering-price discount
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:7068dc4f-f114-482c-b3fa-81620545ed94",
+    "href": "urn:ngsi-ld:product-offering-price:7068dc4f-f114-482c-b3fa-81620545ed94",
+    "description": "Six months 50% special price",
+    "isBundle": false,
+    "lastUpdate": "2025-02-11T13:36:32.311171635Z",
+    "lifecycleStatus": "Active",
+    "name": "Six months 50% special price",
+    "percentage": 50.0,
+    "priceType": "discount",
+    "version": "1.0",
+    "productOfferingTerm": [
+        {
+            "duration": {
+                "amount": 6,
+                "units": "month"
+            }
+        }
+    ]
+}
+
+# product-offering-price recurring prepaid discount
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:3cf9ad8e-89ed-4bbe-ad57-70c35f2cc749",
+    "href": "urn:ngsi-ld:product-offering-price:3cf9ad8e-89ed-4bbe-ad57-70c35f2cc749",
+    "description": "POP recurring-prepaid 1 month discount",
+    "isBundle": false,
+    "lastUpdate": "2025-02-11T14:16:26.976324846Z",
+    "lifecycleStatus": "Active",
+    "name": "Price test bill - recurring-prepaid 1 month discount",
+    "priceType": "recurring-prepaid",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "version": "1.0",
+    "popRelationship": [
+        {
+            "id": "urn:ngsi-ld:product-offering-price:7068dc4f-f114-482c-b3fa-81620545ed94",
+            "href": "urn:ngsi-ld:product-offering-price:7068dc4f-f114-482c-b3fa-81620545ed94",
+            "relationshipType": "discount"
+        }
+    ],
+    "price": {
+        "unit": "EUR",
+        "value": 30.0
+    }
+}
+
+# product-offering-price pay-per-use 1 month (VM1)
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+    "href": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+    "description": "POP1 to test ppu",
+    "isBundle": false,
+    "lastUpdate": "2025-07-09T16:05:43.975791084Z",
+    "lifecycleStatus": "Launched",
+    "name": "POP1 to test ppu",
+    "priceType": "pay-per-use",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "version": "1.0",
+    "price": {
+        "unit": "EUR",
+        "value": 2.0
+    },
+    "unitOfMeasure": {
+        "amount": 1.0,
+        "units": "CORE_hour"
+    }
+}
+
+# product-offering-price bundled container
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:f8417291-5714-4c91-8da5-8a115f666b86",
+    "href": "urn:ngsi-ld:product-offering-price:f8417291-5714-4c91-8da5-8a115f666b86",
+    "description": "this is a plan",
+    "isBundle": true,
+    "lastUpdate": "2025-02-13T11:17:26.310249526Z",
+    "lifecycleStatus": "Active",
+    "name": "Plan with multiple comps",
+    "bundledPopRelationship": [
+        {
+            "id": "urn:ngsi-ld:product-offering-price:d557e90c-f85d-472d-a403-5ba66946d02a",
+            "href": "urn:ngsi-ld:product-offering-price:d557e90c-f85d-472d-a403-5ba66946d02a",
+            "name": "Initial"
+        },
+        {
+            "id": "urn:ngsi-ld:product-offering-price:38fa13b3-5014-44a3-abe8-0689fe8fe5b8",
+            "href": "urn:ngsi-ld:product-offering-price:38fa13b3-5014-44a3-abe8-0689fe8fe5b8",
+            "name": "rec1"
+        },
+        {
+            "id": "urn:ngsi-ld:product-offering-price:fc34e308-d721-470e-a611-ef2207c1faac",
+            "href": "urn:ngsi-ld:product-offering-price:fc34e308-d721-470e-a611-ef2207c1faac",
+            "name": "rec 2"
+        }
+    ],
+    "validFor": {
+        "startDateTime": "2025-01-31T13:22:55.890Z"
+    }
+}
+
+# productOfferingTerm bundled element 5 Cores
+{
+    "id": "urn:ngsi-ld:product-offering-price:38fa13b3-5014-44a3-abe8-0689fe8fe5b8",
+    "href": "urn:ngsi-ld:product-offering-price:38fa13b3-5014-44a3-abe8-0689fe8fe5b8",
+    "description": "POP recurring 5 Cores",
+	"isBundle": false,
+    "lastUpdate": "2025-02-13T11:11:20.570300940Z",
+    "lifecycleStatus": "Active",
+    "name": "POP recurring 5 Cores",
+    "priceType": "recurring",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "price": {
+        "unit": "EUR",
+        "value": 5.0
+    },
+    "prodSpecCharValueUse": [
+        {
+            "id": "urn:ngsi-ld:characteristic:7e255099-897a-4713-9d8e-e8ef40d1c5fc",
+            "name": "Cores",
+            "productSpecCharacteristicValue": [
+                {
+                    "unitOfMeasure": "cores",
+                    "value": 5
+                }
+            ]
+        }
+    ],
+    "validFor": {
+        "startDateTime": "2025-01-31T13:22:55.654Z"
+    }
+}
+
+# productOfferingTerm bundled element 10 Cores
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:fc34e308-d721-470e-a611-ef2207c1faac",
+    "href": "urn:ngsi-ld:product-offering-price:fc34e308-d721-470e-a611-ef2207c1faac",
+    "description": "POP recurring 10 Cores",
+	"isBundle": false,
+    "lastUpdate": "2025-02-13T11:16:02.297418663Z",
+    "lifecycleStatus": "Active",
+    "name": "rec 2",
+    "priceType": "recurring",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "price": {
+        "unit": "EUR",
+        "value": 10.0
+    },
+    "prodSpecCharValueUse": [
+        {
+            "id": "urn:ngsi-ld:characteristic:7e255099-897a-4713-9d8e-e8ef40d1c5fc",
+            "name": "Cores",
+            "productSpecCharacteristicValue": [
+                {
+                    "unitOfMeasure": "cores",
+                    "value": 10
+                }
+            ]
+        }
+    ],
+    "validFor": {
+        "startDateTime": "2025-01-31T13:22:55.768Z"
+    }
+}
+
+# product-offering-price pay per use 1 month CORE_hour (VM1)
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+    "href": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+    "description": "POP1 to test ppu",
+    "isBundle": false,
+    "lastUpdate": "2025-07-09T16:05:43.975791084Z",
+    "lifecycleStatus": "Launched",
+    "name": "POP1 to test ppu",
+    "priceType": "pay-per-use",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "version": "1.0",
+    "price": {
+        "unit": "EUR",
+        "value": 2.0
+    },
+    "unitOfMeasure": {
+        "amount": 1.0,
+        "units": "CORE_hour"
+    }
+}
+
+# product-offering-price pay per use 1 month RAM_GB_hour (VM1)
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:a62c83f4-3aeb-4cba-a42c-28739cf2b2f3",
+    "href": "urn:ngsi-ld:product-offering-price:a62c83f4-3aeb-4cba-a42c-28739cf2b2f3",
+    "description": "POP1 to test ppu",
+    "isBundle": false,
+    "lastUpdate": "2025-07-09T16:06:18.234844551Z",
+    "lifecycleStatus": "Launched",
+    "name": "POP2 to test ppu",
+    "priceType": "pay-per-use",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "version": "1.0",
+    "price": {
+        "unit": "EUR",
+        "value": 1.0
+    },
+    "unitOfMeasure": {
+        "amount": 1.0,
+        "units": "RAM_GB_hour"
+    }
+}
+
+# product-offering-price pay per use 1 month DISK_GB_hour (VM1)
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:3b2cec95-4b14-435d-98ed-2a0794b4132d",
+    "href": "urn:ngsi-ld:product-offering-price:3b2cec95-4b14-435d-98ed-2a0794b4132d",
+    "description": "POP3 to test ppu",
+    "isBundle": false,
+    "lastUpdate": "2025-07-09T16:06:52.724776028Z",
+    "lifecycleStatus": "Launched",
+    "name": "POP3 to test ppu",
+    "priceType": "pay-per-use",
+    "recurringChargePeriodLength": 1,
+    "recurringChargePeriodType": "month",
+    "version": "1.0",
+    "price": {
+        "unit": "EUR",
+        "value": 3.0
+    },
+    "unitOfMeasure": {
+        "amount": 2.0,
+        "units": "DISK_GB_hour"
+    }
+}
+
+#product-offering-price bundle with pay-per-use
+
+{
+    "id": "urn:ngsi-ld:product-offering-price:23b3f66d-cde5-4e42-bb06-df52bdcd2b24",
+    "href": "urn:ngsi-ld:product-offering-price:23b3f66d-cde5-4e42-bb06-df52bdcd2b24",
+    "description": "this is a plan",
+    "isBundle": true,
+    "lastUpdate": "2025-02-13T11:17:26.310249526Z",
+    "lifecycleStatus": "Active",
+    "name": "Plan with multiple comps - pay-per-use",
+    "bundledPopRelationship": [
+        {
+            "id": "urn:ngsi-ld:product-offering-price:d557e90c-f85d-472d-a403-5ba66946d02a",
+            "href": "urn:ngsi-ld:product-offering-price:d557e90c-f85d-472d-a403-5ba66946d02a",
+            "name": "Initial"
+        },
+        {
+            "id": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+            "href": "urn:ngsi-ld:product-offering-price:0e76f3dc-24fa-418f-956d-74d06d20bd7b",
+            "name": "pay-per-use CORE_hour"
+        },
+        {
+            "id": "urn:ngsi-ld:product-offering-price:fc34e308-d721-470e-a611-ef2207c1faac",
+            "href": "urn:ngsi-ld:product-offering-price:fc34e308-d721-470e-a611-ef2207c1faac",
+            "name": "rec 2"
+        }
+    ],
+    "validFor": {
+        "startDateTime": "2025-01-31T13:22:55.890Z"
+    }
+}

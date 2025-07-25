@@ -1,0 +1,50 @@
+{
+	"description": "Windows VM usage",
+	"usageType": "VM_USAGE",
+	"ratedProductUsage": [
+		{
+			"productRef": {
+				"id": "urn:ngsi-ld:product:19402bf1-0889-46e5-9f6c-6fc458be024f",
+				"href": "urn:ngsi-ld:product:19402bf1-0889-46e5-9f6c-6fc458be024f",
+				"name": "Product for VDC Test"
+			}
+		}
+	],
+	"relatedParty": [
+		{
+			"id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+			"href": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+			"name": "FICODES",
+			"role": "seller",
+			"@referredType": "organization"
+		},
+		{
+			"id": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+			"href": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+			"name": "DHUB, Engineering D.HUB S.p.A.",
+			"role": "buyer",
+			"@referredType": "organization"
+		}
+	],
+	"status": "received",
+	"usageCharacteristic": [
+		{
+			"id": "7bbc511e-b227-455c-8fd2-47377cebdca6",
+			"name": "CORE_hour",
+			"valueType": "float",
+			"value": 2.45
+		},
+		{
+			"id": "81e3b6fc-9be5-4680-b736-d7add7c72dec",
+			"name": "RAM_GB_hour",
+			"valueType": "float",
+			"value": 45.37
+		},
+		{
+			"id": "b1b2ecff-1586-4545-b6f4-384ce685070a",
+			"name": "DISK_GB_hour",
+			"valueType": "float",
+			"value": 6122.59
+		}
+	]
+}

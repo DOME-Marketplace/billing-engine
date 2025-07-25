@@ -2,6 +2,13 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.4.0</code> :calendar: 14/07/2025
+**Improvements**
+* Updated price preview functionality to manage pay-per-use use case.
+
+**BugFixing**
+* Solved *bug fix* to calculate pay-per-use bill.
+
 ### <code>1.3.0</code> :calendar: 14/07/2025
 **Improvements**
 * Add `RelatedParty` to the `AppliedCustomerBillingRate` using the `@schemaLocation`

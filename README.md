@@ -50,6 +50,8 @@ Don't forget to add breakpoint for debugging.
 > [!NOTE]  
 > By default spring boot application starts on port number 8080. If port 8080 is occupied in your system then you can change the port number by uncomment and updating the **server.port** property inside the **application.yaml** file that is available inside the **src > main > resources** folder.
 
+> [!NOTE]  
+> In order to use the profile (see pom.xml) please use: `mvn spring-boot:run -Pgenerate-rest-apis`
 
 
 ## How to Run Unit Test Cases

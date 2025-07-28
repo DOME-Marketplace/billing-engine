@@ -104,8 +104,4 @@ public class BillController implements InitializingBean{
 		}
 	}
 
-	private String normalize(String value) {
-		return value.toLowerCase().trim().replaceAll("\\s+", "-").replace("-", "_");
-	}
-   
 }

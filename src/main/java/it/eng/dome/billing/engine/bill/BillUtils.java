@@ -200,9 +200,8 @@ public final class BillUtils {
 	}
 	
 	public static String getPOPUnitOfMeasure_Units(@NonNull ProductOfferingPrice pop) {
-		String units=null;
 		
-		units=pop.getUnitOfMeasure().getUnits();
+		String units = pop.getUnitOfMeasure().getUnits();
 		logger.info("UnitOfMeasure of POP {} with units {}",pop.getId(), pop.getUnitOfMeasure().getUnits());
 		
 		return units;
@@ -223,7 +222,6 @@ public final class BillUtils {
 	 * Retrieves the list of Usage for the specified Product id and related to the specified TimePeriod 
 	 */
 	public static List<Usage> getUsages(@NonNull String productId, @NonNull TimePeriod tp, UsageManagementApis usageManagementApis){
-		List<Usage> usages=new ArrayList<Usage>();
 		
 		// add filter for usages 
 		// Get all Usage related to the product and within the TimePeriod
@@ -232,7 +230,7 @@ public final class BillUtils {
 		filter.put("usageDate.lt", tp.getEndDateTime().toString());
 		filter.put("usageDate.gt", tp.getStartDateTime().toString());
 			
-		usages = usageManagementApis.getAllUsages(null, filter);
+		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
 		
 		return usages;
 	}

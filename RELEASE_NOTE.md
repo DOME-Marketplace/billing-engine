@@ -2,9 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
-### <code>1.4.0</code> :calendar: 14/07/2025
+### <code>1.4.0</code> :calendar: 28/07/2025
 **Improvements**
 * Updated price preview functionality to manage pay-per-use use case.
+* Generate automatic `REST_APIs.md` file from **Swagger APIs** using the `generate-rest-apis` profile.
 
 **BugFixing**
 * Solved *bug fix* to calculate pay-per-use bill.

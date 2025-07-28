@@ -1,0 +1,139 @@
+{
+	"productOrder": {
+		"description": "Product Order to test PPU prevew",
+		"orderDate": "2024-11-12T17:43:15.0766836+01:00",
+		"productOrderItem": [
+			{
+				"id": "item1-one-time",
+				"quantity": 2,
+				"itemTotalPrice": [
+					{
+						"description": "item total price one-time",
+						"name": "item total price one-time",
+						"productOfferingPrice": {
+							"id": "urn:ngsi-ld:product-offering-price:b47a90aa-aa03-41ce-8c30-b87c86540e50"
+						}
+					}
+				],
+				"productOffering": {
+					"id": "urn:ngsi-ld:product-offering:6dc9b3de-4310-44ca-a41a-4df8d3fcc130",
+					"href": "urn:ngsi-ld:product-offering:f2abcdb7-6c66-48a6-b3d6-862cdf6a464f"
+				}
+			},
+			{
+				"id": "item2-recurring-prepaid-1-month",
+				"quantity": 1,
+				"itemTotalPrice": [
+					{
+						"description": "item total price recurring-prepaid-1-month",
+						"name": "item total price recurring-prepaid-1-month",
+						"productOfferingPrice": {
+							"id": "urn:ngsi-ld:product-offering-price:af719973-43c1-4ca9-819f-8b719b6b3426",
+							"href": "urn:ngsi-ld:product-offering-price:af719973-43c1-4ca9-819f-8b719b6b3426"
+						}
+					}
+				],
+				"productOffering": {
+					"id": "urn:ngsi-ld:product-offering:6dc9b3de-4310-44ca-a41a-4df8d3fcc130",
+					"href": "urn:ngsi-ld:product-offering:f2abcdb7-6c66-48a6-b3d6-862cdf6a464f"
+				}
+			},
+			{
+				"id": "item3-pay-per-use-1-month_CORE (VM1)",
+				"quantity": 1,
+				"itemTotalPrice": [
+					{
+						"description": "item total price pay-per-use 1-month CORE (VM1)",
+						"name": "item total price pay-per-use 1-month CORE (VM1)",
+						"productOfferingPrice": {
+							"id": "urn:ngsi-ld:product-offering-price:fc21c5fd-bcb3-40f7-aede-a7520d05474c",
+							"href": "urn:ngsi-ld:product-offering-price:fc21c5fd-bcb3-40f7-aede-a7520d05474c"
+						}
+					}
+				],
+				"productOffering": {
+					"id": "urn:ngsi-ld:product-offering:6dc9b3de-4310-44ca-a41a-4df8d3fcc130",
+					"href": "urn:ngsi-ld:product-offering:f2abcdb7-6c66-48a6-b3d6-862cdf6a464f"
+				}
+			},
+			{
+				"id": "item4-pay-per-use-1-month_CORE (VM2)",
+				"quantity": 1,
+				"itemTotalPrice": [
+					{
+						"description": "item total price pay-per-use 1-month CORE (VM2)",
+						"name": "item total price pay-per-use 1-month CORE (VM2)",
+						"productOfferingPrice": {
+							"id": "urn:ngsi-ld:product-offering-price:fc21c5fd-bcb3-40f7-aede-a7520d05474c",
+							"href": "urn:ngsi-ld:product-offering-price:fc21c5fd-bcb3-40f7-aede-a7520d05474c"
+						}
+					}
+				],
+				"productOffering": {
+					"id": "urn:ngsi-ld:product-offering:6dc9b3de-4310-44ca-a41a-4df8d3fcc130",
+					"href": "urn:ngsi-ld:product-offering:f2abcdb7-6c66-48a6-b3d6-862cdf6a464f"
+				}
+			},
+			{
+				"id": "item5-pay-per-use-1-month_RAM (VM1)",
+				"quantity": 1,
+				"itemTotalPrice": [
+					{
+						"description": "item total price pay-per-use 1-month RAM",
+						"name": "item total price pay-per-use 1-month RAM",
+						"productOfferingPrice": {
+							"id": "urn:ngsi-ld:product-offering-price:fc21c5fd-bcb3-40f7-aede-a7520d05474c",
+							"href": "urn:ngsi-ld:product-offering-price:fc21c5fd-bcb3-40f7-aede-a7520d05474c"
+						}
+					}
+				],
+				"productOffering": {
+					"id": "urn:ngsi-ld:product-offering:6dc9b3de-4310-44ca-a41a-4df8d3fcc130",
+					"href": "urn:ngsi-ld:product-offering:f2abcdb7-6c66-48a6-b3d6-862cdf6a464f"
+				}
+			}
+		],
+		"relatedParty": [
+			{
+				"id": "urn:ngsi-ld:organization:df55d895-fe24-47fc-9506-39e532279997",
+				"role": "seller",
+				"@referredType": "organization"
+			},
+			{
+				"id": "urn:ngsi-ld:organization:df55d895-fe24-47fc-9506-39e532279997",
+				"href": "urn:ngsi-ld:organization:98a67a91-0e05-4dda-af43-253de1e4863d",
+				"role": "buyer",
+				"@referredType": "organization"
+			}
+		],
+		"state": "inProgress"
+	},
+	"usage": [
+		{
+			"usageSpecification": {
+				"id": "Usage Specification VM1"
+			},
+			"usageCharacteristic": [
+				{
+					"name": "CORE_hour",
+					"value": 2.45
+				},
+				{
+					"name": "RAM_GB_hour",
+					"value": 45.37
+				}
+			]
+		},
+		{
+			"usageSpecification": {
+				"id": "Usage Specification VM2"
+			},
+			"usageCharacteristic": [
+				{
+					"name": "CORE_hour",
+					"value": 1.45
+				}
+			]
+		}
+	]
+}

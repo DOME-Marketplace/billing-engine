@@ -14,7 +14,7 @@
 
 	<groupId>it.eng.dome.billing</groupId>
 	<artifactId>engine</artifactId>
-	<version>1.3.0</version>
+	<version>1.4.0</version>
 	<name>Billing Engine</name>
 	<description>Billing Engine for DOME project</description>
 
@@ -126,5 +126,17 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<profiles>
+	    <profile>
+	        <id>generate-rest-apis</id>
+	        <activation>
+	            <activeByDefault>false</activeByDefault>
+	        </activation>
+	        <properties>
+	            <spring-boot.run.arguments>--rest_api_docs.generate_md=true</spring-boot.run.arguments>
+	        </properties>
+	    </profile>
+	</profiles>
 
 </project>

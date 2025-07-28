@@ -36,6 +36,8 @@ public class PriceTypeKey {
         if (o == null || getClass() != o.getClass())
             return false;
         PriceTypeKey that = (PriceTypeKey) o;
+        if(that.getRecurringChargePeriod()==null)
+        	return priceType.equals(that.priceType);
         return priceType.equals(that.priceType) && recurringChargePeriod.equals(that.recurringChargePeriod);
     }
 

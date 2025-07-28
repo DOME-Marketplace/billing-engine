@@ -15,6 +15,7 @@ import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
+import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 
 @Component(value = "singlePriceCalculator")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -32,7 +33,7 @@ public class SinglePriceCalculator implements PriceCalculator {
 	 * by Characteristics each one with its own price and its own quantity defined by the provider.
 	 */
 	@Override
-	public List<OrderPrice> calculatePrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
+	public List<OrderPrice> calculateOrderPrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
 		try {
 			
 			List<OrderPrice> orderPriceList=new ArrayList<OrderPrice>();
@@ -45,7 +46,36 @@ public class SinglePriceCalculator implements PriceCalculator {
 			}
 			
 			// calculates base price
-			OrderPrice orderItemPrice=PriceUtils.calculatePrice(pop, orderItem, priceAlterationCalculator);
+			OrderPrice orderItemPrice=PriceUtils.calculateOrderPrice(pop, orderItem, priceAlterationCalculator);
+			
+			orderPriceList.add(orderItemPrice);
+			
+			return orderPriceList;
+			
+		}catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
+			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
+		}
+	}
+	
+	/*
+	 * Calculates the price of a product order item according to the pay-oer-use price plan and the simulated UsageCharacteristic.
+	 * 
+	 * @param orderItem The product order item for which the price must be calculated
+	 * @param pop The referred product offering price
+	 * @param usageChForMetric The simulated usageCharacteristic for the pay per use scenario
+	 */
+	@Override
+	public List<OrderPrice> calculateOrderPriceForUsageCharacteristic(ProductOrderItem orderItem, ProductOfferingPrice pop, List<UsageCharacteristic> usageChForMetric) throws Exception {
+		try {
+			
+			List<OrderPrice> orderPriceList=new ArrayList<OrderPrice>();
+		
+			logger.debug("Starting single price calculation for the pay-oer-use use case...");
+			
+			// calculates base price
+			OrderPrice orderItemPrice=PriceUtils.calculateOrderPriceForUsageCharacterisic(pop, orderItem, priceAlterationCalculator, usageChForMetric);
 			
 			orderPriceList.add(orderItemPrice);
 			

@@ -25,7 +25,6 @@ import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOfferingPriceRef;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
-import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Characteristic;
 import lombok.NonNull;

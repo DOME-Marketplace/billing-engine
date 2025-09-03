@@ -17,7 +17,7 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.billing.engine.utils.BillingPriceType;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
@@ -243,7 +243,7 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 				for(ProductOfferingPrice bundledPop: bundledPops) {
 					
 					//Check the pay-per-use price plan
-					if(BillingPriceType.normalize(bundledPop.getPriceType()).equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey())) {
+					if(BillingPriceType.normalize(bundledPop.getPriceType()).equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey()) || BillingPriceType.normalize(bundledPop.getPriceType()).equalsIgnoreCase(BillingPriceType.USAGE.getNormalizedKey())) {
 						OrderPrice op=PriceUtils.calculateOrderPriceForUsageCharacterisic(pop, orderItem, priceAlterationCalculator, usageChForMetric);
 						op.setProductOfferingPrice(PriceUtils.createProductOfferingPriceRef(bundledPop));
 						orderPriceList.add(op);

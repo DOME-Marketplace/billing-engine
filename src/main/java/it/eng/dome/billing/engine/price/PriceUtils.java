@@ -15,7 +15,7 @@ import it.eng.dome.billing.engine.bill.BillUtils;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
-import it.eng.dome.billing.engine.utils.BillingPriceType;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationCharacteristicValueUse;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;

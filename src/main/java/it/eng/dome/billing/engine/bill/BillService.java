@@ -16,7 +16,7 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.billing.engine.utils.BillingPriceType;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
@@ -29,6 +29,8 @@ import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import it.eng.dome.tmforum.tmf678.v4.model.Money;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
+import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 
 @Component(value = "billService")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -76,6 +78,9 @@ public class BillService implements InitializingBean {
 		
 		// Bill appliedBillingRateType of the productPrices belonging to the same group
 		String appliedBillingRateType = null;
+		
+		//Initialize usageData for the product and timeperiod
+		usageData=inizializeUdageData(product.getId(), tp);
 
 		for (ProductPrice productPrice : ppList) {
 			
@@ -87,24 +92,17 @@ public class BillService implements InitializingBean {
 			
 			// 2) retrieves from the server the ProductOfferingPrice
 			ProductOfferingPrice pop = productOfferingPriceApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
-			logger.info("Calculate price for the price component with ProductOfferingPrice: "+pop.getId());
+			logger.info("*** Calculate price for the price component with ProductOfferingPrice: "+pop.getId()+" ***");
 			
 			// if POP is not bundle
 			if(!pop.getIsBundle()) {
 				String priceTypeNormalized=BillingPriceType.normalize(pop.getPriceType());
 				// Not pay-per-use price plan
-				if(!priceTypeNormalized.equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey())) {
+				if(!priceTypeNormalized.equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey()) && !priceTypeNormalized.equalsIgnoreCase(BillingPriceType.USAGE.getNormalizedKey())) {
 					prices.add(PriceUtils.calculatePrice(pop, productChars, priceAlterationCalculator));
 				}
 				// Pay-per-use price plan
 				else {
-					// Initialize the usageData Map if not initialized yet
-					if(usageData==null) {
-						List<Usage> usages=BillUtils.getUsages(product.getId(), tp, usageManagementApis);
-						//logger.info("Usage found: {}", usages.size());
-						usageData=BillUtils.createUsageCharacteristicDataMap(usages);
-						logger.info("Created UsageDataMap with keys "+usageData.keySet().toString());
-					}
 					prices.add(PriceUtils.calculatePriceForPayPerUse(pop, usageData, priceAlterationCalculator));
 				}
 				
@@ -123,7 +121,7 @@ public class BillService implements InitializingBean {
 				for(ProductOfferingPrice bundledPop: bundledPops) {
 					String priceTypeNormalized=BillingPriceType.normalize(pop.getPriceType());
 					// Not pay-per-use price plan
-					if(!priceTypeNormalized.equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey())) {
+					if(!priceTypeNormalized.equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey()) && !priceTypeNormalized.equalsIgnoreCase(BillingPriceType.USAGE.getNormalizedKey())) {
 						prices.add(PriceUtils.calculatePrice(bundledPop, productChars, priceAlterationCalculator));
 					}
 					else {
@@ -151,5 +149,18 @@ public class BillService implements InitializingBean {
 		appliedCustomerBillRateList.add(appliedCustomerBillingRate);
 
 		return appliedCustomerBillRateList;
+	}
+	
+	/*
+	 * Initialize the HashMap of UsageCharacteristic retrieving via TMForum all the usageData associated with the specified product ID and belonging to the specified TimePeriod
+	 */
+	private Map<String, List<UsageCharacteristic>> inizializeUdageData(@NonNull String productId, @NotNull TimePeriod tp){
+		
+		List<Usage> usages=BillUtils.getUsages(productId, tp, usageManagementApis);
+		logger.info("Usage found: {}", usages.size());
+		usageData=BillUtils.createUsageCharacteristicDataMap(usages);
+		logger.info("Created UsageDataMap with keys "+usageData.keySet().toString());
+		
+		return usageData;
 	}
 }

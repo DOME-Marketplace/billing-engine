@@ -24,7 +24,7 @@ import it.eng.dome.billing.engine.bill.BillUtils;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.billing.engine.utils.BillingPriceType;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.billing.engine.utils.PriceTypeKey;
 import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
@@ -286,7 +286,7 @@ public class PriceService implements InitializingBean {
 		    		
 		    		// Calculates the OrderPrice(s)
 		    		// Check the pay-per-use use case
-		    		if(pop.getPriceType()!=null && (BillingPriceType.normalize(pop.getPriceType()).equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey()))) {
+		    		if(pop.getPriceType()!=null && ((BillingPriceType.normalize(pop.getPriceType()).equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey())) || (BillingPriceType.normalize(pop.getPriceType()).equalsIgnoreCase(BillingPriceType.USAGE.getNormalizedKey())))) {
 		    			
 		    			// Retrieve all the simulated UsageCharacteristic associated to the metric
 		    			String metric=(BillUtils.getPOPUnitOfMeasure_Units(pop));

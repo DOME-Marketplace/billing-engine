@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -16,9 +15,9 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.brokerage.billing.utils.BillingPriceType;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.api.UsageManagementApis;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
@@ -34,7 +33,7 @@ import lombok.NonNull;
 
 @Component(value = "billService")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class BillService implements InitializingBean {
+public class BillService {
 
 	private final Logger logger = LoggerFactory.getLogger(BillService.class);
 
@@ -44,19 +43,18 @@ public class BillService implements InitializingBean {
 	@Autowired
 	private PriceAlterationCalculator priceAlterationCalculator; 
 
-	private ProductOfferingPriceApis productOfferingPriceApis;
-	private UsageManagementApis usageManagementApis;
-	//private ProductApis productApis;
-	
+
 	// Map with key the usageCharacteristic.name and value a list of UsageCharacteritic
 	private	Map<String, List<UsageCharacteristic>> usageData= null;
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
-		usageManagementApis = new UsageManagementApis(tmfApiFactory.getTMF635UsageManagementApiClient());
-		//productApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
+	private ProductCatalogManagementApis productCatalogManagementApis;
+	private UsageManagementApis usageManagementApis;
+	
+	public BillService(ProductCatalogManagementApis productCatalogManagementApis, UsageManagementApis usageManagementApis) {		
+		this.productCatalogManagementApis = productCatalogManagementApis;
+		this.usageManagementApis = usageManagementApis;
 	}
+
 
 	public List<AppliedCustomerBillingRate> calculateBill(Product product, TimePeriod tp, List<ProductPrice> ppList) throws Exception {
 		
@@ -91,7 +89,7 @@ public class BillService implements InitializingBean {
 			}
 			
 			// 2) retrieves from the server the ProductOfferingPrice
-			ProductOfferingPrice pop = productOfferingPriceApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
+			ProductOfferingPrice pop = productCatalogManagementApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
 			logger.info("*** Calculate price for the price component with ProductOfferingPrice: "+pop.getId()+" ***");
 			
 			// if POP is not bundle
@@ -114,7 +112,7 @@ public class BillService implements InitializingBean {
 			} else {
 				logger.info("ProductOfferingPrice: {}", pop.getId()+" is bundled");
 				
-				List<ProductOfferingPrice> bundledPops = BillUtils.getBundledPops(pop, productOfferingPriceApis);
+				List<ProductOfferingPrice> bundledPops = BillUtils.getBundledPops(pop, productCatalogManagementApis);
 				if (bundledPops == null || bundledPops.isEmpty()) {
 					throw new BillingBadRequestException(String.format("Error! Started calculation of bundled ProductOfferingPrice %s but the 'bundledPopRelationship' is empty!", pop.getId()));
 				}

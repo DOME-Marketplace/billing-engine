@@ -3,19 +3,15 @@ package it.eng.dome.billing.engine;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
-import it.eng.dome.brokerage.billing.dto.BillingPreviewRequestDTO;
-import it.eng.dome.tmforum.tmf622.v4.JSON;
-import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 
-public class TestBillingPreviewRequestDTO {
+public class TestUsageFromJson {
 	
 	public static void main(String[] args) {
 		
 		
-		String percorsoFile = "C:\\Users\\sdagosti\\dome-workspace\\billing-engine\\src\\test\\java\\sample-data\\TestPayPerUse\\BillingPreviewRequestDTO_example.json";
+		String percorsoFile = "C:\\Users\\sdagosti\\dome-workspace\\billing-engine\\src\\test\\java\\sanple-data\\UsageExample_B.json";
 		
 		try {
 			String contenuto = new String(Files.readAllBytes(Paths.get(percorsoFile)));
@@ -24,17 +20,9 @@ public class TestBillingPreviewRequestDTO {
 
 			System.out.println(contenuto);
 			
-			BillingPreviewRequestDTO bprDTO=JSON.deserialize(contenuto, BillingPreviewRequestDTO.class);
+			Usage usage=Usage.fromJson(contenuto);
 			
-			ProductOrder order=bprDTO.getProductOrder();
-			System.out.println("order: "+order.getDescription());
-			
-			List<Usage> usage=bprDTO.getUsage();
-			System.out.println("usage size"+usage.size());
-			
-			
-			
-			System.out.println(bprDTO.toString());
+			System.out.println(usage.toJson());
 			
 	    } catch (IOException e) {
 	        e.printStackTrace();

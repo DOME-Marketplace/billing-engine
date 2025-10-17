@@ -12,7 +12,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -23,10 +22,9 @@ import org.springframework.util.CollectionUtils;
 import it.eng.dome.billing.engine.bill.BillUtils;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
-import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.billing.engine.utils.PriceTypeKey;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
@@ -39,26 +37,22 @@ import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 
 @Component(value = "priceService")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class PriceService implements InitializingBean {
+public class PriceService {
     private final Logger logger = LoggerFactory.getLogger(PriceService.class);
-	
-	@Autowired
-	private TmfApiFactory tmfApiFactory;
-	
+		
 	@Autowired
 	private PriceCalculatorFactory priceCalculatorFactory;
 	
-	private ProductOfferingPriceApis productOfferingPriceApis;
+	private ProductCatalogManagementApis productCatalogManagementApis;
 	
 	//Hash Map to manage aggregation of the OrderPrice
 	private Map<PriceTypeKey, List<OrderPrice>> orderPriceGroups;
 	
 	//Hash Map to manage the UsageCharacteristic
-	private Map<String, List<UsageCharacteristic>> usageDataMap=null;
+	private Map<String, List<UsageCharacteristic>> usageDataMap = null;
 	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
+	public PriceService (ProductCatalogManagementApis productCatalogManagementApis) {
+		this.productCatalogManagementApis = productCatalogManagementApis;
 	}
 	
 
@@ -91,7 +85,7 @@ public class PriceService implements InitializingBean {
 		    	for(OrderPrice op:item.getItemTotalPrice()) {
 		    		
 		    		// Retrieves from the server the ProductOfferingPrice
-		    		pop=getReferredProductOfferingPrice(op, productOfferingPriceApis);
+		    		pop=getReferredProductOfferingPrice(op, productCatalogManagementApis);
 		    	
 		    		if(pop==null) {
 		    			throw new BillingBadRequestException("No valid ProductOfferingPrice found for ProductOrdeItem element: '" + item.getId() + "' !");
@@ -211,7 +205,7 @@ public class PriceService implements InitializingBean {
 	 * @return the ProductOggeringPrice instance referred by the specified OrderPrice
 	 * @throws Exception If the ProductOfferingPrice referenced in the OrderPrice is not found
 	 */
-	private ProductOfferingPrice getReferredProductOfferingPrice(OrderPrice orderPrice, ProductOfferingPriceApis popApis) throws Exception {
+	private ProductOfferingPrice getReferredProductOfferingPrice(OrderPrice orderPrice, ProductCatalogManagementApis productCatalogManagementApis) throws Exception {
 		final Date today = new Date();
 
 		ProductOfferingPriceRef popRef;
@@ -223,7 +217,7 @@ public class PriceService implements InitializingBean {
 		
 		logger.debug("Retrieving remote POP with id: '{}'", popRef.getId());
 		try {
-			pop = popApis.getProductOfferingPrice(popRef.getId(), null);
+			pop = productCatalogManagementApis.getProductOfferingPrice(popRef.getId(), null);
 			
 			if (!PriceUtils.isActive(pop) && !PriceUtils.isValid(today, pop.getValidFor()))
 				return null;
@@ -275,7 +269,7 @@ public class PriceService implements InitializingBean {
 		    		List<OrderPrice> itemPriceList=new ArrayList<OrderPrice>();
 		    		
 		    		// Retrieves from the server the ProductOfferingPrice
-		    		pop=getReferredProductOfferingPrice(op, productOfferingPriceApis);
+		    		pop=getReferredProductOfferingPrice(op, productCatalogManagementApis);
 		    	
 		    		if(pop==null) {
 		    			throw new BillingBadRequestException("No valid ProductOfferingPrice found for ProductOrdeItem element: '" + item.getId() + "' !");

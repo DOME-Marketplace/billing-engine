@@ -45,8 +45,8 @@ tmforumapi:
    
 #  tmf_endpoint: http://localhost:8100
   tmf620_catalog_path: tmf-api/productCatalogManagement/v4
-  tmf622_ordering_path: tmf-api/productOrderingManagement/v4
-  tmf678_billing_path: tmf-api/customerBillManagement/v4
+#  tmf622_ordering_path: tmf-api/productOrderingManagement/v4
+#  tmf678_billing_path: tmf-api/customerBillManagement/v4
   tmf637_billing_path: tmf-api/productInventory/v4
   tmf635_usage_path: tmf-api/usageManagement/v4
   

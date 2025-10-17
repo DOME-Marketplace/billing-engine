@@ -11,8 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.api.UsageManagementApis;
+import it.eng.dome.brokerage.api.fetch.FetchUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
@@ -35,10 +36,10 @@ public final class BillUtils {
 		return product.getProductPrice();
 	}
 	
-	public static String getPriceTypeFromProductPrice(@NonNull ProductPrice productPrice, @NonNull ProductOfferingPriceApis popApis) throws Exception{
+	public static String getPriceTypeFromProductPrice(@NonNull ProductPrice productPrice, @NonNull ProductCatalogManagementApis productCatalogManagementApis) throws Exception{
 		ProductOfferingPriceRef productOfferingPriceRef=productPrice.getProductOfferingPrice();
 		//try {
-			ProductOfferingPrice pop = popApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
+			ProductOfferingPrice pop = productCatalogManagementApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
 			if (pop != null) {
 				return pop.getPriceType();
 			}else {
@@ -128,12 +129,12 @@ public final class BillUtils {
 	/*
      * Returns the list of ProductOfferingPrice referenced in the bundle ProductOfferingPrice (i.e., stored in the bundledPopRelationship element of the ProductOfferingPrice)
      */
-	public static List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop, ProductOfferingPriceApis popApi) throws Exception {
+	public static List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop, ProductCatalogManagementApis productCatalogManagementApis) throws Exception {
 		final List<ProductOfferingPrice> bundledPops = new ArrayList<ProductOfferingPrice>();
 		
 		for (var bundledPopRel : pop.getBundledPopRelationship()) {
 			logger.debug("Retrieving remote ProductOfferingPrice with id: '{}'", bundledPopRel.getId());
-			ProductOfferingPrice productOfferingPrice = popApi.getProductOfferingPrice(bundledPopRel.getId(), null);
+			ProductOfferingPrice productOfferingPrice = productCatalogManagementApis.getProductOfferingPrice(bundledPopRel.getId(), null);
 			if (productOfferingPrice != null) {
 				bundledPops.add(productOfferingPrice);
 			}else {
@@ -230,7 +231,16 @@ public final class BillUtils {
 		filter.put("usageDate.lt", tp.getEndDateTime().toString());
 		filter.put("usageDate.gt", tp.getStartDateTime().toString());
 			
-		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
+		//List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
+		
+		//TODO check
+		List<Usage> usages = FetchUtils.streamAll(
+				usageManagementApis::listUsages, 				// method reference
+		        null,                       	// fields
+		        filter, 				   		// filter
+		        100                         	// pageSize
+			) 
+			.toList();	
 		
 		return usages;
 	}

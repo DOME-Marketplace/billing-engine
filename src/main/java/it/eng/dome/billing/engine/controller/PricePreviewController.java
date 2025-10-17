@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.PriceService;
-import it.eng.dome.billing.engine.utils.BillingPreviewRequestDTO;
+import it.eng.dome.brokerage.billing.dto.BillingPreviewRequestDTO;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 

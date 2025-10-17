@@ -4,15 +4,13 @@ import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.engine.price.PriceUtils;
-import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPriceRelationship;
@@ -23,21 +21,20 @@ import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
 
 @Component(value = "priceAlterationCalculator")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class PriceAlterationCalculator implements InitializingBean {
+public class PriceAlterationCalculator {
     private final Logger logger = LoggerFactory.getLogger(PriceAlterationCalculator.class);
-	
-	@Autowired
-	private TmfApiFactory tmfApiFactory;
 	
 	@Autowired
 	private PriceAlterationFactory priceAlterationFactory;
 	
-	private ProductOfferingPriceApis productOfferingPriceApis;
+	//private ProductOfferingPriceApis productOfferingPriceApis;
 	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
+	private ProductCatalogManagementApis productCatalogManagementApis;
+	
+	public PriceAlterationCalculator (ProductCatalogManagementApis productCatalogManagementApis) {
+		this.productCatalogManagementApis = productCatalogManagementApis;
 	}
+	
 	
 	/**
 	 * 
@@ -56,7 +53,7 @@ public class PriceAlterationCalculator implements InitializingBean {
 		// loops for all the alterations
 		for (ProductOfferingPriceRelationship popR : pop.getPopRelationship()) {
 			// retrieve pops from server
-			alterationPOP = productOfferingPriceApis.getProductOfferingPrice(popR.getId(), null);
+			alterationPOP = productCatalogManagementApis.getProductOfferingPrice(popR.getId(), null);
 			
 			// to be used, the alteration must be active
 			if (!PriceUtils.isActive(alterationPOP))
@@ -86,7 +83,7 @@ public class PriceAlterationCalculator implements InitializingBean {
 		// loops for all the alterations
 		for (ProductOfferingPriceRelationship popR : pop.getPopRelationship()) {
 			// retrieve pops from server
-			alterationPOP = productOfferingPriceApis.getProductOfferingPrice(popR.getId(), null);
+			alterationPOP = productCatalogManagementApis.getProductOfferingPrice(popR.getId(), null);
 			
 			// to be used, the alteration must be active
 			if (!PriceUtils.isActive(alterationPOP))

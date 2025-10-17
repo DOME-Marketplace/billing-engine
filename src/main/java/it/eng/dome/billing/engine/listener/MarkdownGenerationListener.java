@@ -1,6 +1,9 @@
 package it.eng.dome.billing.engine.listener;
 
-import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,7 +111,7 @@ public class MarkdownGenerationListener {
 			}
 
 			// Write FILE.MD
-			try (FileWriter writer = new FileWriter(outputPath)) {
+			try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputPath), StandardCharsets.UTF_8)) {
 				writer.write(md.toString());
 			}
 

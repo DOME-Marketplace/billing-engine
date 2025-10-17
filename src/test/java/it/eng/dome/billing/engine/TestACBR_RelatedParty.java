@@ -1,14 +1,10 @@
 package it.eng.dome.billing.engine;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import it.eng.dome.billing.engine.bill.BillUtils;
-import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
-import it.eng.dome.brokerage.billing.utils.BillingUtils;
 import it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;

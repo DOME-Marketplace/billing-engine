@@ -3,8 +3,13 @@
 **Release Notes** of the *Billing Engine* software:
 
 ### <code>1.4.2</code> :calendar: 17/10/2025
-**BugFixing**
-* ...
+**Improvements**
+* Usage of the new `Brokerage Utils` version: `2.2.0`.
+* Add `TmfApiConfig` class to avoid loading the **TMForum Apis** classes every time they are used in service classes.
+* Add `TrailingSlashFilter` filter to remove trailing slash from request path.
+* Usage of `AbstractHealthService` class from `Brokerage Utils` to manage **getInfo()** and **getHealth()** features.
+* Add `TMF622EnumModule` and `TMF637EnumModule` classes in the **JacksonModuleConfig** to *serialize* and *deserialize* the **TMForum enum types**.
+
 
 ### <code>1.4.1</code> :calendar: 01/09/2025
 **Improvements**

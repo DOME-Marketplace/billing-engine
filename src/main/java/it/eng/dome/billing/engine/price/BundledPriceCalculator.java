@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -16,9 +15,8 @@ import org.springframework.util.CollectionUtils;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
-import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
 import it.eng.dome.tmforum.tmf622.v4.model.Characteristic;
@@ -29,24 +27,20 @@ import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 
 @Component(value = "bundledPriceCalculator")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class BundledPriceCalculator implements PriceCalculator, InitializingBean {
-
-	@Autowired
-	private TmfApiFactory tmfApiFactory;
+public class BundledPriceCalculator implements PriceCalculator {
 	
 	@Autowired
 	private PriceAlterationCalculator priceAlterationCalculator;
 	
-	//private ProductOfferingPriceApis productOfferingPriceApis;
 	private ProductCatalogManagementApis productCatalogManagementApis;
 	
     private final Logger logger = LoggerFactory.getLogger(BundledPriceCalculator.class);
+    
+    
+    public BundledPriceCalculator(ProductCatalogManagementApis productCatalogManagementApis) {
+    	this.productCatalogManagementApis = productCatalogManagementApis;
+    }
 	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		//productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
-		productCatalogManagementApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
-	}
 	
 	/*
 	 * Calculates the prices (i.e., OrderPrice instance) for a bundled ProductOfferingPrice referenced in the specified ProductOrderItem.

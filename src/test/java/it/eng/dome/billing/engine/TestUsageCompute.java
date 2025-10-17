@@ -10,6 +10,7 @@ import java.util.Set;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.api.ProductInventoryApis;
 import it.eng.dome.brokerage.api.UsageManagementApis;
+import it.eng.dome.brokerage.api.fetch.FetchUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf635.v4.model.RelatedParty;
@@ -64,7 +65,13 @@ public class TestUsageCompute {
 
 		
 		// Get all Usage related to the product (Usage.ratedProductUsage.productRef.id=product.id) && Usage.usageDate is within the TimePeriod
-		List<Usage> usages = null; //usageManagementApis.getAllUsages(null, filter);
+//		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
+		List<Usage> usages = FetchUtils.streamAll(
+				usageManagementApis::listUsages, 				// method reference
+		        null,                       	// fields
+		        null, 				   		// filter
+		        100                         	// pageSize
+			).toList(); 
 		
 		int count = 0;
 		
@@ -109,7 +116,13 @@ public class TestUsageCompute {
 		filter.put("usageDate.gt", tp.getStartDateTime().toString());
 		
 		
-		List<Usage> usages = null;//usageManagementApis.getAllUsages(null, filter);
+//		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
+		List<Usage> usages = FetchUtils.streamAll(
+				usageManagementApis::listUsages, 				// method reference
+		        null,                       	// fields
+		        null, 				   		// filter
+		        100                         	// pageSize
+			).toList();
 		
 		// set the map keys/values from usage list
 		Map<String, Object> usageData = new HashMap<String, Object>();		

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.bill.BillService;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
-import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.api.ProductInventoryApis;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
@@ -28,23 +26,18 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 @RestController
 @RequestMapping("/billing")
 @Tag(name = "Billing Controller", description = "APIs to manage the calculation og the bills")
-public class BillController implements InitializingBean{
+public class BillController {
 	
 	protected final Logger logger = LoggerFactory.getLogger(BillController.class);
 	
 	@Autowired
 	protected BillService billService;
-	
-	@Autowired
-	private TmfApiFactory tmfApiFactory;
-	
-	//private ProductApis producApis;
-	private ProductInventoryApis productApis;
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		//producApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
-		productApis = new ProductInventoryApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
+	private ProductInventoryApis producInventoryApis;
+
+	
+	public BillController(ProductInventoryApis producInventoryApis) {
+		this.producInventoryApis = producInventoryApis;
 	}
     
 	 /**
@@ -66,7 +59,7 @@ public class BillController implements InitializingBean{
 		try {
 			
 			// 1) retrieve the Product, TimePeriod and ProductPrice list from the BillingRequestDTO
-			product = productApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			product = producInventoryApis.getProduct(billRequestDTO.getProduct().getId(), null);
 			
 			
 			if (product == null) {

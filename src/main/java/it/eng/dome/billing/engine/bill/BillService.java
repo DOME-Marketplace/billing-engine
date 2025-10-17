@@ -17,7 +17,7 @@ import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.billing.utils.BillingPriceType;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
@@ -44,7 +44,8 @@ public class BillService implements InitializingBean {
 	@Autowired
 	private PriceAlterationCalculator priceAlterationCalculator; 
 
-	private ProductOfferingPriceApis productOfferingPriceApis;
+	//private ProductOfferingPriceApis productOfferingPriceApis;
+	private ProductCatalogManagementApis productCatalogManagementApis;
 	private UsageManagementApis usageManagementApis;
 	//private ProductApis productApis;
 	
@@ -53,7 +54,8 @@ public class BillService implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
+		//productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
+		productCatalogManagementApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 		usageManagementApis = new UsageManagementApis(tmfApiFactory.getTMF635UsageManagementApiClient());
 		//productApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
 	}
@@ -91,7 +93,7 @@ public class BillService implements InitializingBean {
 			}
 			
 			// 2) retrieves from the server the ProductOfferingPrice
-			ProductOfferingPrice pop = productOfferingPriceApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
+			ProductOfferingPrice pop = productCatalogManagementApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
 			logger.info("*** Calculate price for the price component with ProductOfferingPrice: "+pop.getId()+" ***");
 			
 			// if POP is not bundle
@@ -114,7 +116,7 @@ public class BillService implements InitializingBean {
 			} else {
 				logger.info("ProductOfferingPrice: {}", pop.getId()+" is bundled");
 				
-				List<ProductOfferingPrice> bundledPops = BillUtils.getBundledPops(pop, productOfferingPriceApis);
+				List<ProductOfferingPrice> bundledPops = BillUtils.getBundledPops(pop, productCatalogManagementApis);
 				if (bundledPops == null || bundledPops.isEmpty()) {
 					throw new BillingBadRequestException(String.format("Error! Started calculation of bundled ProductOfferingPrice %s but the 'bundledPopRelationship' is empty!", pop.getId()));
 				}

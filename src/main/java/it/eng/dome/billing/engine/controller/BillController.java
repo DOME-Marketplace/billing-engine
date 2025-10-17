@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.bill.BillService;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
-import it.eng.dome.brokerage.api.ProductApis;
+import it.eng.dome.brokerage.api.ProductInventoryApis;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
@@ -38,11 +38,13 @@ public class BillController implements InitializingBean{
 	@Autowired
 	private TmfApiFactory tmfApiFactory;
 	
-	private ProductApis producApis;
+	//private ProductApis producApis;
+	private ProductInventoryApis productApis;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		producApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
+		//producApis = new ProductApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
+		productApis = new ProductInventoryApis(tmfApiFactory.getTMF637ProductInventoryApiClient());
 	}
     
 	 /**
@@ -64,7 +66,8 @@ public class BillController implements InitializingBean{
 		try {
 			
 			// 1) retrieve the Product, TimePeriod and ProductPrice list from the BillingRequestDTO
-			product = producApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			product = productApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			
 			
 			if (product == null) {
 				throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");

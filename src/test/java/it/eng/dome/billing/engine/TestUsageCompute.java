@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import it.eng.dome.brokerage.api.ProductApis;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
+import it.eng.dome.brokerage.api.ProductInventoryApis;
 import it.eng.dome.brokerage.api.UsageManagementApis;
+import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf635.v4.model.RelatedParty;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
@@ -29,7 +30,15 @@ public class TestUsageCompute {
 		//TestIsfilteredUsage();
 		
 		// full test
-		TestUsagePayPerUse();
+		try {
+			TestUsagePayPerUse();
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (it.eng.dome.tmforum.tmf637.v4.ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -55,7 +64,7 @@ public class TestUsageCompute {
 
 		
 		// Get all Usage related to the product (Usage.ratedProductUsage.productRef.id=product.id) && Usage.usageDate is within the TimePeriod
-		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
+		List<Usage> usages = null; //usageManagementApis.getAllUsages(null, filter);
 		
 		int count = 0;
 		
@@ -64,13 +73,14 @@ public class TestUsageCompute {
 		}
 	}
 	
-	public static void TestUsagePayPerUse() {
+	public static void TestUsagePayPerUse() throws ApiException, it.eng.dome.tmforum.tmf637.v4.ApiException {
 		System.out.println("Test Usages for PayPerUse");
 		
 		it.eng.dome.tmforum.tmf637.v4.ApiClient clientTMF637 = it.eng.dome.tmforum.tmf637.v4.Configuration.getDefaultApiClient();
 		clientTMF637.setBasePath(TMF_SERVER + "/tmf-api/productInventory/v4");
 		
-		ProductApis productApis = new ProductApis(clientTMF637);
+		//ProductApis productApis = new ProductApis(clientTMF637);
+		ProductInventoryApis productApis = new ProductInventoryApis(clientTMF637);
 		
 		Product product = productApis.getProduct("urn:ngsi-ld:product:19402bf1-0889-46e5-9f6c-6fc458be024f", null);
 		
@@ -80,7 +90,8 @@ public class TestUsageCompute {
 		
 		it.eng.dome.tmforum.tmf620.v4.ApiClient clientTMF620 = it.eng.dome.tmforum.tmf620.v4.Configuration.getDefaultApiClient();
 		clientTMF620.setBasePath(TMF_SERVER + "/tmf-api/productCatalogManagement/v4");
-		ProductOfferingPriceApis productOfferingPriceApis = new ProductOfferingPriceApis(clientTMF620);
+		//ProductOfferingPriceApis productOfferingPriceApis = new ProductOfferingPriceApis(clientTMF620);
+		ProductCatalogManagementApis productCatalogManagementApis = new ProductCatalogManagementApis(clientTMF620);
 
 
 		// dummy values
@@ -98,7 +109,7 @@ public class TestUsageCompute {
 		filter.put("usageDate.gt", tp.getStartDateTime().toString());
 		
 		
-		List<Usage> usages = usageManagementApis.getAllUsages(null, filter);
+		List<Usage> usages = null;//usageManagementApis.getAllUsages(null, filter);
 		
 		// set the map keys/values from usage list
 		Map<String, Object> usageData = new HashMap<String, Object>();		
@@ -140,7 +151,7 @@ public class TestUsageCompute {
 					if (pprice.getProductOfferingPrice() != null) {
 						String popId = pprice.getProductOfferingPrice().getId();
 						System.out.println("popId: " + popId);
-						ProductOfferingPrice pop = productOfferingPriceApis.getProductOfferingPrice(popId, null);
+						ProductOfferingPrice pop = productCatalogManagementApis.getProductOfferingPrice(popId, null);
 						
 						//TODO - retrieve usage amount
 						String key = pop.getUnitOfMeasure().getUnits();	

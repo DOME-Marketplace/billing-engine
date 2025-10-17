@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.4.2</code> :calendar: 17/10/2025
+**BugFixing**
+* ...
+
 ### <code>1.4.1</code> :calendar: 01/09/2025
 **Improvements**
 * Updated priceType values to include `usage` vale to manage pay-per-use use case.

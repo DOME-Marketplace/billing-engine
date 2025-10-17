@@ -18,7 +18,7 @@ import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.tmf.TmfApiFactory;
 import it.eng.dome.brokerage.billing.utils.BillingPriceType;
-import it.eng.dome.brokerage.api.ProductOfferingPriceApis;
+import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
 import it.eng.dome.tmforum.tmf622.v4.model.Characteristic;
@@ -37,13 +37,15 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 	@Autowired
 	private PriceAlterationCalculator priceAlterationCalculator;
 	
-	private ProductOfferingPriceApis productOfferingPriceApis;
+	//private ProductOfferingPriceApis productOfferingPriceApis;
+	private ProductCatalogManagementApis productCatalogManagementApis;
 	
     private final Logger logger = LoggerFactory.getLogger(BundledPriceCalculator.class);
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
+		//productOfferingPriceApis = new ProductOfferingPriceApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
+		productCatalogManagementApis = new ProductCatalogManagementApis(tmfApiFactory.getTMF620ProductCatalogApiClient());
 	}
 	
 	/*
@@ -144,9 +146,9 @@ public class BundledPriceCalculator implements PriceCalculator, InitializingBean
 		for (var bundledPopRel : pop.getBundledPopRelationship()) {
 			logger.debug("Retrieving remote ProductOfferingPrice with id: '{}'", bundledPopRel.getId());
 			
-			ProductOfferingPrice productOfferingPrice = productOfferingPriceApis.getProductOfferingPrice(bundledPopRel.getId(), null);
+			ProductOfferingPrice productOfferingPrice = productCatalogManagementApis.getProductOfferingPrice(bundledPopRel.getId(), null);
 			if (productOfferingPrice != null) {
-				bundledPops.add(productOfferingPriceApis.getProductOfferingPrice(bundledPopRel.getId(), null));
+				bundledPops.add(productCatalogManagementApis.getProductOfferingPrice(bundledPopRel.getId(), null));
 			}else {
 				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId()));
 			}

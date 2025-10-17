@@ -1,7 +1,6 @@
 package it.eng.dome.billing.engine.listener;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -102,6 +102,8 @@ public final class PriceUtils {
 	}
 	
 	public static OrderPrice calculateOrderPrice(@NonNull ProductOfferingPrice pop, @NonNull ProductOrderItem orderItem, @NonNull PriceAlterationCalculator pac) throws Exception{
+		logger.info("Calculating Price for ProductOfferingPrice '{}' in ProductOrdeIem '{}'...,",pop.getId(), orderItem.getId());
+		
 		OrderPrice orderPrice=new OrderPrice();
 	    final Price itemPrice = new Price();
 	    EuroMoney euro = new EuroMoney(pop.getPrice().getValue() * orderItem.getQuantity());
@@ -117,15 +119,15 @@ public final class PriceUtils {
 		}
 		orderPrice.setPrice(itemPrice);
 						
-		logger.info("Price of item '{}': [quantity: {}, price: '{}'] = {} euro", 
-			orderItem.getId(), orderItem.getQuantity(), pop.getPrice().getValue(), euro.getAmount());
+		logger.info("Price of ProductOfferingPrice '{}' in ProductOrdeIem '{}': [quantity: {}, price: '{}'] = {} euro", 
+			pop.getId(), orderItem.getId(), orderItem.getQuantity(), pop.getPrice().getValue(), euro.getAmount());
 						
 		// apply price alterations
 		if (PriceUtils.hasRelationships(pop)) {
 			pac.applyAlterations(orderItem, pop, orderPrice);
 							
-			logger.info("Price of item '{}' after alterations = {} euro", 
-					orderItem.getId(), PriceUtils.getAlteredDutyFreePrice(orderPrice));
+			logger.info("Price of ProductOfferingPrice '{}' in ProductOrdeIem '{}' after alterations = {} euro", 
+					pop.getId(), orderItem.getId(), PriceUtils.getAlteredDutyFreePrice(orderPrice));
 		}			
 		
 		return orderPrice;

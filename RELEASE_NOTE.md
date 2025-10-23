@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.4.3</code> :calendar: 23/10/2025
+**Improvements**
+* Removed Exception in `/billing/preciewPrice` when none `ProductOfferingPrice` match with the `productCharacteristic` of the `ProductOrder`
+
 ### <code>1.4.2</code> :calendar: 17/10/2025
 **Improvements**
 * Usage of the new `Brokerage Utils` version: `2.2.0`.

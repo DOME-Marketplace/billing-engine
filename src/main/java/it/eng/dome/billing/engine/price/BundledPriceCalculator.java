@@ -54,7 +54,7 @@ public class BundledPriceCalculator implements PriceCalculator {
 	@Override
 	public List<OrderPrice> calculateOrderPrice(ProductOrderItem orderItem, ProductOfferingPrice pop) throws Exception {
 			
-		logger.debug("Starting bundled price calculation...");
+		logger.info("Starting bundled price calculation...");
 		try {
 			List<OrderPrice> orderPriceList=new ArrayList<OrderPrice>();
 			if (orderItem.getItemPrice() != null)
@@ -97,29 +97,30 @@ public class BundledPriceCalculator implements PriceCalculator {
 			//float itemTotalPrice = 0;
 			final Date today = new Date();
 			for (Characteristic productCharacteristic : productChars) {
-				logger.debug("Calculating price for Characteristic: '{}' value '{}'", productCharacteristic.getName(), productCharacteristic.getValue());
+				logger.info("Calculating price for Characteristic: '{}' value '{}'", productCharacteristic.getName(), productCharacteristic.getValue());
 				// find matching POP
 				matchingPop = priceMatcher.match(productCharacteristic, today);
-				if(matchingPop==null) {
-					throw new BillingBadRequestException(String.format("Error! No matching ProductOfferingPrice found for Characteristic: '%s' value '%s'", productCharacteristic.getName(), productCharacteristic.getValue()));
-				}
+				if(matchingPop!=null) {
 				
-				// calculates the base price of the Characteristic 
-				characteristicPrice = calculatePriceForCharacteristic(orderItem, matchingPop, productCharacteristic);
+					// calculates the base price of the Characteristic 
+					characteristicPrice = calculatePriceForCharacteristic(orderItem, matchingPop, productCharacteristic);
 				
-		    	// applies price alterations
-				if (PriceUtils.hasRelationships(matchingPop)) {
-					priceAlterationCalculator.applyAlterations(orderItem, matchingPop, characteristicPrice);
-					logger.info("Price of Characteristic '{}' '{}' after alterations: {} euro", 
+					// applies price alterations
+					if (PriceUtils.hasRelationships(matchingPop)) {
+						priceAlterationCalculator.applyAlterations(orderItem, matchingPop, characteristicPrice);
+						logger.info("Price of ProductOfferingPrice '{}' with Characteristic '{}' '{}' after alterations: {} euro", pop.getId(),
 							productCharacteristic.getName(), productCharacteristic.getValue(), PriceUtils.getAlteredDutyFreePrice(characteristicPrice));
 					
-					//itemTotalPrice += PriceUtils.getAlteredDutyFreePrice(characteristicPrice);
-				} /*else {
-					itemTotalPrice += characteristicPrice.getPrice().getDutyFreeAmount().getValue();
-				}*/
-				
-				orderItem.addItemPriceItem(characteristicPrice);
-				orderPriceList.add(characteristicPrice);
+						//itemTotalPrice += PriceUtils.getAlteredDutyFreePrice(characteristicPrice);
+					} /*else {
+						itemTotalPrice += characteristicPrice.getPrice().getDutyFreeAmount().getValue();
+					}*/
+					
+					orderItem.addItemPriceItem(characteristicPrice);
+					orderPriceList.add(characteristicPrice);
+				}else {
+					logger.info("No matching ProductOfferingPrice found for Characteristic: '{}' value '{}", productCharacteristic.getName(), productCharacteristic.getValue());
+				}
 			}
 		
 			return orderPriceList;
@@ -183,13 +184,13 @@ public class BundledPriceCalculator implements PriceCalculator {
 
 		if (PriceUtils.isForfaitPrice(pop)) {
 			chAmount = new EuroMoney(orderItem.getQuantity() * pop.getPrice().getValue());
-			logger.info("Price of Characteristic '{}' '{}' [quantity: {}, price: '{}'] = {} euro", 
+			logger.info("Price of ProductOfferingPrice '{}' with Characteristic '{}' '{}' [quantity: {}, price: '{}'] = {} euro", pop.getId(),
 					chName, chOrderValue, orderItem.getQuantity(), pop.getPrice().getValue(), chAmount.getAmount());
 		} else {
 			final Quantity unitOfMeasure = pop.getUnitOfMeasure();
 			chAmount = new EuroMoney(orderItem.getQuantity() * ((pop.getPrice().getValue() * chOrderValue) / unitOfMeasure.getAmount()));
-			logger.info("Price of Characteristic '{}' [quantity: {}, value: '{} {}', price: '{}' per '{} {}'] = {} euro", 
-					chName, orderItem.getQuantity(), chOrderValue, unitOfMeasure.getUnits(),
+			logger.info("Price of of ProductOfferingPrice '{}' with Characteristic '{}' [quantity: {}, value: '{} {}', price: '{}' per '{} {}'] = {} euro", 
+					pop.getId(), chName, orderItem.getQuantity(), chOrderValue, unitOfMeasure.getUnits(),
 					pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), chAmount.getAmount());
 		}
 		
@@ -297,5 +298,7 @@ public class BundledPriceCalculator implements PriceCalculator {
 			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
 		}
 	}
+	
+	
 	
 }

@@ -315,7 +315,8 @@ public final class PriceUtils {
 					chName, chValue, pop.getPrice().getValue(), chAmount.getAmount());
 		} else {
 			final Quantity unitOfMeasure = pop.getUnitOfMeasure();
-			chAmount = new EuroMoney(((pop.getPrice().getValue() * chValue) / unitOfMeasure.getAmount()) * chValue);
+			//chAmount = new EuroMoney(((pop.getPrice().getValue() * chValue) / unitOfMeasure.getAmount()) * chValue);
+			chAmount = new EuroMoney(((pop.getPrice().getValue() * chValue) / unitOfMeasure.getAmount()));
 			logger.info("Price of Characteristic '{}' [quantity: {}, price: '{}' per '{} {}'] = {} euro", 
 					chName, chValue,
 					pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), chAmount.getAmount());

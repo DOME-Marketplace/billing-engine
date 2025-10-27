@@ -117,7 +117,7 @@ public class BillService {
 					throw new BillingBadRequestException(String.format("Error! Started calculation of bundled ProductOfferingPrice %s but the 'bundledPopRelationship' is empty!", pop.getId()));
 				}
 				for(ProductOfferingPrice bundledPop: bundledPops) {
-					String priceTypeNormalized=BillingPriceType.normalize(pop.getPriceType());
+					String priceTypeNormalized=BillingPriceType.normalize(bundledPop.getPriceType());
 					// Not pay-per-use price plan
 					if(!priceTypeNormalized.equalsIgnoreCase(BillingPriceType.PAY_PER_USE.getNormalizedKey()) && !priceTypeNormalized.equalsIgnoreCase(BillingPriceType.USAGE.getNormalizedKey())) {
 						prices.add(PriceUtils.calculatePrice(bundledPop, productChars, priceAlterationCalculator));

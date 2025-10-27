@@ -14,7 +14,7 @@
 
 	<groupId>it.eng.dome.billing</groupId>
 	<artifactId>engine</artifactId>
-	<version>1.4.3</version>
+	<version>1.4.4</version>
 	<name>Billing Engine</name>
 	<description>Billing Engine for DOME project</description>
 

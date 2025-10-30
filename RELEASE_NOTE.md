@@ -2,9 +2,16 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>1.4.4</code> :calendar: 27/10/2025
+**BugFixing**
+* Solved *bug fix* to calculate price for Characteristic
+* Add `getTmf637EnumModule` class in the **JacksonModuleConfig** to *serialize* and *deserialize* the **TMForum enum types**.
+
+
 ### <code>1.4.3</code> :calendar: 23/10/2025
 **Improvements**
-* Removed Exception in `/billing/preciewPrice` when none `ProductOfferingPrice` match with the `productCharacteristic` of the `ProductOrder`
+* Removed Exception in `/billing/preciewPrice` when none `ProductOfferingPrice` match with the `productCharacteristic` of the `ProductOrder`.
+
 
 ### <code>1.4.2</code> :calendar: 17/10/2025
 **Improvements**

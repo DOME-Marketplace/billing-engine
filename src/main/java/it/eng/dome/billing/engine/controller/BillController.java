@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.bill.BillService;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
-import it.eng.dome.brokerage.api.ProductInventoryApis;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
@@ -33,12 +32,12 @@ public class BillController {
 	@Autowired
 	protected BillService billService;
 
-	private ProductInventoryApis producInventoryApis;
+	//private ProductInventoryApis producInventoryApis;
 
 	
-	public BillController(ProductInventoryApis producInventoryApis) {
+	/*public BillController(ProductInventoryApis producInventoryApis) {
 		this.producInventoryApis = producInventoryApis;
-	}
+	}*/
     
 	 /**
      * The POST /billing/bill REST API is invoked to calculate the bill of a Product (TMF637-v4) without taxes.
@@ -59,7 +58,8 @@ public class BillController {
 		try {
 			
 			// 1) retrieve the Product, TimePeriod and ProductPrice list from the BillingRequestDTO
-			product = producInventoryApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			//product = producInventoryApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			product = billRequestDTO.getProduct();
 			
 			
 			if (product == null) {

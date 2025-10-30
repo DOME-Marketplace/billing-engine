@@ -1,6 +1,6 @@
 # Billing Engine
 
-**Version:** 1.4.2  
+**Version:** 1.4.3  
 **Description:** Swagger REST APIs for the billing-engine software  
 
 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.eng.dome.billing.engine.service.HealthService;
 import it.eng.dome.brokerage.observability.health.Health;
 import it.eng.dome.brokerage.observability.info.Info;
 
@@ -21,7 +22,7 @@ public class BillingEngineController {
 	private static final Logger logger = LoggerFactory.getLogger(BillingEngineController.class);
 
 	@Autowired
-	private it.eng.dome.billing.engine.service.HealthService healthService;
+	private HealthService healthService;
 
 	@GetMapping("/info")
 	public ResponseEntity<Info> getInfo() {

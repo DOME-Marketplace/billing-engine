@@ -21,17 +21,36 @@ public class PriceCalculatorFactory {
         PriceCalculator pc=null;
         
 		if(ProductOfferingPriceUtils.isPriceTypeUsage(pop)) {
-			if(billingPeriod==null)
-				throw new BillingBadRequestException(String.format("Error getting PriceCalculator: the POP '{}' with priceType Usage requires a not null billingPeriod to get Usage data", pop.getId()));
 			pc=getUsagePriceCalculator(pop,prod,billingPeriod);
+		}else {
+			if(ProductOfferingPriceUtils.hasProdSpecCharValueUses(pop)) {
+				pc=getCharacteristicPriceCalculator(pop, prod);
+			}else {
+				pc=getBasePriceCalculator(pop);
+			}
 		}
 		
 		return pc;
 	}
 
-	private static PriceCalculator getUsagePriceCalculator(@NotNull ProductOfferingPrice pop, @NotNull Product prod, @NotNull TimePeriod billingPeriod) {
+	private static PriceCalculator getUsagePriceCalculator(@NotNull ProductOfferingPrice pop, @NotNull Product prod, @NotNull TimePeriod billingPeriod) throws BillingBadRequestException {
 		logger.debug("Creating UsagePriceCalculator for POP '{}'", pop.getId());
+		if(billingPeriod==null)
+			throw new BillingBadRequestException(String.format("Error getting UsagePriceCalculator: the POP '{}' with priceType Usage requires a not null billingPeriod to get Usage data", pop.getId()));
 		return new UsagePriceCalculator(pop,prod,billingPeriod);
 	}
+	
+	private static PriceCalculator getBasePriceCalculator(@NotNull ProductOfferingPrice pop) {
+		logger.debug("Creating BasePriceCalculator for POP '{}'", pop.getId());
+		return new BasePriceCalculator(pop);
+	}
+	
+	private static PriceCalculator getCharacteristicPriceCalculator(@NotNull ProductOfferingPrice pop, @NotNull Product prod) throws BillingBadRequestException {
+		logger.debug("Creating CharacteristicPriceCalculator for POP '{}'", pop.getId());
+		if(prod.getProductCharacteristic()==null ||prod.getProductCharacteristic().isEmpty())
+			throw new BillingBadRequestException(String.format("Error getting CharacteristicPriceCalculator: the ProductCharacteristic are missing in Product '{}'", prod.getId()));
+		return new CharacteristicPriceCalculator(pop, prod);
+	}
+
 
 }

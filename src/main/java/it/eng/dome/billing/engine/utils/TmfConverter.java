@@ -69,6 +69,17 @@ public class TmfConverter {
 		
 	}
 	
+	public static it.eng.dome.tmforum.tmf678.v4.model.Money convertMoneyTo678(@NotNull it.eng.dome.billing.engine.model.Money moneyIn){
+		
+		it.eng.dome.tmforum.tmf678.v4.model.Money  out=new it.eng.dome.tmforum.tmf678.v4.model.Money();
+		
+		out.setUnit(moneyIn.getUnit());
+		out.setValue(moneyIn.getValue());
+		
+		return out;
+		
+	}
+	
 	public static it.eng.dome.billing.engine.model.Money convert622ToMoney(@NotNull it.eng.dome.tmforum.tmf622.v4.model.Money moneyIn){
 		
 		it.eng.dome.billing.engine.model.Money  out=new it.eng.dome.billing.engine.model.Money();

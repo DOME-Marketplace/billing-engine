@@ -112,7 +112,7 @@ public class PriceAlterationCalculator {
 		return alteredPrice.getPrice();
 	}
 	
-	public Money applyAlterations (@NotNull ProductOfferingPrice pop,@NotNull Money basePrice) throws IllegalArgumentException, ApiException, BillingEngineValidationException{
+	public Money applyAlterations (@NotNull ProductOfferingPrice pop,@NotNull Money basePrice) throws BillingEngineValidationException, ApiException{
 
 		PriceAlterationOperation alterationCalculator;
 		PriceAlteration priceAlteration=null;

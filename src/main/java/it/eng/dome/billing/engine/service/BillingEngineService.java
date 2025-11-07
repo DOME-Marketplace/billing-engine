@@ -12,7 +12,10 @@ import it.eng.dome.billing.engine.config.AppProperties;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.price.PriceUtils;
+import it.eng.dome.billing.engine.price.calculator.PriceCalculator;
+import it.eng.dome.billing.engine.price.calculator.PriceCalculatorFactory;
 import it.eng.dome.billing.engine.utils.TMForumEntityUtils;
+import it.eng.dome.billing.engine.utils.TmfConverter;
 import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.billing.dto.BillingResponseDTO;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
@@ -76,7 +79,7 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 
 
 	private List<AppliedCustomerBillingRate> generateACBR(@NotNull ProductOfferingPrice pop, @NotNull Product product,
-			@NotNull TimePeriod billingPeriod) throws BillingBadRequestException {
+			@NotNull TimePeriod billingPeriod) throws BillingBadRequestException, BillingEngineValidationException, ApiException {
 		logger.info("Generation of ACBR(s) for POP '{}' in Product '{}' and billingPeriod '{}'-'{}'",pop.getId(),product.getId(),billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
 		
 		List<AppliedCustomerBillingRate> acbrs=new ArrayList<AppliedCustomerBillingRate>();
@@ -84,15 +87,14 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 		List<BillCycle> billCycles=billCycleService.getBillCycles(pop, product, billingPeriod);
 		
 		for(BillCycle billCycle:billCycles) {
-			Price popPrice=new Price();
 			tmfEntityValidator.validatePrice(pop);
 			
-			if(!ProductOfferingPriceUtils.isPriceTypeUsage(pop)) {
-				popPrice = productPriceService.calculatePrice(pop);
-			}else {
-				taxExcludedAmount = usagePriceService.calculatePrice(pop);
-			}
-			AppliedCustomerBillingRate acbr= TMForumEntityUtils.createAppliedCustomerBillingRate(pop, product, billCycle, popPrice.getDutyFreeAmount(), appProperties.getSchemaLocationRelatedParty());
+			PriceCalculator pc=PriceCalculatorFactory.getPriceCalculatorFor(pop, product, billingPeriod);
+			
+			it.eng.dome.billing.engine.model.Money taxExclutedAmount=pc.calculatePrice();
+			
+			AppliedCustomerBillingRate acbr= TMForumEntityUtils.createAppliedCustomerBillingRate
+					(pop, product, billCycle, TmfConverter.convertMoneyTo678(taxExclutedAmount), appProperties.getSchemaLocationRelatedParty());
 			acbrs.add(acbr);
 		}
 

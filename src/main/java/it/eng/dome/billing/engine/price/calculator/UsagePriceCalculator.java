@@ -7,19 +7,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import it.eng.dome.billing.engine.bill.BillUtils;
-import it.eng.dome.billing.engine.exception.BillingBadRequestException;
+import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.model.Money;
-import it.eng.dome.billing.engine.price.PriceUtils;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
-import it.eng.dome.billing.engine.tmf.EuroMoney;
 import it.eng.dome.billing.engine.utils.UsageUtils;
 import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
+import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
-import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
@@ -35,8 +32,8 @@ public class UsagePriceCalculator implements PriceCalculator{
 	private Product prod;
 	private TimePeriod billiPeriod; 
 	
-	//private final String currency;
-	//private static final String DEFAULT_CURRENCY = "EUR";
+	private final String priceCurrency;
+	private final String DEFAULT_CURRENCY = "EUR";
 	
 	@Autowired
 	private UsageManagementApis usageManagementApis;
@@ -57,23 +54,24 @@ public class UsagePriceCalculator implements PriceCalculator{
 		this.prod = prod;
 		this.billiPeriod = billiPeriod;
 		
-		/*if(pop.getPrice().getUnit()==null || pop.getPrice().getUnit().isEmpty())
-			this.currency=DEFAULT_CURRENCY;
+		if(this.pop.getPrice().getUnit()!=null && !this.pop.getPrice().getUnit().isEmpty())
+			this.priceCurrency=this.pop.getPrice().getUnit();
 		else
-			this.currency=pop.getPrice().getUnit();*/
+			this.priceCurrency=DEFAULT_CURRENCY;
 	}
 
 	@Override
-	public Money calculatePrice() throws BillingBadRequestException{
+	public Money calculatePrice() throws BillingEngineValidationException, ApiException{
+		
+		logger.info("Calculating usage price for POP '{}' of Product '{}...", pop.getId(), prod.getId());
 		
 		float totalAmount=0;
-		Money totalAmountMoney=new Money();
+		Money totalAmountMoney=null;
 		
 		inizializeUsageData(prod.getId(), billiPeriod);
-
-		// Retrieve the metric from the unitOfMeasure of the POP
-		if(pop.getUnitOfMeasure()==null)
-			throw new BillingBadRequestException("The unitOfMeasure is missing in the ProductOfferingPrice but it is required for the Usage price type");
+		
+		// Retrieve the metric from the unitOfMeasure of the POP and validate it
+		tmfEntityValidator.validateUnitOfMeasure(pop.getUnitOfMeasure(), pop);
 		
 		String metric=pop.getUnitOfMeasure().getUnits();
 		logger.debug("UnitOfMeasure of POP {}: units {}, value {}",pop.getId(), pop.getUnitOfMeasure().getUnits(), pop.getUnitOfMeasure().getAmount());
@@ -84,19 +82,20 @@ public class UsagePriceCalculator implements PriceCalculator{
 			logger.debug("Size of the list of UsageCharacteristic for metric {}: {}",metric,usageChForMetric.size());
 			
 			for(UsageCharacteristic usageCh:usageChForMetric) {
-				Money usageChAmount= this.calculatePriceForUsageCharacteristic(pop, usageCh);
+				Money usageChAmount= this.calculatePriceForUsageCharacteristic(usageCh);
 				totalAmount+=usageChAmount.getValue();
 			}
+			totalAmountMoney=new Money(priceCurrency,totalAmount);
 		}
 		else {
 			logger.warn("No usage data fount for the metric '{}' in the TimePeriod [{}-{}]",metric,billiPeriod.getStartDateTime(),billiPeriod.getEndDateTime());
 		}
 		
-		logger.info("Price of ProductOfferingPrice '{}' = {} {}", pop.getId(), totalAmount, pop.getPrice().getUnit());
+		logger.info("Price of ProductOfferingPrice '{}' = {} {}", pop.getId(), totalAmount, priceCurrency);
 		
 		// apply price alterations
 		if (ProductOfferingPriceUtils.hasRelationships(pop)) {
-			Money alteretedPrice=priceAlterationCalculator.applyAlterations(pop, new Money(pop.getPrice().getUnit(), totalAmount));
+			Money alteretedPrice=priceAlterationCalculator.applyAlterations(pop, new Money(priceCurrency, totalAmount));
 											
 			logger.info("Price of ProductOfferingPrice '{}' after alterations = {} {}", 
 					pop.getId(), alteretedPrice.getValue(), alteretedPrice.getUnit());	
@@ -104,9 +103,8 @@ public class UsagePriceCalculator implements PriceCalculator{
 			return alteretedPrice;
 		}
 	
-		return itemPrice;
+		return totalAmountMoney;
 		
-		return null;
 	}
 	
 	/*
@@ -125,29 +123,20 @@ public class UsagePriceCalculator implements PriceCalculator{
 		return usageData;
 	}
 
-	private Money calculatePriceForUsageCharacteristic(@NonNull ProductOfferingPrice pop, @NonNull UsageCharacteristic usageCh) {
+	private Money calculatePriceForUsageCharacteristic(@NonNull UsageCharacteristic usageCh) {
 		
 		logger.debug("Calculating price for Usage Characteristic with [name:'{}' value: '{}']", usageCh.getName(), usageCh.getValue());
-		
-		//final Price usageChPrice = new Price();
-		//EuroMoney usageChAmount;
+
 		final String usageChName = usageCh.getName();
-		//final Double usageChValue = Double.parseDouble(usageCh.getValue().toString());
 		final Float usageChValue = Float.parseFloat(usageCh.getValue().toString());
 		
 		final Quantity unitOfMeasure = pop.getUnitOfMeasure();
-		//usageChAmount = new EuroMoney(((pop.getPrice().getValue() * usageChValue) / unitOfMeasure.getAmount()));
 		Float usageChAmount= (pop.getPrice().getValue() * usageChValue) / unitOfMeasure.getAmount();
-		//Money usageChAmount = new EuroMoney(((pop.getPrice().getValue() * usageChValue) / unitOfMeasure.getAmount()));
-		logger.info("Price of UsageCharacteristic '{}' with [quantity: '{}', price: '{}' per '{} {}'] = {} euro", 
+		logger.info("Price of UsageCharacteristic '{}' with [quantity: '{}', price: '{}' per '{} {}'] = {} {}", 
 					usageChName, usageChValue,
-					pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), usageChAmount);
+					pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), usageChAmount, priceCurrency);
 
 		Money usageChMoney=new Money(pop.getPrice().getUnit(), usageChAmount);
-		//usageChPrice.setDutyFreeAmount(usageChAmount.toMoney());
-		//usageChPrice.setTaxIncludedAmount(null);
-		
-		//return usageChPrice;
 		return usageChMoney;
 	}
 

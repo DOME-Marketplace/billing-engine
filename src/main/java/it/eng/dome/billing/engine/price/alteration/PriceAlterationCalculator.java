@@ -1,6 +1,7 @@
 package it.eng.dome.billing.engine.price.alteration;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +10,13 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
+import it.eng.dome.billing.engine.model.Money;
 import it.eng.dome.billing.engine.price.PriceUtils;
+import it.eng.dome.billing.engine.utils.TmfConverter;
+import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
+import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPriceRelationship;
@@ -18,6 +24,7 @@ import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
+import jakarta.validation.constraints.NotNull;
 
 @Component(value = "priceAlterationCalculator")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -27,9 +34,10 @@ public class PriceAlterationCalculator {
 	@Autowired
 	private PriceAlterationFactory priceAlterationFactory;
 	
-	//private ProductOfferingPriceApis productOfferingPriceApis;
-	
 	private ProductCatalogManagementApis productCatalogManagementApis;
+	
+	@Autowired
+	private TMFEntityValidator tmfEntityValidator;
 	
 	public PriceAlterationCalculator (ProductCatalogManagementApis productCatalogManagementApis) {
 		this.productCatalogManagementApis = productCatalogManagementApis;
@@ -102,6 +110,40 @@ public class PriceAlterationCalculator {
 		}
 		
 		return alteredPrice.getPrice();
+	}
+	
+	public Money applyAlterations (@NotNull ProductOfferingPrice pop,@NotNull Money basePrice) throws IllegalArgumentException, ApiException, BillingEngineValidationException{
+
+		PriceAlterationOperation alterationCalculator;
+		PriceAlteration priceAlteration=null;
+		
+		List<ProductOfferingPrice> popRels=ProductOfferingPriceUtils.getProductOfferingPriceRelationships(pop.getPopRelationship(), productCatalogManagementApis);
+
+		if(popRels!=null && !popRels.isEmpty()) {
+			for(ProductOfferingPrice popRel:popRels) {
+				
+				tmfEntityValidator.validateProductOfferingPrice(popRel);
+				
+				// to be used, the alteration must be active
+				if(!ProductOfferingPriceUtils.isActive(popRel))
+					continue;
+				
+				if (!ProductOfferingPriceUtils.isValid(popRel))
+					continue;
+				
+				// the alteration type must be one of the types known
+				alterationCalculator = priceAlterationFactory.getPriceAlterationCalculator(popRel);
+				if (alterationCalculator == null)
+					continue;
+				
+				logger.debug("Applying alteration '{}' on base price: {} {}",popRel.getPriceType(), basePrice, popRel.getPrice().getUnit());
+				priceAlteration = alterationCalculator.applyAlteration(basePrice.getValue(), popRel);
+			}
+		}
+		
+		it.eng.dome.tmforum.tmf622.v4.model.Money money622=priceAlteration.getPrice().getDutyFreeAmount();
+		
+		return TmfConverter.convert622ToMoney(money622);
 	}
 
 }

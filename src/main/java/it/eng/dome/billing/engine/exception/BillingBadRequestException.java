@@ -6,7 +6,7 @@ import lombok.Getter;
  * Custom exception raised when the Billing Engine service will not process the request due to something that is perceived to be
  * a client error 
  */
-public class BillingBadRequestException extends RuntimeException{
+public class BillingBadRequestException extends Exception{
 	
 
 	private static final long serialVersionUID = 1L;

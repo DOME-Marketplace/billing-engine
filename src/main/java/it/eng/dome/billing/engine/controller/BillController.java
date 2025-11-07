@@ -1,7 +1,5 @@
 package it.eng.dome.billing.engine.controller;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +11,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.eng.dome.billing.engine.bill.BillService;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
+import it.eng.dome.billing.engine.service.BillingEngineService;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
+import it.eng.dome.brokerage.billing.dto.BillingResponseDTO;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
-import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
-import it.eng.dome.tmforum.tmf678.v4.JSON;
-import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 
 @RestController
@@ -30,14 +26,7 @@ public class BillController {
 	protected final Logger logger = LoggerFactory.getLogger(BillController.class);
 	
 	@Autowired
-	protected BillService billService;
-
-	//private ProductInventoryApis producInventoryApis;
-
-	
-	/*public BillController(ProductInventoryApis producInventoryApis) {
-		this.producInventoryApis = producInventoryApis;
-	}*/
+	protected BillingEngineService billService;
     
 	 /**
      * The POST /billing/bill REST API is invoked to calculate the bill of a Product (TMF637-v4) without taxes.
@@ -47,57 +36,58 @@ public class BillController {
      * @throws Throwable If an error occurs during the calculation of the bill for the Product
      */ 
     @RequestMapping(value = "/bill", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<String> calculateBill(@RequestBody BillingRequestDTO billRequestDTO) throws Throwable {
+    public ResponseEntity<BillingResponseDTO> calculateBill(@RequestBody BillingRequestDTO billRequestDTO){
 		logger.info("Received request for calculating bill...");
 		
-		List<AppliedCustomerBillingRate> appliedCustomerBillingRateList;
 		Product product;
-		TimePeriod tp;
-		List<ProductPrice> ppList;
+		TimePeriod billingPeriod;
 				
 		try {
 			
-			// 1) retrieve the Product, TimePeriod and ProductPrice list from the BillingRequestDTO
-			//product = producInventoryApis.getProduct(billRequestDTO.getProduct().getId(), null);
+			// 1) retrieve the Product and the billingPeriod from the BillingRequestDTO
 			product = billRequestDTO.getProduct();
-			
 			
 			if (product == null) {
 				throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");
 			}
 			
-			tp = billRequestDTO.getTimePeriod();
-			if (tp == null) {
-				throw new BillingBadRequestException("Missing the instance of TimePeriod in the BillingRequestDTO");
-			}
-			
-			ppList = billRequestDTO.getProductPrice();
-			if (ppList == null) {
-				throw new BillingBadRequestException("Missing the instance of ProductPrice list in the BillingRequestDTO");
+			billingPeriod = billRequestDTO.getTimePeriod();
+			if (billingPeriod == null) {
+				throw new BillingBadRequestException("Missing the instance of billingPeriod in the BillingRequestDTO");
 			}
 			
 			logger.info("Product with ID: {}", product.getId());
-			logger.info("TimePeriod with startDate: {} and endDate: {}", tp.getStartDateTime(), tp.getEndDateTime());
-			logger.info("ProductPrice list with {} element(s)", ppList.size());
+			logger.info("BillingPeriod with startDate: {} and endDate: {}", billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
 			
-			// 2) calculate the list of the AppliedCustomerBillingRates for the Product, TimePeriod and ProductPrice List
+			BillingResponseDTO billResponseDTO = billService.calculateBill(product, billingPeriod);
 			
-			if (ppList != null && !ppList.isEmpty()) {
-				
-				appliedCustomerBillingRateList = billService.calculateBill(product, tp, ppList);
-				
-				// 3) return the AppliedCustomerBillingRate
-				return new ResponseEntity<String>(JSON.getGson().toJson(appliedCustomerBillingRateList), HttpStatus.OK);
-			}			
-			
-			throw new BillingBadRequestException("Cannot manage the calculateBill request. ProductPrice is null or empty");
-			 
+			return ResponseEntity.ok(billResponseDTO);
 
 		} catch (Exception e) {
 			logger.error("Error: {}", e.getMessage());
-			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
+    
+    /*private CustomerBill generateCustomerBill(List<AppliedCustomerBillingRate> acbrs) {
+    	CustomerBill cb=new CustomerBill();
+    	
+    	//Money ammountDue=new Money();
+    	Float totalTaxExcludedAmount=0f;
+    	//TODO Add TAXITEM
+    	for(AppliedCustomerBillingRate acbr:acbrs) {
+    		totalTaxExcludedAmount += acbr.getTaxExcludedAmount().getValue();
+		}
+    	
+    	Money totalTaxExcludedAmountMoney=new Money();
+    	totalTaxExcludedAmountMoney.setUnit("EUR");
+    	totalTaxExcludedAmountMoney.setValue(totalTaxExcludedAmount);
+    	
+    	cb.setTaxExcludedAmount(totalTaxExcludedAmountMoney);
+    	cb.setAmountDue(totalTaxExcludedAmountMoney);
+    	cb.setRemainingAmount(totalTaxExcludedAmountMoney);
+    	
+    	return cb;
+    }*/
 
 }

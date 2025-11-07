@@ -10,7 +10,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import it.eng.dome.billing.engine.tmf.EuroMoney;
+import it.eng.dome.billing.engine.model.Money;
+import it.eng.dome.billing.engine.utils.TmfConverter;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingTerm;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
@@ -26,10 +27,13 @@ public class DiscountAlterationOperation implements PriceAlterationOperation{
 	public PriceAlteration applyAlteration(float basePrice,  @NotNull ProductOfferingPrice alterationPOP) {
 		BigDecimal discount = new BigDecimal(basePrice * (alterationPOP.getPercentage() / 100));
 		discount = discount.setScale(2, RoundingMode.HALF_EVEN);
-		EuroMoney euro = new EuroMoney((basePrice - discount.floatValue()) < 0 ? 0 : basePrice - discount.floatValue());
+		//EuroMoney euro = new EuroMoney((basePrice - discount.floatValue()) < 0 ? 0 : basePrice - discount.floatValue());
+		Float discountedAmount=(basePrice - discount.floatValue()) < 0 ? 0 : basePrice - discount.floatValue();
+		Money discounteMoney = new Money(alterationPOP.getPrice().getUnit(),discountedAmount);
 		
 		Price price = new Price();
-		price.setDutyFreeAmount(euro.toMoney());
+		//price.setDutyFreeAmount(euro.toMoney());
+		price.setDutyFreeAmount(TmfConverter.convertMoneyTo622(discounteMoney));
 		PriceAlteration priceAlteration = new PriceAlteration();
 		priceAlteration
 		.description(alterationPOP.getDescription())
@@ -45,8 +49,8 @@ public class DiscountAlterationOperation implements PriceAlterationOperation{
 			.setUnitOfMeasure(term.getDuration().getUnits());
 		}
 		
-		logger.info("Applied {}% discount to price of {} euro. Discounted price: {} euro", 
-				alterationPOP.getPercentage(), basePrice, euro.getAmount());
+		logger.info("Applied {}% discount to price of {} euro. Discounted price: {} {}", 
+				alterationPOP.getPercentage(), basePrice, discounteMoney.getValue(), discounteMoney.getUnit());
 		
 		return priceAlteration;
 	}

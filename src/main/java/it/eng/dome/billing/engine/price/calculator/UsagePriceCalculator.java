@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.model.Money;
-import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.billing.engine.utils.UsageUtils;
-import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
@@ -24,40 +22,23 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 
-public class UsagePriceCalculator implements PriceCalculator{
+public class UsagePriceCalculator extends AbstractPriceCalculator{
 	
 	private final Logger logger = LoggerFactory.getLogger(UsagePriceCalculator.class);
 	
-	private ProductOfferingPrice pop;
-	private Product prod;
 	private TimePeriod billiPeriod; 
-	
-	private final String priceCurrency;
-	private final String DEFAULT_CURRENCY = "EUR";
 	
 	@Autowired
 	private UsageManagementApis usageManagementApis;
-	
-	@Autowired
-	private TMFEntityValidator tmfEntityValidator;
-	
-	@Autowired
-	private PriceAlterationCalculator priceAlterationCalculator; 
 	
 	// Map with key=usageCharacteristic.name and value=list of UsageCharacteritic
 	private	Map<String, List<UsageCharacteristic>> usageData= null;
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 
 	public UsagePriceCalculator(ProductOfferingPrice pop, Product prod, TimePeriod billiPeriod) {
-		super();
-		this.pop = pop;
-		this.prod = prod;
+		super(pop,prod);
+
 		this.billiPeriod = billiPeriod;
-		
-		if(this.pop.getPrice().getUnit()!=null && !this.pop.getPrice().getUnit().isEmpty())
-			this.priceCurrency=this.pop.getPrice().getUnit();
-		else
-			this.priceCurrency=DEFAULT_CURRENCY;
 	}
 
 	@Override

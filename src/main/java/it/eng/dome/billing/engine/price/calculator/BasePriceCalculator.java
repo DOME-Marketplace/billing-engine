@@ -11,25 +11,15 @@ import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 
-public class BasePriceCalculator implements PriceCalculator{
+public class BasePriceCalculator extends AbstractBasePriceCalculator{
 	
 	private final Logger logger = LoggerFactory.getLogger(BasePriceCalculator.class);
-	private ProductOfferingPrice pop;
-	
-	private final String priceCurrency;
-	private final String DEFAULT_CURRENCY = "EUR";
 	
 	@Autowired
 	private PriceAlterationCalculator priceAlterationCalculator; 
 
 	public BasePriceCalculator(ProductOfferingPrice pop) {
-		super();
-		this.pop = pop;
-		
-		if(this.pop.getPrice().getUnit()!=null && !this.pop.getPrice().getUnit().isEmpty())
-			this.priceCurrency=this.pop.getPrice().getUnit();
-		else
-			this.priceCurrency=DEFAULT_CURRENCY;
+		super(pop);
 	}
 
 	@Override

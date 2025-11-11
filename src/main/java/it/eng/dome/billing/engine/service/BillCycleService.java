@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
+import it.eng.dome.billing.engine.utils.TMForumEntityUtils;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.brokerage.model.BillCycle;
 import it.eng.dome.brokerage.model.PriceType;
 import it.eng.dome.brokerage.model.RecurringChargePeriod;
 import it.eng.dome.brokerage.model.RecurringPeriod;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
-import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
 
@@ -27,11 +27,11 @@ public class BillCycleService{
 	private final static Logger Logger = LoggerFactory.getLogger(BillCycleService.class);
 	
 	/**
-	 * Calculates all the {@link TimePeriod}) representing the billingPeriod(s) of the BillCycle, considering a list of {@link OffsetDateTime} end dates and an {@link OffsetDateTime} activation date 
+	 * Calculates all the {@link TimePeriod}) representing the periodCoverage(s) of the BillCycle, considering a list of {@link OffsetDateTime} end dates and an {@link OffsetDateTime} activation date 
 	 *
 	 * @param billingPeriodEndDates List of {@link OffsetDateTime} representing the end dates of the billingPeriod(s)
 	 * @param activationDate An {@link OffsetDateTime} representing the activation date from which the billingPeriod(s) are calculated
-	 * @return A list of {@link TimePeriod} representing the billingPeriod(s) of the BillCycle
+	 * @return A list of {@link TimePeriod} representing the periodCoverage(s) of the BillCycle
 	 */
 	public List<TimePeriod> calculateBillingPeriods(@NotNull List<OffsetDateTime> billingPeriodEndDates, @NotNull OffsetDateTime activationDate){
 			
@@ -42,8 +42,6 @@ public class BillCycleService{
 		if(!billingPeriodEndDates.isEmpty()) {
 			
 			List<OffsetDateTime> temp=new ArrayList<OffsetDateTime>(billingPeriodEndDates);
-			// Sort dates
-			//Collections.sort(billingPeriodEndDates);
 			
 			try {
 			    Collections.sort(temp);
@@ -149,16 +147,16 @@ public class BillCycleService{
 	}
 	
 	
-	public List<OffsetDateTime> calculateBillDates(@NotNull ProductOfferingPrice pop, @NotNull Product prod, @NotNull OffsetDateTime limitDate) throws BillingBadRequestException{
+	public List<OffsetDateTime> calculateBillDates(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws BillingBadRequestException{
 		Logger.info("Calculating billDate(s) for ProductOfferingPrice '{}' with priceType '{}", pop.getId(),pop.getPriceType());
 		
 		List<OffsetDateTime> billDates=new ArrayList<OffsetDateTime>();
 		if(ProductOfferingPriceUtils.isPriceTypeOneTime(pop))
-			billDates.add(prod.getStartDate());
+			billDates.add(activationDate);
 		
 		if(ProductOfferingPriceUtils.isPriceTypeRecurring(pop)) {
-			List<OffsetDateTime> billingPeriodEndDates=this.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), prod.getStartDate(), limitDate);
-			List<TimePeriod> billingPeriods= this.calculateBillingPeriods(billingPeriodEndDates, prod.getStartDate());
+			List<OffsetDateTime> billingPeriodEndDates=this.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), activationDate, limitDate);
+			List<TimePeriod> billingPeriods= this.calculateBillingPeriods(billingPeriodEndDates, activationDate);
 			if(ProductOfferingPriceUtils.isPriceTypeRecurringPrepaid(pop))
 				billDates=billingPeriods.stream()
 					.map(TimePeriod::getStartDateTime)
@@ -176,22 +174,80 @@ public class BillCycleService{
 		
 	}
 	
-	public List<BillCycle> getBillCycles(@NotNull ProductOfferingPrice pop, @NotNull Product prod, @NotNull TimePeriod billingPeriod) throws BillingBadRequestException{
+	public List<BillCycle> getBillCycles(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws BillingBadRequestException{
 		List<BillCycle> billCycles=new ArrayList<BillCycle>();
 		
-		List<OffsetDateTime> billDates=this.calculateBillDates(pop, prod, billingPeriod.getEndDateTime());
-		for(OffsetDateTime billDate: billDates) {
-			
-			if(this.isBillDateWithinBillingPeriod(billDate, billingPeriod)) {
-				BillCycle billCycle=new BillCycle();
-				billCycle.setBillDate(billDate);
-				billCycle.setBillingPeriod(billingPeriod);
-				billCycles.add(billCycle);
-			}	
+		if(ProductOfferingPriceUtils.isPriceTypeOneTime(pop)) {
+			billCycles.add(this.getBillCycleForOneTime(pop,activationDate));
 		}
+		
+		if(ProductOfferingPriceUtils.isPriceTypeRecurringPrepaid(pop)) {
+			billCycles.addAll(this.getBillCycleForRecurringPrepaid(pop, activationDate, limitDate));
+		}
+		
+		if(ProductOfferingPriceUtils.isPriceTypeRecurringPostpaid(pop)) {
+			billCycles.addAll(this.getBillCycleForRecurringPostpaid(pop, activationDate, limitDate));
+		}
+		
+		if(ProductOfferingPriceUtils.isPriceTypeCustom(pop))
+			throw new BillingBadRequestException(String.format("Error: Not possible to calculate billDates for PriceType '%s' in ProductOfferingPrice '%s' ", PriceType.CUSTOM.toString(), pop.getId()));
 		
 		return billCycles;
 				
+	}
+	
+	private BillCycle getBillCycleForOneTime(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate) {
+		BillCycle billCycle=new BillCycle();
+		billCycle.setBillDate(activationDate);
+		billCycle.setPeriodCoverage(TMForumEntityUtils.createTimePeriod678(activationDate, activationDate));
+		
+		return billCycle;
+	}
+	
+	private List<BillCycle> getBillCycleForRecurringPrepaid(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, OffsetDateTime limitDate) {
+		List<BillCycle> billCycles=new ArrayList<BillCycle>();
+		
+		List<OffsetDateTime> billingPeriodEndDates=this.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), activationDate, limitDate);
+		List<TimePeriod> periodCoverages= this.calculateBillingPeriods(billingPeriodEndDates,activationDate);
+		
+		for(TimePeriod periodCoverage: periodCoverages) {
+			BillCycle billCycle=new BillCycle();
+			billCycle.setBillDate(periodCoverage.getStartDateTime());
+			billCycle.setPeriodCoverage(TMForumEntityUtils.createTimePeriod678(periodCoverage.getStartDateTime(), periodCoverage.getEndDateTime()));
+			
+			billCycles.add(billCycle);
+		}
+		return billCycles;
+	}
+	
+	private List<BillCycle> getBillCycleForRecurringPostpaid(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, OffsetDateTime limitDate) {
+		List<BillCycle> billCycles=new ArrayList<BillCycle>();
+		
+		List<OffsetDateTime> billingPeriodEndDates=this.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), activationDate, limitDate);
+		List<TimePeriod> periodCoverages= this.calculateBillingPeriods(billingPeriodEndDates,activationDate);
+		
+		for(TimePeriod periodCoverage: periodCoverages) {
+			BillCycle billCycle=new BillCycle();
+			billCycle.setBillDate(periodCoverage.getEndDateTime());
+			billCycle.setPeriodCoverage(TMForumEntityUtils.createTimePeriod678(periodCoverage.getStartDateTime(), periodCoverage.getEndDateTime()));
+			
+			billCycles.add(billCycle);
+		}
+		return billCycles;
+	}
+	
+	public List<BillCycle> getBillCyclesInBillingPeriod(@NotNull List<BillCycle> billCycles, @NotNull TimePeriod billingPeriod){
+		
+		List<BillCycle> billCyclesInBillingPeriod=new ArrayList<BillCycle>();
+		
+		for(BillCycle billCycle:billCycles) {
+			if(isBillDateWithinBillingPeriod(billCycle.getBillDate(), billingPeriod)){
+				billCyclesInBillingPeriod.add(billCycle);
+			}
+		}
+		
+		return billCyclesInBillingPeriod;
+		
 	}
 
 }

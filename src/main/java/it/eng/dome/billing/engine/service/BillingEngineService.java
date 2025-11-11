@@ -21,6 +21,7 @@ import it.eng.dome.brokerage.billing.dto.BillingResponseDTO;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.brokerage.model.BillCycle;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
+import it.eng.dome.tmforum.tmf620.v4.model.ProductOffering;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
@@ -42,8 +43,8 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 	@Autowired
 	private ProductPriceService productPriceService;
 	
-	@Autowired
-	private ProductPriceService usagePriceService;
+	//@Autowired
+	//private ProductPriceService usagePriceService;
 	
 	@Autowired
 	private BillCycleService billCycleService;
@@ -70,7 +71,7 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 			acbrs=generateACBR(pop,product,billingPeriod);
 		}
 		
-		CustomerBill cb= this.generateCB(acbrs, billingPeriod);
+		CustomerBill cb= this.generateCB(acbrs, prod, billingPeriod);
 		BillingResponseDTO billingResponseDTO=new BillingResponseDTO(cb,acbrs);
 		
 		return billingResponseDTO;
@@ -84,9 +85,11 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 		
 		List<AppliedCustomerBillingRate> acbrs=new ArrayList<AppliedCustomerBillingRate>();
 		
-		List<BillCycle> billCycles=billCycleService.getBillCycles(pop, product, billingPeriod);
+		List<BillCycle> billCycles=billCycleService.getBillCycles(pop, product.getStartDate(), billingPeriod.getEndDateTime());
+		List<BillCycle> billCycleInBillingPeriod=billCycleService.getBillCyclesInBillingPeriod(billCycles, billingPeriod);
 		
-		for(BillCycle billCycle:billCycles) {
+		
+		for(BillCycle billCycle:billCycleInBillingPeriod) {
 			tmfEntityValidator.validatePrice(pop);
 			
 			PriceCalculator pc=PriceCalculatorFactory.getPriceCalculatorFor(pop, product, billingPeriod);
@@ -101,10 +104,12 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 		return acbrs;
 	}
 	
-	private CustomerBill generateCB(@NotNull List<AppliedCustomerBillingRate> acbrs, @NotNull TimePeriod billingPeriod) {
+	private CustomerBill generateCB(@NotNull List<AppliedCustomerBillingRate> acbrs, @NotNull Product prod, @NotNull TimePeriod billingPeriod) {
 		logger.info("Generation of CB for billingPeriod '{}'-'{}' with {} ACBRs",billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime(), acbrs.size());
 		
 		CustomerBill cb=new CustomerBill();
+		
+		ProductOffering po=new ProductOffering(); 
 		
 		return cb;
 		

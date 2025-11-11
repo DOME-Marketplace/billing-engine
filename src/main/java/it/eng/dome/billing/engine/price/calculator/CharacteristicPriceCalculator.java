@@ -2,12 +2,9 @@ package it.eng.dome.billing.engine.price.calculator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.model.Money;
-import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
-import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.billing.engine.validator.ValidationIssue;
 import it.eng.dome.billing.engine.validator.ValidationIssueSeverity;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
@@ -19,30 +16,12 @@ import it.eng.dome.tmforum.tmf637.v4.model.Characteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import jakarta.validation.constraints.NotNull;
 
-public class CharacteristicPriceCalculator implements PriceCalculator{
+public class CharacteristicPriceCalculator extends AbstractPriceCalculator{
 	
 	private final Logger logger = LoggerFactory.getLogger(CharacteristicPriceCalculator.class);
-	private ProductOfferingPrice pop;
-	private Product prod;
-	
-	private final String priceCurrency;
-	private final String DEFAULT_CURRENCY = "EUR";
-	
-	@Autowired
-	private PriceAlterationCalculator priceAlterationCalculator; 
-	
-	@Autowired
-	private TMFEntityValidator tmfEntityValidator;
 
 	public CharacteristicPriceCalculator(ProductOfferingPrice pop, Product prod) {
-		super();
-		this.pop = pop;
-		this.prod=prod;
-		
-		if(this.pop.getPrice().getUnit()!=null && !this.pop.getPrice().getUnit().isEmpty())
-			this.priceCurrency=this.pop.getPrice().getUnit();
-		else
-			this.priceCurrency=DEFAULT_CURRENCY;
+		super(pop,prod);
 	}
 
 
@@ -92,7 +71,6 @@ public class CharacteristicPriceCalculator implements PriceCalculator{
 		final String chName = ch.getName();
 		final Float chValue = Float.parseFloat(ch.getValue().toString());
 		Float chAmount;
-		Money chAmountMoney;
 	
 		if (ProductOfferingPriceUtils.isForfaitPrice(pop)) {
 			chAmount = (pop.getPrice().getValue() * chValue);

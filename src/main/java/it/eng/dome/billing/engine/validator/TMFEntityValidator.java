@@ -227,5 +227,25 @@ public class TMFEntityValidator {
         }
 	}
 	
+	public void validatePOPsCurrency(@NotNull List<ProductOfferingPrice> pops, @NotNull Product prod) throws BillingEngineValidationException {
+		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
+		
+		String firstCurrency = pops.get(0).getPrice().getUnit();
+		
+		boolean allSame = pops.stream()
+	            .map(pop -> pop.getPrice().getUnit())
+	            .allMatch(currency -> currency.equals(firstCurrency));
+
+	    if (!allSame) {
+	    	String msg=String.format("The price components of the Product {} have different currencies", prod.getId());
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+	    }
+	    
+	    if (issues.stream().anyMatch(i -> i.getSeverity() == ValidationIssueSeverity.ERROR)) {
+            throw new BillingEngineValidationException(issues);
+        }
+		
+	}
+	
 
 }

@@ -11,25 +11,15 @@ import org.springframework.stereotype.Service;
 
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
-import it.eng.dome.billing.engine.price.PriceUtils;
-import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
-import it.eng.dome.billing.engine.tmf.EuroMoney;
-import it.eng.dome.billing.engine.utils.TmfConverter;
 import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
-import it.eng.dome.brokerage.model.BillCycle;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
-import it.eng.dome.tmforum.tmf620.v4.model.Money;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
-import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationCharacteristicValueUse;
-import it.eng.dome.tmforum.tmf622.v4.model.Price;
-import it.eng.dome.tmforum.tmf637.v4.model.Characteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
-import lombok.NonNull;
 
 @Service
 public class ProductPriceService {
@@ -45,10 +35,10 @@ public class ProductPriceService {
 	@Autowired
 	private BillCycleService billCycleService;
 	
-	@Autowired
-	private PriceAlterationCalculator priceAlterationCalculator;
+	//@Autowired
+	//private PriceAlterationCalculator priceAlterationCalculator;
 	
-	private static final String DEFAULT_CURRENCY = "EUR";
+	//private static final String DEFAULT_CURRENCY = "EUR";
 	
 	
 	public List<ProductOfferingPrice> getProductOfferingPriceToBill(@NotNull Product prod, @NotNull TimePeriod billingPeriod) throws BillingEngineValidationException, IllegalArgumentException, ApiException, BillingBadRequestException{
@@ -66,7 +56,7 @@ public class ProductPriceService {
 			if(pop!=null) {
 				tmfEntityValidator.validateProductOfferingPrice(pop);
 				if(pop.getIsBundle()) {
-					List<ProductOfferingPrice> bundledPops= ProductOfferingPriceUtils.getProductOfferingPrices(pop.getBundledPopRelationship(), productCatalogManagementApis);
+					List<ProductOfferingPrice> bundledPops= ProductOfferingPriceUtils.getBundledProductOfferingPrices(pop.getBundledPopRelationship(), productCatalogManagementApis);
 					for(ProductOfferingPrice bundledPop: bundledPops) {
 						tmfEntityValidator.validateProductOfferingPrice(bundledPop);
 						if(popToBill(bundledPop, prod, billingPeriod))
@@ -87,7 +77,7 @@ public class ProductPriceService {
 	
 	private boolean popToBill(@NotNull ProductOfferingPrice pop, @NotNull Product prod, @NotNull TimePeriod billingPeriod) throws BillingBadRequestException {
 		
-		List<OffsetDateTime> billDates=billCycleService.calculateBillDates(pop, prod, billingPeriod.getEndDateTime());
+		List<OffsetDateTime> billDates=billCycleService.calculateBillDates(pop, prod.getStartDate(), billingPeriod.getEndDateTime());
 		for(OffsetDateTime billDate: billDates) {
 			if(billCycleService.isBillDateWithinBillingPeriod(billDate, billingPeriod))
 				return true;
@@ -96,7 +86,7 @@ public class ProductPriceService {
 		return false;
 	}
 
-	public Price calculatePrice(@NonNull ProductOfferingPrice pop, List<Characteristic> prodCharacteristics) {
+	/*public Price calculatePrice(@NonNull ProductOfferingPrice pop, List<Characteristic> prodCharacteristics) {
 		Price itemPrice = new Price();
 		Money money=null;
 		
@@ -166,7 +156,7 @@ public class ProductPriceService {
 			money.setUnit(DEFAULT_CURRENCY);
 		
 		return money;
-	}
+	}*/
 	
 
 }

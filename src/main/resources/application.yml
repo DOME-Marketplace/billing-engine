@@ -53,3 +53,7 @@ tmforumapi:
 # schemaLocation relatedParty entity
 schema:
   schemaLocation_relatedParty: https://raw.githubusercontent.com/DOME-Marketplace/dome-odrl-profile/refs/heads/main/schemas/simplified/RelatedPartyRef.schema.json 
+
+# BillCycle
+billCycle:
+  billCycleSpec_enabled: ${BILLCYCLESPEC_ENABLED:false}

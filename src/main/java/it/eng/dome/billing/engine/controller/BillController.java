@@ -1,5 +1,7 @@
 package it.eng.dome.billing.engine.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.service.BillingEngineService;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.brokerage.billing.dto.BillingResponseDTO;
+import it.eng.dome.brokerage.model.Invoice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 
@@ -36,7 +39,7 @@ public class BillController {
      * @throws Throwable If an error occurs during the calculation of the bill for the Product
      */ 
     @RequestMapping(value = "/bill", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<BillingResponseDTO> calculateBill(@RequestBody BillingRequestDTO billRequestDTO){
+    public ResponseEntity<List<Invoice>> calculateBill(@RequestBody BillingRequestDTO billRequestDTO){
 		logger.info("Received request for calculating bill...");
 		
 		Product product;
@@ -59,9 +62,11 @@ public class BillController {
 			logger.info("Product with ID: {}", product.getId());
 			logger.info("BillingPeriod with startDate: {} and endDate: {}", billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
 			
-			BillingResponseDTO billResponseDTO = billService.calculateBill(product, billingPeriod);
+			//BillingResponseDTO billResponseDTO = billService.calculateBill(product, billingPeriod);
+			List<Invoice> invoices=billService.calculateBill(product, billingPeriod);
 			
-			return ResponseEntity.ok(billResponseDTO);
+			//return ResponseEntity.ok(billResponseDTO);
+			return ResponseEntity.ok(invoices);
 
 		} catch (Exception e) {
 			logger.error("Error: {}", e.getMessage());

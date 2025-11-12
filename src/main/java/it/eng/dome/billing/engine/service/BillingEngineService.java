@@ -20,6 +20,7 @@ import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.billing.dto.BillingResponseDTO;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.brokerage.model.BillCycle;
+import it.eng.dome.brokerage.model.Invoice;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOffering;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
@@ -57,7 +58,28 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 	}
 
 
-	public BillingResponseDTO calculateBill(@NotNull Product product, @NotNull TimePeriod billingPeriod) throws BillingEngineValidationException, ApiException, IllegalArgumentException, BillingBadRequestException {
+	/*public BillingResponseDTO calculateBill(@NotNull Product product, @NotNull TimePeriod billingPeriod) throws BillingEngineValidationException, ApiException, IllegalArgumentException, BillingBadRequestException {
+		
+		logger.info("Starting calculation of the bill for Product '{}' and billingPeriod '{}'-'{}'...", product.getId(), billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
+		
+		List<AppliedCustomerBillingRate> acbrs=new ArrayList<AppliedCustomerBillingRate>();
+		
+		tmfEntityValidator.validateProduct(product);
+		
+		List<ProductOfferingPrice> popsToBill=productPriceService.getProductOfferingPriceToBill(product, billingPeriod);
+		
+		for(ProductOfferingPrice pop: popsToBill) {
+			acbrs=generateACBR(pop,product,billingPeriod);
+		}
+		
+		CustomerBill cb= this.generateCB(acbrs, prod, billingPeriod);
+		BillingResponseDTO billingResponseDTO=new BillingResponseDTO(cb,acbrs);
+		
+		return billingResponseDTO;
+		
+	}*/
+	
+	public List<Invoice> calculateBill(@NotNull Product product, @NotNull TimePeriod billingPeriod) throws BillingEngineValidationException, ApiException, IllegalArgumentException, BillingBadRequestException {
 		
 		logger.info("Starting calculation of the bill for Product '{}' and billingPeriod '{}'-'{}'...", product.getId(), billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
 		
@@ -97,7 +119,7 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 			it.eng.dome.billing.engine.model.Money taxExclutedAmount=pc.calculatePrice();
 			
 			AppliedCustomerBillingRate acbr= TMForumEntityUtils.createAppliedCustomerBillingRate
-					(pop, product, billCycle, TmfConverter.convertMoneyTo678(taxExclutedAmount), appProperties.getSchemaLocationRelatedParty());
+					(pop, product, billCycle, TmfConverter.convertMoneyTo678(taxExclutedAmount), appProperties.getSchema().getSchemaLocationRelatedParty());
 			acbrs.add(acbr);
 		}
 

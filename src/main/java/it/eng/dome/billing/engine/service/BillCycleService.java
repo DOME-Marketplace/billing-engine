@@ -199,7 +199,7 @@ public class BillCycleService{
 	private BillCycle getBillCycleForOneTime(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate) {
 		BillCycle billCycle=new BillCycle();
 		billCycle.setBillDate(activationDate);
-		billCycle.setPeriodCoverage(TMForumEntityUtils.createTimePeriod678(activationDate, activationDate));
+		billCycle.setBillingPeriod(TMForumEntityUtils.createTimePeriod678(activationDate, activationDate));
 		
 		return billCycle;
 	}
@@ -213,7 +213,7 @@ public class BillCycleService{
 		for(TimePeriod periodCoverage: periodCoverages) {
 			BillCycle billCycle=new BillCycle();
 			billCycle.setBillDate(periodCoverage.getStartDateTime());
-			billCycle.setPeriodCoverage(TMForumEntityUtils.createTimePeriod678(periodCoverage.getStartDateTime(), periodCoverage.getEndDateTime()));
+			billCycle.setBillingPeriod(TMForumEntityUtils.createTimePeriod678(periodCoverage.getStartDateTime(), periodCoverage.getEndDateTime()));
 			
 			billCycles.add(billCycle);
 		}
@@ -229,7 +229,7 @@ public class BillCycleService{
 		for(TimePeriod periodCoverage: periodCoverages) {
 			BillCycle billCycle=new BillCycle();
 			billCycle.setBillDate(periodCoverage.getEndDateTime());
-			billCycle.setPeriodCoverage(TMForumEntityUtils.createTimePeriod678(periodCoverage.getStartDateTime(), periodCoverage.getEndDateTime()));
+			billCycle.setBillingPeriod(TMForumEntityUtils.createTimePeriod678(periodCoverage.getStartDateTime(), periodCoverage.getEndDateTime()));
 			
 			billCycles.add(billCycle);
 		}

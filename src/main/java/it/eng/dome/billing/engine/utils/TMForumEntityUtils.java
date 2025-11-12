@@ -32,8 +32,8 @@ public class TMForumEntityUtils {
 
 		// Set appliedCustomerBillingRate.description
 		appliedCustomerBillingRate.setDescription(String.format("Bill for Product '%s' in billingPeriod [{%s}-{%s}]", product.getId(),
-				billCycle.getPeriodCoverage().getStartDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-				billCycle.getPeriodCoverage().getEndDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
+				billCycle.getBillingPeriod().getStartDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+				billCycle.getBillingPeriod().getEndDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
 		
 		// Set appliedCustomerBillingRate.isBilled
 		appliedCustomerBillingRate.setIsBilled(true);
@@ -42,7 +42,7 @@ public class TMForumEntityUtils {
 		appliedCustomerBillingRate.setName(String.format("%s Bill", pop.getPriceType()));
 
 		// Set appliedCustomerBillingRate.periodCoverage
-		appliedCustomerBillingRate.setPeriodCoverage(billCycle.getPeriodCoverage());
+		appliedCustomerBillingRate.setPeriodCoverage(billCycle.getBillingPeriod());
 
 		// Set appliedCustomerBillingRate.product reference
 		appliedCustomerBillingRate.setProduct(TMForumEntityUtils.createProductRef(product.getId()));
@@ -78,8 +78,10 @@ public class TMForumEntityUtils {
 		return tp;
 	}
 	
-	public static CustomerBill createCustomerBill(@NotNull List<AppliedCustomerBillingRate> acbrs, @NotNull Product prod, @NotNull TimePeriod billingPeriod) {
+	public static CustomerBill createCustomerBill(@NotNull List<AppliedCustomerBillingRate> acbrs, @NotNull Product prod, @NotNull TimePeriod billingPeriod, boolean billCycleSpecEnabled) {
 		CustomerBill cb=new CustomerBill();
+		
+		if
 		
 		OffsetDateTime currrentDate=OffsetDateTime.now();
 		

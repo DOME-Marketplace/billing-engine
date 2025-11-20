@@ -70,7 +70,7 @@ public final class TmfApiFactory implements InitializingBean {
 			}
 			
 			apiClientTmf620.setBasePath(basePath + "/" + tmf620ProductCatalogPath);
-			log.debug("Invoke Catalog API at endpoint: " + apiClientTmf620.getBasePath());			
+			log.debug("Invoke Product Catalog API at endpoint: " + apiClientTmf620.getBasePath());			
 		}
 		
 		return apiClientTmf620;

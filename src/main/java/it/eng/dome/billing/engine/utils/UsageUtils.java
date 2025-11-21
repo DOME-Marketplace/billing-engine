@@ -9,17 +9,18 @@ import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.brokerage.api.fetch.FetchUtils;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
+import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import lombok.NonNull;
 
 public class UsageUtils {
 	
 	/**
-	 * 
-	 * @param productId
-	 * @param tp
-	 * @param usageManagementApis
-	 * @return
+	 * Gets all {@link Usage} related in to the {@link Product} with the product identifier in input and belonging to the specified {@link TimePeriod}
+	 * @param productId the identifier of the {@link Product}
+	 * @param tp the billingPeriod to take into consideration
+	 * @param usageManagementApis An instance of {@link UsageManagementApis} to retrieve the Usage(s)
+	 * @return A list of Usage for the specified product identifier and belonging to the specified {@link TimePeriod}
 	 */
 	public static List<Usage> getUsages(@NonNull String productId, @NonNull TimePeriod tp, UsageManagementApis usageManagementApis){
 		

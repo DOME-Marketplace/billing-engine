@@ -7,7 +7,7 @@ import it.eng.dome.tmforum.tmf622.v4.model.Money;
 import lombok.Getter;
 
 public class EuroMoney {
-	@Getter
+	/*@Getter
 	private String currency = "EUR";
 	
 	@Getter
@@ -21,6 +21,6 @@ public class EuroMoney {
 	
 	public Money toMoney() {
 		return (new Money()).unit(currency).value(amount);
-	}
+	}*/
 	
 }

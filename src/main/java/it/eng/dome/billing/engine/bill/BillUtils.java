@@ -30,13 +30,13 @@ import lombok.NonNull;
 
 public final class BillUtils {
 
-	private static Logger logger = LoggerFactory.getLogger(BillUtils.class);
+/* --	private static Logger logger = LoggerFactory.getLogger(BillUtils.class);
 	
 	public static List<ProductPrice> getProductPrices(@NonNull Product product) {
 		return product.getProductPrice();
-	}
+	} --*/
 	
-	public static String getPriceTypeFromProductPrice(@NonNull ProductPrice productPrice, @NonNull ProductCatalogManagementApis productCatalogManagementApis) throws Exception{
+	/* --	public static String getPriceTypeFromProductPrice(@NonNull ProductPrice productPrice, @NonNull ProductCatalogManagementApis productCatalogManagementApis) throws Exception{
 		ProductOfferingPriceRef productOfferingPriceRef=productPrice.getProductOfferingPrice();
 		//try {
 			ProductOfferingPrice pop = productCatalogManagementApis.getProductOfferingPrice(productOfferingPriceRef.getId(), null);
@@ -44,7 +44,7 @@ public final class BillUtils {
 				return pop.getPriceType();
 			}else {
 				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", productOfferingPriceRef.getId()));
-			}			
+			}			 --*/
 
 		/*} catch (ApiException exc) {
 			if (exc.getCode() == HttpStatus.NOT_FOUND.value()) {
@@ -54,9 +54,9 @@ public final class BillUtils {
 		}*/
 		
 		
-	}
+	/* --	}  --*/
 	
-	public static it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef createAppliedCustomerRateBillingAccount(@NonNull it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef productBillingAccountRef) {
+	/* --	public static it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef createAppliedCustomerRateBillingAccount(@NonNull it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef productBillingAccountRef) {
 		
 		 it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef billingAccountRef = new it.eng.dome.tmforum.tmf678.v4.model.BillingAccountRef();
 		 
@@ -69,9 +69,9 @@ public final class BillUtils {
 		 billingAccountRef.setAtBaseType(productBillingAccountRef.getAtBaseType());
 		 
 		 return billingAccountRef;
-	}
+	}   --*/
 	
-	public static AppliedCustomerBillingRate createAppliedCustomerBillingRate(@NonNull Product product, @NonNull TimePeriod tp, @NonNull Money taxExcludedAmount, @NonNull String appliedBillingRateType, @NonNull String schemaLocation) throws Exception{
+	/* --	public static AppliedCustomerBillingRate createAppliedCustomerBillingRate(@NonNull Product product, @NonNull TimePeriod tp, @NonNull Money taxExcludedAmount, @NonNull String appliedBillingRateType, @NonNull String schemaLocation) throws Exception{
 		
 		AppliedCustomerBillingRate appliedCustomerBillingRate = new AppliedCustomerBillingRate();
 
@@ -124,12 +124,12 @@ public final class BillUtils {
 		}
 		
 		return appliedCustomerBillingRate;
-	}
+	} --*/
 	
 	/*
      * Returns the list of ProductOfferingPrice referenced in the bundle ProductOfferingPrice (i.e., stored in the bundledPopRelationship element of the ProductOfferingPrice)
      */
-	public static List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop, ProductCatalogManagementApis productCatalogManagementApis) throws Exception {
+/*--	public static List<ProductOfferingPrice> getBundledPops(ProductOfferingPrice pop, ProductCatalogManagementApis productCatalogManagementApis) throws Exception {
 		final List<ProductOfferingPrice> bundledPops = new ArrayList<ProductOfferingPrice>();
 		
 		for (var bundledPopRel : pop.getBundledPopRelationship()) {
@@ -139,7 +139,7 @@ public final class BillUtils {
 				bundledPops.add(productOfferingPrice);
 			}else {
 				throw (IllegalStateException)new IllegalStateException(String.format("ProductOfferingPrice with id %s not found on server!", bundledPopRel.getId()));
-			}
+			} -- */
 			
 			/*try {
 				bundledPops.add(popApi.getProductOfferingPrice(bundledPopRel.getId(), null));
@@ -149,10 +149,10 @@ public final class BillUtils {
 				}
 				throw exc;
 			}*/
-		}
+/* --		} 
 		
 		return bundledPops;
-	}
+	} --*/
 	
 	/*
 	 * This method creates a relatedParty TMF678 and sets its attributes with the same values of the relatedParty in input (TMF637).
@@ -160,7 +160,7 @@ public final class BillUtils {
 	 * @param rpTMF637 The relatedParty entity of TMF637 specification
 	 * @return the relatedParty entity of TMF678 specification with the same value of the relatedParty in input
 	 */
-	public static it.eng.dome.tmforum.tmf678.v4.model.RelatedParty createRelatedParty_TMF678(RelatedParty rpTMF637){
+/*--	public static it.eng.dome.tmforum.tmf678.v4.model.RelatedParty createRelatedParty_TMF678(RelatedParty rpTMF637){
 		it.eng.dome.tmforum.tmf678.v4.model.RelatedParty rpTMF678=new it.eng.dome.tmforum.tmf678.v4.model.RelatedParty();
 		
 		rpTMF678.setAtBaseType(rpTMF637.getAtBaseType());
@@ -173,9 +173,9 @@ public final class BillUtils {
 		rpTMF678.setRole(rpTMF637.getRole());
 		
 		return rpTMF678;
-	}
+	} --*/
 	
-	public static Map<String, List<UsageCharacteristic>> createUsageCharacteristicDataMap(@NonNull List<Usage> usages){
+/*--	public static Map<String, List<UsageCharacteristic>> createUsageCharacteristicDataMap(@NonNull List<Usage> usages){
 		Map<String, List<UsageCharacteristic>> usageData=new HashMap<String, List<UsageCharacteristic>>();
 		
 		for (Usage usage : usages) {
@@ -198,18 +198,18 @@ public final class BillUtils {
 		}
 		
 		return usageData;
-	}
+	} --*/
 	
-	public static String getPOPUnitOfMeasure_Units(@NonNull ProductOfferingPrice pop) {
+/* --	public static String getPOPUnitOfMeasure_Units(@NonNull ProductOfferingPrice pop) {
 		
 		String units = pop.getUnitOfMeasure().getUnits();
 		logger.info("UnitOfMeasure of POP {} with units {}",pop.getId(), pop.getUnitOfMeasure().getUnits());
 		
 		return units;
 		
-	}
+	} --*/
 	
-	public static float getPOPUnitOfMeasure_Amount(@NonNull ProductOfferingPrice pop) {
+/*--	public static float getPOPUnitOfMeasure_Amount(@NonNull ProductOfferingPrice pop) {
 		float amount;
 		
 		amount=pop.getUnitOfMeasure().getAmount();
@@ -217,12 +217,12 @@ public final class BillUtils {
 		
 		return amount;
 		
-	}
+	} --*/
 	
 	/*
 	 * Retrieves the list of Usage for the specified Product id and related to the specified TimePeriod 
 	 */
-	public static List<Usage> getUsages(@NonNull String productId, @NonNull TimePeriod tp, UsageManagementApis usageManagementApis){
+/*--	public static List<Usage> getUsages(@NonNull String productId, @NonNull TimePeriod tp, UsageManagementApis usageManagementApis){
 		
 		// add filter for usages 
 		// Get all Usage related to the product and within the TimePeriod
@@ -243,11 +243,11 @@ public final class BillUtils {
 			.toList();	
 		
 		return usages;
-	}
+	} --*/
 	
-	public static List<UsageCharacteristic> getUsageCharacteristicsForMetric(@NonNull Map<String, List<UsageCharacteristic>> usageData, @NonNull String metric){
+	/*--	public static List<UsageCharacteristic> getUsageCharacteristicsForMetric(@NonNull Map<String, List<UsageCharacteristic>> usageData, @NonNull String metric){
 		return usageData.get(metric);
-	}
+	} --*/
 	
 	
 	

@@ -2,13 +2,10 @@ package it.eng.dome.billing.engine.price.calculator;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.model.Money;
 import it.eng.dome.billing.engine.validator.ValidationIssue;
 import it.eng.dome.billing.engine.validator.ValidationIssueSeverity;
-import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
@@ -18,10 +15,6 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 public class BundledPriceCalculator extends AbstractPriceCalculator{
 	
 	private TimePeriod billingPeriod;
-	
-	@Autowired
-	private ProductCatalogManagementApis productCatalogManagementApis;
-
 	
 	public BundledPriceCalculator(ProductOfferingPrice pop, Product prod, TimePeriod billingPeriod) {
 		super(pop, prod);

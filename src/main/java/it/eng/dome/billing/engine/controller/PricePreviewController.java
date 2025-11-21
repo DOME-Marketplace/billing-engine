@@ -36,7 +36,7 @@ public class PricePreviewController {
      * @return The ProductOrder with the calculated prices
      */ 
 	@RequestMapping(value = "/billing/previewPrice", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<ProductOrder> calculateOrderPrice(@RequestBody BillingPreviewRequestDTO billPreviewRequestDTO) {
+    public ResponseEntity<ProductOrder> calculateOrderPrice(@RequestBody BillingPreviewRequestDTO billPreviewRequestDTO) throws BillingBadRequestException{
 		logger.info("Received request for calculating price preview for the order...");
 		
 		ProductOrder order;

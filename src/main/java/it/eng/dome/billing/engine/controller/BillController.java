@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
 import it.eng.dome.billing.engine.service.BillingEngineService;
+import it.eng.dome.brokerage.api.ProductInventoryApis;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
-import it.eng.dome.brokerage.billing.dto.BillingResponseDTO;
 import it.eng.dome.brokerage.model.Invoice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
@@ -30,13 +30,15 @@ public class BillController {
 	
 	@Autowired
 	protected BillingEngineService billService;
+	
+	@Autowired
+	private ProductInventoryApis productInventoryApis;
     
 	 /**
-     * The POST /billing/bill REST API is invoked to calculate the bill of a Product (TMF637-v4) without taxes.
+     * The POST /billing/bill REST API is invoked to calculate the bill of a {@link Product} without taxes.
      * 
-     * @param BillingRequestDTO The DTO contains information about the Product (TMF637-v4), the TimePeriod (TMF678-v4) and the list of ProductPrice (TMF637-v4) for which the bill must be calculated.
-     * @return An AppliedCustomerBillingRate as a Json without taxes
-     * @throws Throwable If an error occurs during the calculation of the bill for the Product
+     * @param billRequestDTO A {@link BillingRequestDTO} containing information about the identifier of the {@link Product} and of a {@link TimePeriod} representing the billingPeriod for which the bill must be must be calculated.
+     * @return  A list of {@link Invoice} 
      */ 
     @RequestMapping(value = "/bill", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity<List<Invoice>> calculateBill(@RequestBody BillingRequestDTO billRequestDTO){
@@ -48,13 +50,13 @@ public class BillController {
 		try {
 			
 			// 1) retrieve the Product and the billingPeriod from the BillingRequestDTO
-			product = billRequestDTO.getProduct();
+			product=productInventoryApis.getProduct(billRequestDTO.getProductId(), null);
 			
 			if (product == null) {
 				throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");
 			}
 			
-			billingPeriod = billRequestDTO.getTimePeriod();
+			billingPeriod = billRequestDTO.getBillingPeriod();
 			if (billingPeriod == null) {
 				throw new BillingBadRequestException("Missing the instance of billingPeriod in the BillingRequestDTO");
 			}
@@ -62,10 +64,8 @@ public class BillController {
 			logger.info("Product with ID: {}", product.getId());
 			logger.info("BillingPeriod with startDate: {} and endDate: {}", billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
 			
-			//BillingResponseDTO billResponseDTO = billService.calculateBill(product, billingPeriod);
 			List<Invoice> invoices=billService.calculateBill(product, billingPeriod);
 			
-			//return ResponseEntity.ok(billResponseDTO);
 			return ResponseEntity.ok(invoices);
 
 		} catch (Exception e) {
@@ -73,26 +73,5 @@ public class BillController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
-    
-    /*private CustomerBill generateCustomerBill(List<AppliedCustomerBillingRate> acbrs) {
-    	CustomerBill cb=new CustomerBill();
-    	
-    	//Money ammountDue=new Money();
-    	Float totalTaxExcludedAmount=0f;
-    	//TODO Add TAXITEM
-    	for(AppliedCustomerBillingRate acbr:acbrs) {
-    		totalTaxExcludedAmount += acbr.getTaxExcludedAmount().getValue();
-		}
-    	
-    	Money totalTaxExcludedAmountMoney=new Money();
-    	totalTaxExcludedAmountMoney.setUnit("EUR");
-    	totalTaxExcludedAmountMoney.setValue(totalTaxExcludedAmount);
-    	
-    	cb.setTaxExcludedAmount(totalTaxExcludedAmountMoney);
-    	cb.setAmountDue(totalTaxExcludedAmountMoney);
-    	cb.setRemainingAmount(totalTaxExcludedAmountMoney);
-    	
-    	return cb;
-    }*/
 
 }

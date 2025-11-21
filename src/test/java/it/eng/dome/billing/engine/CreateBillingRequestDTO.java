@@ -49,7 +49,7 @@ public class CreateBillingRequestDTO {
 		
 		product.setProductPrice(productPriceList);
 		
-		BillingRequestDTO brDTO=new BillingRequestDTO(product, tp, productPriceList);
+		BillingRequestDTO brDTO=new BillingRequestDTO(product.getId(), tp, productPriceList);
 		
 		String str=JSON.getGson().toJson(brDTO);
 		System.out.print(str);

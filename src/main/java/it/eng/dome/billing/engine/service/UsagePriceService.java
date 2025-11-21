@@ -23,7 +23,7 @@ import lombok.NonNull;
 @Service
 public class UsagePriceService {
 	
-	private final Logger logger = LoggerFactory.getLogger(UsagePriceService.class);
+	/*private final Logger logger = LoggerFactory.getLogger(UsagePriceService.class);
 	
 	@Autowired
 	private UsageManagementApis usageManagementApis;
@@ -38,7 +38,7 @@ public class UsagePriceService {
 	/*
 	 * Initialize the HashMap of UsageCharacteristic retrieving via TMForum all the usageData associated with the specified product ID and belonging to the specified TimePeriod
 	 */
-	private Map<String, List<UsageCharacteristic>> inizializeUsageData(@NonNull String productId, @NotNull TimePeriod tp){
+/*	private Map<String, List<UsageCharacteristic>> inizializeUsageData(@NonNull String productId, @NotNull TimePeriod tp){
 		
 		List<Usage> usages=UsageUtils.getUsages(productId, tp, usageManagementApis);
 		logger.info("Usage found: {}", usages.size());
@@ -50,6 +50,6 @@ public class UsagePriceService {
 		
 		return usageData;
 	}
-
+*/
 
 }

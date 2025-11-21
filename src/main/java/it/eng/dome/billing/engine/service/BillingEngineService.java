@@ -20,6 +20,7 @@ import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.billing.dto.BillingResponseDTO;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.brokerage.model.BillCycle;
+import it.eng.dome.brokerage.model.BillCycleSpecification;
 import it.eng.dome.brokerage.model.Invoice;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOffering;
@@ -83,6 +84,8 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 		
 		logger.info("Starting calculation of the bill for Product '{}' and billingPeriod '{}'-'{}'...", product.getId(), billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
 		
+		List<Invoice> invoices=new ArrayList<Invoice>();
+		
 		List<AppliedCustomerBillingRate> acbrs=new ArrayList<AppliedCustomerBillingRate>();
 		
 		tmfEntityValidator.validateProduct(product);
@@ -93,10 +96,12 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 			acbrs=generateACBR(pop,product,billingPeriod);
 		}
 		
-		CustomerBill cb= this.generateCB(acbrs, prod, billingPeriod);
-		BillingResponseDTO billingResponseDTO=new BillingResponseDTO(cb,acbrs);
+		CustomerBill cb=generateCB(acbrs, product, billingPeriod);
 		
-		return billingResponseDTO;
+		Invoice invoice=new Invoice(cb, acbrs);
+		invoices.add(invoice);
+		
+		return invoices;
 		
 	}
 
@@ -129,12 +134,22 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 	private CustomerBill generateCB(@NotNull List<AppliedCustomerBillingRate> acbrs, @NotNull Product prod, @NotNull TimePeriod billingPeriod) {
 		logger.info("Generation of CB for billingPeriod '{}'-'{}' with {} ACBRs",billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime(), acbrs.size());
 		
-		CustomerBill cb=new CustomerBill();
+		BillCycleSpecification bcSpec=null;
 		
-		ProductOffering po=new ProductOffering(); 
+		if(appProperties.getBillCycle().isBillCycleSpecEnabled())
+			bcSpec=getBillCycleSpecification();
+		
+		CustomerBill cb=TMForumEntityUtils.createCustomerBill(acbrs, prod, billingPeriod, bcSpec); 
 		
 		return cb;
 		
+	}
+	
+	/*
+	 * TODO: Method not implemented yet. BillCycleSpecification not supported yet.
+	 */
+	private static BillCycleSpecification getBillCycleSpecification() {
+		throw new UnsupportedOperationException("Method not supported yet!");
 	}
 
 }

@@ -2,6 +2,9 @@ package it.eng.dome.billing.engine.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Class to get properties set in the application.yml file
+ */
 @ConfigurationProperties(prefix = "")
 public class AppProperties {
 	
@@ -41,7 +44,6 @@ public class AppProperties {
 			this.billCycleSpecEnabled = billCycleSpecEnabled;
 		}
 
-        // getter & setter
     }
 
 }

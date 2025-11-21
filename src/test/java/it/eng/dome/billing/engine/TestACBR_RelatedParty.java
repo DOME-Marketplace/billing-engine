@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import it.eng.dome.billing.engine.bill.BillUtils;
+import it.eng.dome.billing.engine.utils.TMForumEntityUtils;
 import it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
@@ -74,7 +75,8 @@ public class TestACBR_RelatedParty {
 	    
 		AppliedCustomerBillingRate acbr=null;
 		try {
-			acbr = BillUtils.createAppliedCustomerBillingRate(product, tp, amount, "recurring", "testSchemaLocation");
+			//acbr = BillUtils.createAppliedCustomerBillingRate(product, tp, amount, "recurring", "testSchemaLocation");
+			TMForumEntityUtils.createAppliedCustomerBillingRate(null, product, null, amount, null);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

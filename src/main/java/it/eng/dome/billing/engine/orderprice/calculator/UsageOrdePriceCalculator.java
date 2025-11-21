@@ -1,5 +1,6 @@
-package it.eng.dome.billing.engine.price.calculator;
+package it.eng.dome.billing.engine.orderprice.calculator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,9 @@ import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.Quantity;
+import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
+import it.eng.dome.tmforum.tmf622.v4.model.Price;
+import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf635.v4.model.UsageCharacteristic;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
@@ -22,34 +26,33 @@ import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 
-public class UsagePriceCalculator extends AbstractPriceCalculator{
+public class UsageOrdePriceCalculator extends AbstractBaseOrderPriceCalculator{
 	
-	private final Logger logger = LoggerFactory.getLogger(UsagePriceCalculator.class);
+	private final Logger logger = LoggerFactory.getLogger(UsageOrdePriceCalculator.class);
 	
-	private TimePeriod billiPeriod; 
-	
-	@Autowired
-	private UsageManagementApis usageManagementApis;
-	
+    List<Usage> usages;
 	// Map with key=usageCharacteristic.name and value=list of UsageCharacteritic
 	private	Map<String, List<UsageCharacteristic>> usageData= null;
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 
-	public UsagePriceCalculator(ProductOfferingPrice pop, Product prod, TimePeriod billiPeriod) {
-		super(pop,prod);
+	public UsageOrdePriceCalculator(ProductOfferingPrice pop, ProductOrderItem productOrderItem, List<Usage> usages) {
+		super(pop,productOrderItem);
 
-		this.billiPeriod = billiPeriod;
+		this.usages = usages;
 	}
 
 	@Override
-	public Money calculatePrice() throws BillingEngineValidationException, ApiException{
+	public List<OrderPrice> calculateOrderPrice() throws BillingEngineValidationException, ApiException{
 		
-		logger.info("Calculating usage price for POP '{}' of Product '{}...", pop.getId(), prod.getId());
+		logger.info("Calculating price preview for usage ProductOfferingPrice '{}' of ProductOrderItem", pop.getId(), productOrderItem.getId());
+		
+		List<OrderPrice> orderPriceList=new ArrayList<OrderPrice>();
+		List<Price> usagePrices=new ArrayList<Price>();
 		
 		float totalAmount=0;
 		Money totalAmountMoney=null;
 		
-		inizializeUsageData(prod.getId(), billiPeriod);
+		inizializeUsageData(usages);
 		
 		// Retrieve the metric from the unitOfMeasure of the POP and validate it
 		tmfEntityValidator.validateUnitOfMeasure(pop.getUnitOfMeasure(), pop);
@@ -84,17 +87,17 @@ public class UsagePriceCalculator extends AbstractPriceCalculator{
 			return alteretedPrice;
 		}
 	
-		return totalAmountMoney;
+		//return totalAmountMoney;
+		return orderPriceList;
 		
 	}
 	
 	/*
 	 * Initialize the HashMap of UsageCharacteristic retrieving via TMForum all the usageData associated with the specified product ID and belonging to the specified TimePeriod
 	 */
-	private Map<String, List<UsageCharacteristic>> inizializeUsageData(@NonNull String productId, @NotNull TimePeriod tp) throws BillingEngineValidationException{
+	private Map<String, List<UsageCharacteristic>> inizializeUsageData(@NonNull List<Usage> usages) throws BillingEngineValidationException{
 		
-		List<Usage> usages=UsageUtils.getUsages(productId, tp, usageManagementApis);
-		logger.info("Usage found: {}", usages.size());
+		logger.debug("Simulated usages: {}", usages.size());
 		
 		tmfEntityValidator.validateUsages(usages);
 		

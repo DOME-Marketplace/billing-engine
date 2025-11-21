@@ -1,5 +1,8 @@
 package it.eng.dome.billing.engine.model;
 
+/**
+ * Class representing a Money with a unit (i.e., currency) and a price value.
+ */
 public class Money {
 	
 	private static final String DEFAULT_CURRENCY = "EUR";

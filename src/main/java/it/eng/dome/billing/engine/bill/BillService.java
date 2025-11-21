@@ -35,7 +35,7 @@ import lombok.NonNull;
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class BillService {
 
-	private final Logger logger = LoggerFactory.getLogger(BillService.class);
+	/*private final Logger logger = LoggerFactory.getLogger(BillService.class);
 
 	@Autowired
 	private TmfApiFactory tmfApiFactory;
@@ -152,7 +152,7 @@ public class BillService {
 	/*
 	 * Initialize the HashMap of UsageCharacteristic retrieving via TMForum all the usageData associated with the specified product ID and belonging to the specified TimePeriod
 	 */
-	private Map<String, List<UsageCharacteristic>> inizializeUdageData(@NonNull String productId, @NotNull TimePeriod tp){
+/*	private Map<String, List<UsageCharacteristic>> inizializeUdageData(@NonNull String productId, @NotNull TimePeriod tp){
 		
 		List<Usage> usages=BillUtils.getUsages(productId, tp, usageManagementApis);
 		logger.info("Usage found: {}", usages.size());
@@ -161,4 +161,5 @@ public class BillService {
 		
 		return usageData;
 	}
+	*/
 }

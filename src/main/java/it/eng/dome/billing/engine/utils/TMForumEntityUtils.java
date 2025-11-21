@@ -5,14 +5,24 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.springframework.util.CollectionUtils;
+
+import it.eng.dome.brokerage.billing.utils.BillingPriceType;
+import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.brokerage.model.BillCycle;
+import it.eng.dome.brokerage.model.BillCycleSpecification;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
+import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingTerm;
+import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
+import it.eng.dome.tmforum.tmf622.v4.model.Price;
+import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.RelatedParty;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import it.eng.dome.tmforum.tmf678.v4.model.CustomerBill;
 import it.eng.dome.tmforum.tmf678.v4.model.Money;
 import it.eng.dome.tmforum.tmf678.v4.model.ProductRef;
+import it.eng.dome.tmforum.tmf678.v4.model.StateValue;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
@@ -78,10 +88,8 @@ public class TMForumEntityUtils {
 		return tp;
 	}
 	
-	public static CustomerBill createCustomerBill(@NotNull List<AppliedCustomerBillingRate> acbrs, @NotNull Product prod, @NotNull TimePeriod billingPeriod, boolean billCycleSpecEnabled) {
+	public static CustomerBill createCustomerBill(@NotNull List<AppliedCustomerBillingRate> acbrs, @NotNull Product prod, @NotNull TimePeriod billingPeriod, BillCycleSpecification billCycleSpec) {
 		CustomerBill cb=new CustomerBill();
-		
-		if
 		
 		OffsetDateTime currrentDate=OffsetDateTime.now();
 		
@@ -98,8 +106,16 @@ public class TMForumEntityUtils {
 		totalAmountMoney.setUnit(currency);
 		cb.setAmountDue(totalAmountMoney);
 		
-		//Set customerBill.billDate
-		cb.setBillDate(currrentDate);
+		//Set customerBill.billDate and customerBill.paymentDueDate
+		if(billCycleSpec==null) {
+			cb.setBillDate(billingPeriod.getEndDateTime());
+		    cb.setPaymentDueDate(billingPeriod.getEndDateTime());
+		}	
+		else{
+			OffsetDateTime billDate=billingPeriod.getEndDateTime().plusDays(billCycleSpec.getBillingDateShift());
+			cb.setBillDate(billDate);
+			cb.setPaymentDueDate(billDate.plusDays(billCycleSpec.getPaymentDueDateOffset()));
+		}
 		
 		//Set customerBill.billNo
 		cb.setBillNo("BILL-" + System.currentTimeMillis());
@@ -120,8 +136,55 @@ public class TMForumEntityUtils {
 		// Set customerBill.remainingAmount
 		cb.setRemainingAmount(totalAmountMoney);
 		                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+		// Set customerBill.state
+		cb.setState(StateValue.NEW);
 		
+		// Set customerBill.taxExcludedAmount
+		cb.setTaxExcludedAmount(totalAmountMoney);
 		
 		return cb;
+	}
+	
+	public static Price createPriceTMF622(@NotNull it.eng.dome.billing.engine.model.Money money) {
+		Price price=new Price();
+		price.setDutyFreeAmount(TmfConverter.convertMoneyTo622(money));
+		price.setTaxIncludedAmount(null);
+		return price;
+	}
+	
+	public static OrderPrice createOrderPriceTMF622(@NotNull Price price, @NotNull ProductOfferingPrice pop) {
+		OrderPrice op=new OrderPrice();
+		
+		op.setName(pop.getName());
+		op.setDescription(pop.getDescription());
+		op.setPriceType(ProductOfferingPriceUtils.getPriceType(pop).toString());
+		if(ProductOfferingPriceUtils.isPriceTypeInRecurringCategory(pop)) {
+			op.setRecurringChargePeriod(ProductOfferingPriceUtils.getRecurringChargePeriod(pop).toString());
+		}
+		op.setPrice(price);
+		
+		return op;
+	}
+	
+	public static PriceAlteration createPriceAlteration(@NotNull Price price, @NotNull ProductOfferingPrice alterationPop) {
+		PriceAlteration priceAlteration=new PriceAlteration();
+		
+		priceAlteration.description(alterationPop.getDescription())
+		.name(alterationPop.getName())
+		.priceType(ProductOfferingPriceUtils.getPriceType(alterationPop).toString())
+		.setPrice(price);
+		
+		if (!CollectionUtils.isEmpty(alterationPop.getProductOfferingTerm())) {
+			ProductOfferingTerm term = alterationPop.getProductOfferingTerm().get(0);
+			
+			priceAlteration
+			.applicationDuration(term.getDuration().getAmount())
+			.setUnitOfMeasure(term.getDuration().getUnits());
+		}
+		
+		//logger.info("Applied {}% discount to price of {} euro. Discounted price: {} {}", 
+		//		alterationPOP.getPercentage(), basePrice, discounteMoney.getValue(), discounteMoney.getUnit());
+		
+		return priceAlteration;
 	}
 }

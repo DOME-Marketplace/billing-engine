@@ -6,7 +6,10 @@ import java.util.stream.Collectors;
 
 import it.eng.dome.billing.engine.validator.ValidationIssue;
 
-
+/**
+ * Custom exception raised when the BillingEngine service finds unexpected/missing values during the validation of TMForum entities.
+ * 
+ */
 public class BillingEngineValidationException extends Exception {
 
 	private static final long serialVersionUID = 1L;

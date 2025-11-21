@@ -49,9 +49,9 @@ public class ProductPriceService {
 		List<ProductPrice> productPrices=prod.getProductPrice();
 		
 		for(ProductPrice pp:productPrices) {
-			tmfEntityValidator.validateProductPrice(pp);
+			tmfEntityValidator.validateProductPrice(pp,prod.getId());
 			
-			ProductOfferingPrice pop=ProductOfferingPriceUtils.getProductOfferingPrice(pp, productCatalogManagementApis);
+			ProductOfferingPrice pop=ProductOfferingPriceUtils.getProductOfferingPrice(pp.getProductOfferingPrice().getId(), productCatalogManagementApis);
 			
 			if(pop!=null) {
 				tmfEntityValidator.validateProductOfferingPrice(pop);

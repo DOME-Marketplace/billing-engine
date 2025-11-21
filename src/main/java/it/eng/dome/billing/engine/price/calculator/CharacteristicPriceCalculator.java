@@ -53,7 +53,7 @@ public class CharacteristicPriceCalculator extends AbstractPriceCalculator{
 			
 	    // applies price alterations
 		if (ProductOfferingPriceUtils.hasRelationships(pop)) {
-			Money alteratedPrice=priceAlterationCalculator.applyAlterations(pop, chAmount);
+			Money alteratedPrice=priceAlterationCalculator.applyAlterations(chAmount,ProductOfferingPriceUtils.getProductOfferingPriceRelationships(pop.getPopRelationship(),productCatalogManagementApis));
 			
 			logger.info("Price of Characteristic '{}' '{}' after alterations: {} {}", 
 			matchChar.getName(), matchChar.getValue(), alteratedPrice.getValue());

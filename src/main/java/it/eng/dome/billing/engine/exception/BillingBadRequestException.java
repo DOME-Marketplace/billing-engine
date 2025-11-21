@@ -3,7 +3,7 @@ package it.eng.dome.billing.engine.exception;
 import lombok.Getter;
 
 /**
- * Custom exception raised when the Billing Engine service will not process the request due to something that is perceived to be
+ * Custom exception raised when the BillingEngine service will not process the request due to something that is perceived to be
  * a client error 
  */
 public class BillingBadRequestException extends Exception{

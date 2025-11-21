@@ -2,21 +2,16 @@ package it.eng.dome.billing.engine.price.calculator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.model.Money;
-import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 
 public class BasePriceCalculator extends AbstractBasePriceCalculator{
 	
-	private final Logger logger = LoggerFactory.getLogger(BasePriceCalculator.class);
-	
-	@Autowired
-	private PriceAlterationCalculator priceAlterationCalculator; 
+	private final Logger logger = LoggerFactory.getLogger(BasePriceCalculator.class); 
 
 	public BasePriceCalculator(ProductOfferingPrice pop) {
 		super(pop);
@@ -33,7 +28,7 @@ public class BasePriceCalculator extends AbstractBasePriceCalculator{
 								
 		// apply price alterations
 		if (ProductOfferingPriceUtils.hasRelationships(pop)) {
-			Money alteretedPrice=priceAlterationCalculator.applyAlterations(pop, totalAmountMoney);
+			Money alteretedPrice=priceAlterationCalculator.applyAlterations(totalAmountMoney,ProductOfferingPriceUtils.getProductOfferingPriceRelationships(pop.getPopRelationship(), productCatalogManagementApis));
 								
 			logger.info("Price of ProductOfferingPrice '{}' after alterations = {} {}", 
 					pop.getId(), alteretedPrice.getValue(),priceCurrency);	

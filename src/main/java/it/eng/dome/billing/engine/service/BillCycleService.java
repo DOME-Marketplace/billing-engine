@@ -154,14 +154,14 @@ public class BillCycleService{
 		if(ProductOfferingPriceUtils.isPriceTypeOneTime(pop))
 			billDates.add(activationDate);
 		
-		if(ProductOfferingPriceUtils.isPriceTypeRecurring(pop)) {
+		if(ProductOfferingPriceUtils.isPriceTypeInRecurringCategory(pop)) {
 			List<OffsetDateTime> billingPeriodEndDates=this.calculateBillingPeriodEndDates(ProductOfferingPriceUtils.getRecurringChargePeriod(pop), activationDate, limitDate);
 			List<TimePeriod> billingPeriods= this.calculateBillingPeriods(billingPeriodEndDates, activationDate);
 			if(ProductOfferingPriceUtils.isPriceTypeRecurringPrepaid(pop))
 				billDates=billingPeriods.stream()
 					.map(TimePeriod::getStartDateTime)
 					.toList();
-			if(ProductOfferingPriceUtils.isPriceTypeRecurringPostpaid(pop))
+			if(ProductOfferingPriceUtils.isPriceTypeInRecurringPostpaidCategory(pop))
 				billDates=billingPeriods.stream()
 					.map(TimePeriod::getEndDateTime)
 					.toList();
@@ -185,7 +185,7 @@ public class BillCycleService{
 			billCycles.addAll(this.getBillCycleForRecurringPrepaid(pop, activationDate, limitDate));
 		}
 		
-		if(ProductOfferingPriceUtils.isPriceTypeRecurringPostpaid(pop)) {
+		if(ProductOfferingPriceUtils.isPriceTypeInRecurringPostpaidCategory(pop)) {
 			billCycles.addAll(this.getBillCycleForRecurringPostpaid(pop, activationDate, limitDate));
 		}
 		

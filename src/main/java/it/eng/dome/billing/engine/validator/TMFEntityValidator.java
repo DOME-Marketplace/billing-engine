@@ -1,5 +1,6 @@
 package it.eng.dome.billing.engine.validator;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import it.eng.dome.tmforum.tmf622.v4.model.ProductOrderItem;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductPrice;
+import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -58,7 +60,7 @@ public class TMFEntityValidator {
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
-		if(ProductOfferingPriceUtils.isPriceTypeInRecurringCategory(pop)) {
+		if((pop.getIsBundle()!=null && !pop.getIsBundle()) && ProductOfferingPriceUtils.isPriceTypeInRecurringCategory(pop)) {
 			if(pop.getRecurringChargePeriodLength()==null){
 				String msg=String.format("The ProductOfferingPrice '%s' (recurring) must have 'recurringChargePeriodLength'", pop.getId());
 				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
@@ -74,7 +76,7 @@ public class TMFEntityValidator {
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
-		if(ProductOfferingPriceUtils.isPriceTypeUsage(pop) && pop.getUnitOfMeasure()==null){
+		if((pop.getIsBundle()!=null && !pop.getIsBundle()) && ProductOfferingPriceUtils.isPriceTypeUsage(pop) && pop.getUnitOfMeasure()==null){
 			String msg=String.format("The ProductOfferingPrice '%s' (usage) must have 'unitOfMeasure'", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
@@ -164,7 +166,7 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(usage.getUsageCharacteristic()==null || usage.getUsageCharacteristic().isEmpty()) {
-			String msg=String.format("The UsageCharacteristic should not be null or empty for Usage: {}", usage.getId());
+			String msg=String.format("The UsageCharacteristic should not be null or empty for Usage: %s", usage.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.WARNING));
 		}
 		
@@ -195,12 +197,12 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(pop.getPrice().getUnit()==null || (pop.getPrice().getUnit().isEmpty())) {
-			String msg=String.format("The currency is missing in the price of ProductOfferingPrice {}. By default 'EUR' is used", pop.getId());
+			String msg=String.format("The currency is missing in the price of ProductOfferingPrice %s. By default 'EUR' is used", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.WARNING));
 		}
 		
 		if(pop.getPrice().getValue()==null) {
-			String msg=String.format("The value is missing in the price of ProductOfferingPrice {}", pop.getId());
+			String msg=String.format("The value is missing in the price of ProductOfferingPrice %s", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
@@ -225,12 +227,12 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(unitOfMeasure.getUnits()==null || unitOfMeasure.getUnits().isEmpty()){
-			String msg=String.format("The units is missing in unitOfMeasure of ProductOfferingPrice {}", pop.getId());
+			String msg=String.format("The units is missing in unitOfMeasure of ProductOfferingPrice %s", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
 		if(unitOfMeasure.getAmount()==null){
-			String msg=String.format("The amount is missing in unitOfMeasure of ProductOfferingPrice {}", pop.getId());
+			String msg=String.format("The amount is missing in unitOfMeasure of ProductOfferingPrice %s", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 			
@@ -267,7 +269,7 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().size()>1) {
-			String msg=String.format("The size of prodSpecCharValueUse in ProductOfferingPrice {} is greater than one ", pop.getId());
+			String msg=String.format("The size of prodSpecCharValueUse in ProductOfferingPrice %s is greater than one ", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.WARNING));
 		}
 		
@@ -284,7 +286,7 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(charValueUse.getName()==null || charValueUse.getName().isEmpty()) {
-			String msg=String.format("The name of the Characteristic is missing in ProductOfferingPrice {}", pop.getId());
+			String msg=String.format("The name of the Characteristic is missing in ProductOfferingPrice %s", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 	
@@ -309,7 +311,7 @@ public class TMFEntityValidator {
 	            .allMatch(currency -> currency.equals(firstCurrency));
 
 	    if (!allSame) {
-	    	String msg=String.format("The price components of the Product {} have different currencies", prod.getId());
+	    	String msg=String.format("The price components of the Product %s have different currencies", prod.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 	    }
 	    
@@ -423,7 +425,78 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of OrdePrice of ProductOrderItem {} in ProductOrder {} successful",productOrderItemId, productOrderId);
+		logger.debug("Validation of OrderPrice of ProductOrderItem {} in ProductOrder {} successful",productOrderItemId, productOrderId);
+		
+	}
+	
+	/**
+	 * Validates the presence of Characteristics in the {@link ProductOrderItem}
+	 * 
+	 * @param productOrderItem The {@link ProductOrderItem} to check the presence of Characteristics
+	 * @throws BillingEngineValidationException if some unexpected/missing values are find
+	 */
+	public void validateCharacteristicsInProductOrderItem(@NotNull ProductOrderItem productOrderItem) throws BillingEngineValidationException{
+		
+		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
+		
+		if(productOrderItem.getProduct()==null){
+			String msg=String.format("The ProductOrderItem '%s' must have 'product' to get Characteristics", productOrderItem.getId());
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		if((productOrderItem.getProduct()!=null && productOrderItem.getProduct().getProductCharacteristic()==null)|| (productOrderItem.getProduct()!=null && productOrderItem.getProduct().getProductCharacteristic().isEmpty())) {
+			String msg=String.format("The ProductOrderItem '%s' must have 'product' with 'productCharacteristic'", productOrderItem.getId());
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		this.throwsErrorValidationIssuesIfAny(issues);
+		
+		logger.debug("Validation of Characteristics in ProductOrderItem {} successful",productOrderItem.getId());
+		
+	}
+	
+	/**
+	 * Validates the presence of Characteristics in the {@link ProductOrderItem}
+	 * 
+	 * @param productOrderItem The {@link ProductOrderItem} to check the presence of Characteristics
+	 * @throws BillingEngineValidationException if some unexpected/missing values are find
+	 */
+	public void validateCharacteristicsInProduct(@NotNull Product product) throws BillingEngineValidationException{
+		
+		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
+		
+		if(product.getProductCharacteristic()==null || product.getProductCharacteristic().isEmpty()){
+			String msg=String.format("The Product '%s' must have 'productCharacteristic' ", product.getId());
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		this.throwsErrorValidationIssuesIfAny(issues);
+		
+		logger.debug("Validation of Characteristics in Product {} successful",product.getId());
+		
+	}
+	
+	/**
+	 * Validates the presence of Characteristics in the {@link ProductOrderItem}
+	 * 
+	 * @param productOrderItem The {@link ProductOrderItem} to check the presence of Characteristics
+	 * @throws BillingEngineValidationException if some unexpected/missing values are find
+	 */
+	public void validateBillingPeriod(@NotNull TimePeriod billingPeriod) throws BillingEngineValidationException{
+		
+		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
+		OffsetDateTime start = billingPeriod.getStartDateTime();
+	    OffsetDateTime end   = billingPeriod.getEndDateTime();
+
+	    if (start != null && end != null && end.isBefore(start)) {
+	    	String msg=String.format("endDateTime '%s' is before the startDateTime '%s' in the billingPeriod",
+                    end, start);
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+	           
+	    }
+		this.throwsErrorValidationIssuesIfAny(issues);
+		
+		logger.debug("Validation of billingPeriod successful");
 		
 	}
 	

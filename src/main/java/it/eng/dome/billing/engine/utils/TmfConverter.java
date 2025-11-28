@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.eng.dome.billing.engine.model.Characteristic;
 import jakarta.validation.constraints.NotNull;
 
 public class TmfConverter {
@@ -88,5 +89,45 @@ public class TmfConverter {
 		
 		return out;
 		
+	}
+	
+	public static List<Characteristic> convert637ToCharacteristics(List<it.eng.dome.tmforum.tmf637.v4.model.Characteristic> characteristicsIn){
+		List<Characteristic> out=new ArrayList<Characteristic>();
+		
+		for(it.eng.dome.tmforum.tmf637.v4.model.Characteristic ch: characteristicsIn) {
+			out.add(TmfConverter.convert637ToCharacteristic(ch));
+		}
+		
+		return out;
+	}
+	
+	public static Characteristic convert637ToCharacteristic(it.eng.dome.tmforum.tmf637.v4.model.Characteristic characteristicIn){
+		Characteristic out=new Characteristic();
+		
+		out.setName(characteristicIn.getName());
+		out.setValueType(characteristicIn.getValueType());
+		out.setValue(characteristicIn.getValue());
+		
+		return out;
+	}
+	
+	public static List<Characteristic> convert622ToCharacteristics(List<it.eng.dome.tmforum.tmf622.v4.model.Characteristic> characteristicsIn){
+		List<Characteristic> out=new ArrayList<Characteristic>();
+		
+		for(it.eng.dome.tmforum.tmf622.v4.model.Characteristic ch: characteristicsIn) {
+			out.add(TmfConverter.convert622ToCharacteristic(ch));
+		}
+		
+		return out;
+	}
+	
+	public static Characteristic convert622ToCharacteristic(it.eng.dome.tmforum.tmf622.v4.model.Characteristic characteristicIn){
+		Characteristic out=new Characteristic();
+		
+		out.setName(characteristicIn.getName());
+		out.setValueType(characteristicIn.getValueType());
+		out.setValue(characteristicIn.getValue());
+		
+		return out;
 	}
 }

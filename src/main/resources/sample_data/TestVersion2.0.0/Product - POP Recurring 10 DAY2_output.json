@@ -1,0 +1,127 @@
+[
+    {
+        "customerBill": {
+            "billDate": "2024-12-30T23:15:56.9640635Z",
+            "billNo": "BILL-1764174427732",
+            "lastUpdate": "2025-11-26T17:27:07.7327373+01:00",
+            "paymentDueDate": "2024-12-30T23:15:56.9640635Z",
+            "amountDue": {
+                "unit": "EUR",
+                "value": 10.0
+            },
+            "billingAccount": {
+                "id": "urn:ngsi-ld:billing-account:3bf025cb-1b58-48be-b0ae-bb0967d09d3b",
+                "name": "My Billing Account"
+            },
+            "billingPeriod": {
+                "endDateTime": "2024-12-30T23:15:56.9640635Z",
+                "startDateTime": "2024-12-14T23:15:56.9640635Z"
+            },
+            "relatedParty": [
+                {
+                    "id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                    "href": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                    "name": "FICODES",
+                    "role": "Seller",
+                    "atReferredType": "Individual"
+                },
+                {
+                    "id": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                    "href": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                    "name": "DHUB, Engineering D.HUB S.p.A.",
+                    "role": "Customer",
+                    "atReferredType": "Individual"
+                }
+            ],
+            "remainingAmount": {
+                "unit": "EUR",
+                "value": 10.0
+            },
+            "state": "new",
+            "taxExcludedAmount": {
+                "unit": "EUR",
+                "value": 10.0
+            }
+        },
+        "acbrs": [
+            {
+                "date": "2024-12-17T10:04:38.983Z",
+                "description": "Bill for Product 'urn:ngsi-ld:product:33a92eeb-2b8a-4c78-81c4-97a64a7b4fac' in billingPeriod [{2024-12-08}-{2024-12-17}]",
+                "isBilled": true,
+                "name": "recurring Bill",
+                "type": "recurring",
+                "billingAccount": {
+                    "id": "urn:ngsi-ld:billing-account:3bf025cb-1b58-48be-b0ae-bb0967d09d3b",
+                    "name": "My Billing Account"
+                },
+                "periodCoverage": {
+                    "endDateTime": "2024-12-17T10:04:38.983Z",
+                    "startDateTime": "2024-12-08T10:04:38.983Z"
+                },
+                "product": {
+                    "id": "urn:ngsi-ld:product:33a92eeb-2b8a-4c78-81c4-97a64a7b4fac"
+                },
+                "relatedParty": [
+                    {
+                        "id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                        "href": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                        "name": "FICODES",
+                        "role": "Seller",
+                        "atReferredType": "Individual"
+                    },
+                    {
+                        "id": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                        "href": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                        "name": "DHUB, Engineering D.HUB S.p.A.",
+                        "role": "Customer",
+                        "atReferredType": "Individual"
+                    }
+                ],
+                "taxExcludedAmount": {
+                    "unit": "EUR",
+                    "value": 5.0
+                },
+                "atSchemaLocation": "https://raw.githubusercontent.com/DOME-Marketplace/tmf-api/refs/heads/main/DOME/TrackedShareableEntity.schema.json"
+            },
+            {
+                "date": "2024-12-27T10:04:38.983Z",
+                "description": "Bill for Product 'urn:ngsi-ld:product:33a92eeb-2b8a-4c78-81c4-97a64a7b4fac' in billingPeriod [{2024-12-18}-{2024-12-27}]",
+                "isBilled": true,
+                "name": "recurring Bill",
+                "type": "recurring",
+                "billingAccount": {
+                    "id": "urn:ngsi-ld:billing-account:3bf025cb-1b58-48be-b0ae-bb0967d09d3b",
+                    "name": "My Billing Account"
+                },
+                "periodCoverage": {
+                    "endDateTime": "2024-12-27T10:04:38.983Z",
+                    "startDateTime": "2024-12-18T10:04:38.983Z"
+                },
+                "product": {
+                    "id": "urn:ngsi-ld:product:33a92eeb-2b8a-4c78-81c4-97a64a7b4fac"
+                },
+                "relatedParty": [
+                    {
+                        "id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                        "href": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                        "name": "FICODES",
+                        "role": "Seller",
+                        "atReferredType": "Individual"
+                    },
+                    {
+                        "id": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                        "href": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                        "name": "DHUB, Engineering D.HUB S.p.A.",
+                        "role": "Customer",
+                        "atReferredType": "Individual"
+                    }
+                ],
+                "taxExcludedAmount": {
+                    "unit": "EUR",
+                    "value": 5.0
+                },
+                "atSchemaLocation": "https://raw.githubusercontent.com/DOME-Marketplace/tmf-api/refs/heads/main/DOME/TrackedShareableEntity.schema.json"
+            }
+        ]
+    }
+]

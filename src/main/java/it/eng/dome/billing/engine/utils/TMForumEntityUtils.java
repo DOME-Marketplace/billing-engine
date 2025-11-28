@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.springframework.util.CollectionUtils;
 
-import it.eng.dome.brokerage.billing.utils.BillingPriceType;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.brokerage.model.BillCycle;
 import it.eng.dome.brokerage.model.BillCycleSpecification;
@@ -160,6 +159,18 @@ public class TMForumEntityUtils {
 		op.setPriceType(ProductOfferingPriceUtils.getPriceType(pop).toString());
 		if(ProductOfferingPriceUtils.isPriceTypeInRecurringCategory(pop)) {
 			op.setRecurringChargePeriod(ProductOfferingPriceUtils.getRecurringChargePeriod(pop).toString());
+		}
+		op.setPrice(price);
+		
+		return op;
+	}
+	
+	public static OrderPrice createOrderTotalPriceItemTMF622(@NotNull Price price, @NotNull PriceTypeKey key) {
+		OrderPrice op=new OrderPrice();
+		
+		op.setPriceType(key.getPriceType().toString());
+		if(key.isPriceTypeInRecurringCategory()) {
+			op.setRecurringChargePeriod(key.getRecurringChargePeriod().toString());
 		}
 		op.setPrice(price);
 		

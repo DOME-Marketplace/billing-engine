@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import it.eng.dome.brokerage.api.UsageManagementApis;
 import it.eng.dome.brokerage.api.fetch.FetchUtils;
@@ -15,6 +20,8 @@ import lombok.NonNull;
 
 public class UsageUtils {
 	
+	private static final Logger logger = LoggerFactory.getLogger(UsageUtils.class);
+	
 	/**
 	 * Gets all {@link Usage} related in to the {@link Product} with the product identifier in input and belonging to the specified {@link TimePeriod}
 	 * @param productId the identifier of the {@link Product}
@@ -24,20 +31,37 @@ public class UsageUtils {
 	 */
 	public static List<Usage> getUsages(@NonNull String productId, @NonNull TimePeriod tp, UsageManagementApis usageManagementApis){
 		
-		// add filter for usages 
-		// Get all Usage related to the product and within the TimePeriod
-		Map<String, String> filter = new HashMap<String, String>();
-		filter.put("ratedProductUsage.productRef", productId);
-		filter.put("usageDate.lt", tp.getEndDateTime().toString());
-		filter.put("usageDate.gt", tp.getStartDateTime().toString());
+		AtomicInteger count = new AtomicInteger(0);
 		
-		List<Usage> usages = FetchUtils.streamAll(
-				usageManagementApis::listUsages, // method reference
-		        null,                       	// fields
-		        filter, 				   		// filter
-		        100                         	// pageSize
-			) 
-			.toList();	
+		List<Usage> usages=FetchUtils.streamAll(
+			 usageManagementApis::listUsages,  // method TMF GET /usage
+		        null,            // fields
+		        null,            // date filter server-side
+		        100              // page size
+		)
+		// Filter for usageDate
+		 .filter(u ->
+		        u.getUsageDate() != null &&
+		        !u.getUsageDate().isBefore(tp.getStartDateTime()) &&
+		        !u.getUsageDate().isAfter(tp.getEndDateTime())
+		    )
+		    // Filter for ratedProductUsage.productRef.id
+		    .filter(u ->
+		        u.getRatedProductUsage() != null &&
+		        u.getRatedProductUsage().stream().anyMatch(rpu ->
+		            rpu.getProductRef() != null &&
+		            productId.equals(rpu.getProductRef().getId())
+		        )
+		    )
+		    .peek(u -> {
+	            int index = count.incrementAndGet();
+	            logger.debug(index + " " +
+	                    u.getId() + " → " +
+	                    u.getUsageType() + " / " +
+	                    u.getUsageDate());
+	        })
+	        .collect(Collectors.toList());
+			// System.out.println("Usage found: " + usages.size());
 		
 		return usages;
 	}

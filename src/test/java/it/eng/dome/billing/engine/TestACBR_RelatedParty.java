@@ -4,7 +4,6 @@ import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
-import it.eng.dome.billing.engine.bill.BillUtils;
 import it.eng.dome.billing.engine.utils.TMForumEntityUtils;
 import it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;

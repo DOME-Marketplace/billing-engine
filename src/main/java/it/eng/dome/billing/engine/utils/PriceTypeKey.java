@@ -26,6 +26,13 @@ public class PriceTypeKey {
     public RecurringChargePeriod getRecurringChargePeriod() {
 		return recurringChargePeriod;
 	}
+    
+    public boolean isPriceTypeInRecurringCategory() {
+    	if(this.priceType==PriceType.RECURRING ||this.priceType==PriceType.RECURRING_PREPAID || this.priceType==PriceType.RECURRING_POSTPAID || this.priceType==PriceType.USAGE)
+    		return true;
+    	else
+    		return false;
+    }
 
 	@Override
 	public boolean equals(Object obj) {
@@ -46,7 +53,8 @@ public class PriceTypeKey {
     
 	@Override
 	public String toString() {
-		return "PriceTypeKey [priceType=" + priceType + ", recurringChargePeriod=" + recurringChargePeriod + "]";
+		//return "PriceTypeKey [priceType=" + priceType + ", recurringChargePeriod=" + recurringChargePeriod + "]";
+		return  "priceType=" + priceType + ", recurringChargePeriod=" + recurringChargePeriod;
 	}
 
 }

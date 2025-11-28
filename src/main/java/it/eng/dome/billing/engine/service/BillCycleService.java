@@ -146,7 +146,14 @@ public class BillCycleService{
 		return (!billingDate.isBefore(billingPeriod.getStartDateTime())) && (!billingDate.isAfter(billingPeriod.getEndDateTime()));
 	}
 	
-	
+	/**
+	 * Returns the a list of {@link OffsetDateTime} representing the bill dates calculated from an activation date to a limit date, according to the recurring charge period specified in the {@link ProductOfferingPrice}. 
+	 * @param pop The {@link ProductOfferingPrice} that specifies the recurring charge period
+	 * @param activationDate an {@link OffsetDateTime} from witch to start the calculation of the bill dates.
+	 * @param limitDate an {@link OffsetDateTime} representing the limit date
+	 * @return a list of {@link OffsetDateTime} representing the bill dates
+	 * @throws BillingBadRequestException if the bill dates can't be calculated because the {@link ProductOfferingPrice} is custom
+	 */
 	public List<OffsetDateTime> calculateBillDates(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws BillingBadRequestException{
 		Logger.info("Calculating billDate(s) for ProductOfferingPrice '{}' with priceType '{}", pop.getId(),pop.getPriceType());
 		
@@ -174,6 +181,14 @@ public class BillCycleService{
 		
 	}
 	
+	/**
+	 * Returns the a list of {@link BillCycle} calculated from an activation date to a limit date, according to the recurring charge period specified in the {@link ProductOfferingPrice}. 
+	 * @param pop The {@link ProductOfferingPrice} that specifies the recurring charge period
+	 * @param activationDate an {@link OffsetDateTime} from witch to start the calculation of the bill cycles
+	 * @param limitDate an {@link OffsetDateTime} representing the limit date
+	 * @return a list of {@link BillCycle} representing the billCycle(s)
+	 * @throws BillingBadRequestException if the billCycles(s) can't be calculated because the {@link ProductOfferingPrice} is custom
+	 */
 	public List<BillCycle> getBillCycles(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull OffsetDateTime limitDate) throws BillingBadRequestException{
 		List<BillCycle> billCycles=new ArrayList<BillCycle>();
 		
@@ -196,6 +211,12 @@ public class BillCycleService{
 				
 	}
 	
+	/**
+	 * Returns the BillCyle for the specified {@link ProductOfferingPrice} of {@link PriceType} ONE_TIME
+	 * @param pop the {@link ProductOfferingPrice}
+	 * @param activationDate an {@link OffsetDateTime} representing the activation date
+	 * @return the BillCyle for the specified {@link ProductOfferingPrice} ONE_TIME
+	 */
 	private BillCycle getBillCycleForOneTime(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate) {
 		BillCycle billCycle=new BillCycle();
 		billCycle.setBillDate(activationDate);
@@ -204,6 +225,13 @@ public class BillCycleService{
 		return billCycle;
 	}
 	
+	/**
+	 * Returns the list of BillCyle for the specified {@link ProductOfferingPrice} of {@link PriceType} RECURRING_PREPAID
+	 * @param pop the {@link ProductOfferingPrice}
+	 * @param activationDate an {@link OffsetDateTime} representing the activation date
+	 * @param limitDate an {@link OffsetDateTime} representing the limit date
+	 * @return the list of BillCyle for the specified {@link ProductOfferingPrice} RECURRING_PREPAID
+	 */
 	private List<BillCycle> getBillCycleForRecurringPrepaid(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, OffsetDateTime limitDate) {
 		List<BillCycle> billCycles=new ArrayList<BillCycle>();
 		
@@ -220,6 +248,13 @@ public class BillCycleService{
 		return billCycles;
 	}
 	
+	/**
+	 * Returns the list of BillCyle for the specified {@link ProductOfferingPrice} of {@link PriceType} RECURRING_POSTPAID
+	 * @param pop the {@link ProductOfferingPrice}
+	 * @param activationDate an {@link OffsetDateTime} representing the activation date
+	 * @param limitDate an {@link OffsetDateTime} representing the limit date
+	 * @return the list of BillCyle for the specified {@link ProductOfferingPrice} RECURRING_POSTPAID
+	 */
 	private List<BillCycle> getBillCycleForRecurringPostpaid(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, OffsetDateTime limitDate) {
 		List<BillCycle> billCycles=new ArrayList<BillCycle>();
 		
@@ -236,6 +271,13 @@ public class BillCycleService{
 		return billCycles;
 	}
 	
+	/**
+	 * Gets, from the specified list of {@link BillCycle}, the ones that belongs to the specified billingPeriod
+	 *  
+	 * @param billCycles A list of {@link BillCycle} 
+	 * @param billingPeriod a {@link TimePeriod} representing the billingPriod
+	 * @return a list of {@link BillCycle} belonging to the billingPeriod
+	 */
 	public List<BillCycle> getBillCyclesInBillingPeriod(@NotNull List<BillCycle> billCycles, @NotNull TimePeriod billingPeriod){
 		
 		List<BillCycle> billCyclesInBillingPeriod=new ArrayList<BillCycle>();

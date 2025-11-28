@@ -5,7 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,10 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
+import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.service.BillingEngineService;
+import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.ProductInventoryApis;
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
 import it.eng.dome.brokerage.model.Invoice;
+import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf678.v4.model.TimePeriod;
 
@@ -33,45 +35,50 @@ public class BillController {
 	
 	@Autowired
 	private ProductInventoryApis productInventoryApis;
+	
+	@Autowired
+	private TMFEntityValidator tmfEntityValidator;
     
 	 /**
      * The POST /billing/bill REST API is invoked to calculate the bill of a {@link Product} without taxes.
      * 
      * @param billRequestDTO A {@link BillingRequestDTO} containing information about the identifier of the {@link Product} and of a {@link TimePeriod} representing the billingPeriod for which the bill must be must be calculated.
+     *
      * @return  A list of {@link Invoice} 
+	 * @throws BillingBadRequestException if the {@link BillingRequestDTO} is not well formed
+	 * @throws ApiException if some error occurs retrieving the TMF620 entities
+	 * @throws {@link BillingEngineValidationException} if some error occurs during the validation of TMForum entities
+	 * @throws IllegalArgumentException  if some illegal argument is provided in input
+	 * @throws it.eng.dome.tmforum.tmf637.v4.ApiException if some error occurs retrieving the TMF637 entities
      */ 
     @RequestMapping(value = "/bill", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<List<Invoice>> calculateBill(@RequestBody BillingRequestDTO billRequestDTO){
+    public ResponseEntity<List<Invoice>> calculateBill(@RequestBody BillingRequestDTO billRequestDTO) throws IllegalArgumentException, BillingEngineValidationException, ApiException, BillingBadRequestException, it.eng.dome.tmforum.tmf637.v4.ApiException{
 		logger.info("Received request for calculating bill...");
 		
 		Product product;
 		TimePeriod billingPeriod;
 				
-		try {
-			
-			// 1) retrieve the Product and the billingPeriod from the BillingRequestDTO
-			product=productInventoryApis.getProduct(billRequestDTO.getProductId(), null);
-			
-			if (product == null) {
-				throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");
-			}
-			
-			billingPeriod = billRequestDTO.getBillingPeriod();
-			if (billingPeriod == null) {
-				throw new BillingBadRequestException("Missing the instance of billingPeriod in the BillingRequestDTO");
-			}
-			
-			logger.info("Product with ID: {}", product.getId());
-			logger.info("BillingPeriod with startDate: {} and endDate: {}", billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
-			
-			List<Invoice> invoices=billService.calculateBill(product, billingPeriod);
-			
-			return ResponseEntity.ok(invoices);
 
-		} catch (Exception e) {
-			logger.error("Error: {}", e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		// 1) retrieve the Product and the billingPeriod from the BillingRequestDTO
+		product=productInventoryApis.getProduct(billRequestDTO.getProductId(), null);
+		
+		if (product == null) {
+			throw new BillingBadRequestException("Missing the instance of Product in the BillingRequestDTO");
 		}
+		
+		billingPeriod = billRequestDTO.getBillingPeriod();
+		if (billingPeriod == null) {
+			throw new BillingBadRequestException("Missing the instance of billingPeriod in the BillingRequestDTO");
+		}
+		
+		tmfEntityValidator.validateBillingPeriod(billingPeriod);
+		
+		logger.info("Product with ID: {}", product.getId());
+		logger.info("BillingPeriod with startDate: {} and endDate: {}", billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
+		
+		List<Invoice> invoices=billService.calculateBill(product, billingPeriod);
+		
+		return ResponseEntity.ok(invoices);
 	}
 
 }

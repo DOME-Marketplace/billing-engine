@@ -1,0 +1,55 @@
+{
+    "productOrder": {
+        "id": "6798177d-6e81-495f-b926-ee288a033706",
+        "productOrderItem": [
+            {
+                "id": "urn:ngsi-ld:product-offering:620c434b-f829-44f3-9161-21c97c733225",
+                "action": "add",
+                "quantity": "1",
+                "productOffering": {
+                    "id": "urn:ngsi-ld:product-offering:620c434b-f829-44f3-9161-21c97c733225",
+                    "href": "urn:ngsi-ld:product-offering:620c434b-f829-44f3-9161-21c97c733225"
+                },
+                "itemTotalPrice": [
+                    {
+                        "productOfferingPrice": {
+                            "id": "urn:ngsi-ld:product-offering-price:1b9b98b4-6c90-494a-b599-7456d87ad371",
+                            "href": "urn:ngsi-ld:product-offering-price:1b9b98b4-6c90-494a-b599-7456d87ad371",
+                            "name": "POP bundled"
+                        }
+                    }
+                ],
+                "product": {
+                    "productCharacteristic": [
+                        {
+                            "name": "RAM",
+                            "value": "10",
+                            "valueType": "number"
+                        },
+                        {
+                            "name": "String select",
+                            "value": "yes",
+                            "valueType": "string"
+                        },
+                        {
+                            "name": "Range select",
+                            "value": 1,
+                            "valueType": "number"
+                        },
+                        {
+                            "name": "vCPU",
+                            "value": "1",
+                            "valueType": "number"
+                        },
+                        {
+                            "name": "HDU Silver",
+                            "value": "2",
+                            "valueType": "number"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "usage": []
+}

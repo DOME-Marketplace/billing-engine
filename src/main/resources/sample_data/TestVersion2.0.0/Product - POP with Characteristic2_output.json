@@ -1,0 +1,88 @@
+[
+    {
+        "customerBill": {
+            "billDate": "2025-06-19T17:14:33.213Z",
+            "billNo": "BILL-1764235967387",
+            "lastUpdate": "2025-11-27T10:32:47.387956+01:00",
+            "paymentDueDate": "2025-06-19T17:14:33.213Z",
+            "amountDue": {
+                "unit": "EUR",
+                "value": 83.33333
+            },
+            "billingAccount": {
+                "id": "urn:ngsi-ld:billing-account:3bf025cb-1b58-48be-b0ae-bb0967d09d3b",
+                "name": "My Billing Account"
+            },
+            "billingPeriod": {
+                "endDateTime": "2025-06-19T17:14:33.213Z",
+                "startDateTime": "2025-06-18T17:14:33.213Z"
+            },
+            "relatedParty": [
+                {
+                    "id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                    "href": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                    "name": "FICODES",
+                    "role": "seller",
+                    "atReferredType": "organization"
+                },
+                {
+                    "id": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                    "href": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                    "name": "DHUB, Engineering D.HUB S.p.A.",
+                    "role": "buyer",
+                    "atReferredType": "organization"
+                }
+            ],
+            "remainingAmount": {
+                "unit": "EUR",
+                "value": 83.33333
+            },
+            "state": "new",
+            "taxExcludedAmount": {
+                "unit": "EUR",
+                "value": 83.33333
+            }
+        },
+        "acbrs": [
+            {
+                "date": "2025-06-18T17:14:33.213Z",
+                "description": "Bill for Product 'urn:ngsi-ld:product:19402bf1-0889-46e5-9f6c-6fc458be024f' in billingPeriod [{2025-06-18}-{2025-06-19}]",
+                "isBilled": true,
+                "name": "recurring-prepaid Bill",
+                "type": "recurring-prepaid",
+                "billingAccount": {
+                    "id": "urn:ngsi-ld:billing-account:3bf025cb-1b58-48be-b0ae-bb0967d09d3b",
+                    "name": "My Billing Account"
+                },
+                "periodCoverage": {
+                    "endDateTime": "2025-06-19T17:14:33.213Z",
+                    "startDateTime": "2025-06-18T17:14:33.213Z"
+                },
+                "product": {
+                    "id": "urn:ngsi-ld:product:19402bf1-0889-46e5-9f6c-6fc458be024f"
+                },
+                "relatedParty": [
+                    {
+                        "id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                        "href": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                        "name": "FICODES",
+                        "role": "seller",
+                        "atReferredType": "organization"
+                    },
+                    {
+                        "id": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                        "href": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                        "name": "DHUB, Engineering D.HUB S.p.A.",
+                        "role": "buyer",
+                        "atReferredType": "organization"
+                    }
+                ],
+                "taxExcludedAmount": {
+                    "unit": "EUR",
+                    "value": 83.33333
+                },
+                "atSchemaLocation": "https://raw.githubusercontent.com/DOME-Marketplace/tmf-api/refs/heads/main/DOME/TrackedShareableEntity.schema.json"
+            }
+        ]
+    }
+]

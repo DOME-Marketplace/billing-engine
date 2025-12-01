@@ -25,6 +25,11 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 		return buildResponseEntity(new ErrorResponse(request,HttpStatus.BAD_REQUEST, ex));
 	}
 	
+	@ExceptionHandler(BillingEngineValidationException.class)
+	protected ResponseEntity<Object> handleBillingBadRequestException(HttpServletRequest request,BillingEngineValidationException ex) {
+		return buildResponseEntity(new ErrorResponse(request,HttpStatus.BAD_REQUEST, ex));
+	}
+	
 	@ExceptionHandler(IllegalArgumentException.class)
 	protected ResponseEntity<Object> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException ex) {
 		return buildResponseEntity(new ErrorResponse(request,HttpStatus.BAD_REQUEST, ex));

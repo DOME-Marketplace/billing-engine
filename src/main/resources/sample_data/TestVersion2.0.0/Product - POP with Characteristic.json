@@ -1,0 +1,7 @@
+{
+	"productId": "urn:ngsi-ld:product:19402bf1-0889-46e5-9f6c-6fc458be024f",
+	"billingPeriod": {
+		"endDateTime": "2025-06-19T17:14:33.213Z",
+		"startDateTime": "2025-06-18T17:14:33.213Z"
+	}
+}

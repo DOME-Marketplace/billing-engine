@@ -5,7 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.eng.dome.billing.engine.exception.BillingBadRequestException;
-import it.eng.dome.billing.engine.price.PriceService;
+import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
+import it.eng.dome.billing.engine.service.PricePreviewService;
 import it.eng.dome.brokerage.billing.dto.BillingPreviewRequestDTO;
+import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
+import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf622.v4.model.ProductOrder;
 import it.eng.dome.tmforum.tmf635.v4.model.Usage;
 
@@ -27,68 +29,50 @@ public class PricePreviewController {
 	protected final Logger logger = LoggerFactory.getLogger(PricePreviewController.class);
 
 	@Autowired
-	protected PriceService priceService;
+	protected PricePreviewService priceService;
     
     /**
-     * The POST /billing/previewPrice REST API is invoked to calculate the price preview of a ProcuctOrder (TMF622-v4).
+     * The POST /billing/previewPrice REST API is invoked to calculate the price preview of a {@link ProductOrder} without taxes
      * 
-     * @param billPreviewRequestDTO The DTO contains information about the ProductOrder (TMF622-v4) and, in case of pay per use scenario, the list of simulate Usage (TMF635-v4) for which the price preview must be calculated.
-     * @return The ProductOrder as a Json string with prices
-     * @throws Exception If an error occurs during the calculation of the ProductOrder price preview
+     * @param billPreviewRequestDTO A {@link BillingPreviewRequestDTO} containing information about the ProductOrder and, in case of a pay-per-use scenario, the list of simulate {@link Usage}
+     * @return The ProductOrder with the calculated prices
+     * @throws ApiException if some error occurs retrieving the TMF620 entities
+     * @throws {@link BillingEngineValidationException} if some error occurs during the validation of TMForum entities
+     * @throws IllegalArgumentException if some illegal argument is provided in input
+     * @throws {@link BillingBadRequestException} if the {@link BillingRequestDTO} is not well formed
      */ 
 	@RequestMapping(value = "/billing/previewPrice", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<String> calculateOrderPrice(@RequestBody BillingPreviewRequestDTO billPreviewRequestDTO) throws Exception {
-		logger.info("Received request for calculating price preview for the order...");
+    public ResponseEntity<ProductOrder> calculateOrderPrice(@RequestBody BillingPreviewRequestDTO billPreviewRequestDTO) throws IllegalArgumentException, BillingEngineValidationException, ApiException, BillingBadRequestException{
 		
 		ProductOrder order;
 		List<Usage> usageData;
 
+		order = billPreviewRequestDTO.getProductOrder();
+		
+		if (order == null)
+			throw new BillingBadRequestException("Missing the instance of ProductOrder in the BillingPreviewRequestDTO");
+		
+		logger.info("Received request for calculating price preview for the order {}",order.getId());
+		
+		usageData = billPreviewRequestDTO.getUsage();
+		
+		if(usageData == null || (usageData !=null & usageData.isEmpty())) {
+			logger.info("Usage data in the BillingPreviewRequestDTO is null or empty");
+			usageData =null;
+			
+		}else {
+			logger.info("found {} Usage data in the BillingPreviewRequestDTO", usageData.size());		
+		}
 		try {
-			// 1) retrieve the ProductOrder and the Usage from the BillingPreviewRequestDTO
-			order = billPreviewRequestDTO.getProductOrder();
-			
-			if (order == null)
-				throw new BillingBadRequestException("Missing the instance of ProductOrder in the BillingPreviewRequestDTO");
-			
-			usageData = billPreviewRequestDTO.getUsage();
-			
-			if(usageData == null || (usageData !=null & usageData.isEmpty())) {
-				logger.info("Usage data in the BillingPreviewRequestDTO is null or empty");
-				usageData =null;
-				
-			}else {
-				logger.info("found {} Usage data in the BillingPreviewRequestDTO", usageData.size());		
-			}
-			
-			// 2) calculate order price
-			priceService.calculateOrderPrice(order,usageData);
-			
-			// 3) return updated ProductOrder
-			return new ResponseEntity<String>(order.toJson(), HttpStatus.OK);
-		}catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
+		
+		// 2) calculate order price
+		ProductOrder updatedOrder=priceService.calculateOrderPrice(order,usageData);
+
+		// 3) return updated ProductOrder
+		return ResponseEntity.ok(updatedOrder);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return ResponseEntity.badRequest().build();
 		}
 	}
-	
-    /*@RequestMapping(value = "/billing/previewPrice", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<String> calculateOrderPrice(@RequestBody String orderJson) throws Exception {
-		logger.info("Received request for calculating order price...");
-		Assert.state(!StringUtils.isBlank(orderJson), "Missing the instance of ProductOrder in the request body");
-		try {
-			// 1) parse request body to ProductOrder
-			ProductOrder order = ProductOrder.fromJson(orderJson);
-			// 2) calculate order price
-			priceService.calculateOrderPrice(order);
-			// 3) return updated ProductOrder
-			return new ResponseEntity<String>(order.toJson(), HttpStatus.OK);
-		}catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			// Java exception is converted into HTTP status code by the ControllerExceptionHandler
-			throw new Exception(e); //throw (e.getCause() != null) ? e.getCause() : e;
-		}
-	}*/
-	
-
 }

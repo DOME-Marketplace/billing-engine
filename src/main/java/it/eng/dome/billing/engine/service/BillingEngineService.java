@@ -1,5 +1,6 @@
 package it.eng.dome.billing.engine.service;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +78,8 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 		
 		return invoices;
 	}
+	
+	
 
 
 	private List<AppliedCustomerBillingRate> generateACBR(@NotNull ProductOfferingPrice pop, @NotNull Product product,
@@ -124,5 +127,15 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 	private static BillCycleSpecification getBillCycleSpecification() {
 		throw new UnsupportedOperationException("Method not supported yet!");
 	}
+	
+	public List<Invoice> calculateBill(@NotNull Product product, @NotNull OffsetDateTime date) throws BillingEngineValidationException, ApiException, IllegalArgumentException, BillingBadRequestException {
+		
+		TimePeriod billingPeriod=new TimePeriod();
+		billingPeriod.setStartDateTime(date);
+		billingPeriod.endDateTime(date);
+		
+		return this.calculateBill(product, billingPeriod);
+	}
+	
 
 }

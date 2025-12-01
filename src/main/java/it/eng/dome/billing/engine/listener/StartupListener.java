@@ -17,9 +17,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
+import org.springframework.web.client.RestClient;
 import it.eng.dome.brokerage.observability.info.Info;
 
 
@@ -34,7 +34,7 @@ public class StartupListener implements ApplicationListener<ApplicationReadyEven
 	private final String INFO_PATH = "/engine/info";
 
 	@Autowired
-	private RestTemplate restTemplate;
+	private RestClient restClient;
 
 	@Value("${server.port}")
 	private int serverPort;
@@ -51,7 +51,12 @@ public class StartupListener implements ApplicationListener<ApplicationReadyEven
 
 		logger.info("Listener GET call to {}", url);
 		try {
-			Info response = restTemplate.getForObject(url, Info.class);
+			Info response = restClient.get()
+			        .uri(url)
+			        .accept(MediaType.APPLICATION_JSON)
+			        .retrieve()
+			        .body(Info.class);
+			
 			logger.info("Started the {} version: {} ", response.getName(), response.getVersion());
 
 		} catch (Exception e) {

@@ -4,16 +4,17 @@
 
 ### <code>2.0.0</code> :calendar: 28/11/2025
 **Improvements**
-* Updated REST API POST billing/bill with payload BillingRequestDTO and response payload List<Invoice>
-* Updated code to calculate one or more `Invoice` (i.e., a `CustomerBill` with one or more `ACBR` associated) for a `Product` that fall within a billingPeriod
-* Updated code to manage TMForum entity validation
-* Improved code to manage exceptions
-* Cleaning of the code
-* Updated Javadoc
+* Updated REST API POST **billing/bill** with payload `BillingRequestDTO` and response payload `List<Invoice>`.
+* Updated code to calculate one or more `Invoice` (i.e., a `CustomerBill` with one or more `ACBR` associated) for a `Product` that fall within a billingPeriod.
+* Updated code to manage TMForum entity validation.
+* Improved code to manage exceptions.
+* Cleaning of the code.
+* Updated Javadoc.
 
 **BugFixing**
-* Solved *bug fix* to calculate PriceAlteration
-* Solved *bug fix* to calculate price for usage use case
+* Solved *bug fix* to calculate `PriceAlteration`.
+* Solved *bug fix* to calculate price for **usage use case**.
+* Replace **RestTemplate** for **RestClient**.
 
 
 ### <code>1.4.4</code> :calendar: 27/10/2025

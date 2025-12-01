@@ -1,0 +1,45 @@
+{
+    "productOrder": {
+        "id": "6798177d-6e81-495f-b926-ee288a033706",
+        "productOrderItem": [
+            {
+                "id": "urn:ngsi-ld:product-offering:620c434b-f829-44f3-9161-21c97c733225",
+                "action": "add",
+                "quantity": "1",
+                "productOffering": {
+                    "id": "urn:ngsi-ld:product-offering:620c434b-f829-44f3-9161-21c97c733225",
+                    "href": "urn:ngsi-ld:product-offering:620c434b-f829-44f3-9161-21c97c733225"
+                },
+                "itemTotalPrice": [
+                    {
+                        "productOfferingPrice": {
+                            "id": "urn:ngsi-ld:product-offering-price:fa67001a-ffc9-4aa0-ae08-1e8c58144434",
+                            "href": "urn:ngsi-ld:product-offering-price:fa67001a-ffc9-4aa0-ae08-1e8c58144434",
+                            "name": "One time plan"
+                        }
+                    }
+                ],
+                "product": {
+                    "productCharacteristic": [
+                        {
+                            "name": "Number select",
+                            "value": 10,
+                            "valueType": "number"
+                        },
+                        {
+                            "name": "String select",
+                            "value": "yes",
+                            "valueType": "string"
+                        },
+                        {
+                            "name": "Range select",
+                            "value": 1,
+                            "valueType": "number"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "usage": []
+}

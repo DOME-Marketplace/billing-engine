@@ -50,6 +50,14 @@ tmforumapi:
   tmf637_billing_path: tmf-api/productInventory/v4
   tmf635_usage_path: tmf-api/usageManagement/v4
   
-# schemaLocation relatedParty entity
-schema:
-  schemaLocation_relatedParty: https://raw.githubusercontent.com/DOME-Marketplace/dome-odrl-profile/refs/heads/main/schemas/simplified/RelatedPartyRef.schema.json 
+# billling engine app properties
+app:
+  schema:
+    schema-location-related-party: "https://raw.githubusercontent.com/DOME-Marketplace/tmf-api/refs/heads/main/DOME/TrackedShareableEntity.schema.json"
+  bill-cycle:
+    bill-cycle-spec-enabled: ${BILLCYCLESPEC_ENABLED:false}
+
+# JSON Include NON_NULL
+spring:
+  jackson:
+    default-property-inclusion: non_null

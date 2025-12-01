@@ -50,8 +50,8 @@ public final class TmfApiFactory implements InitializingBean {
 	@Value( "${tmforumapi.tmf637_billing_path}" )
 	private String tmf637ProductInventoryPath;
 	
-	@Value( "${schema.schemaLocation_relatedParty}" )
-	private String schemaLocationRelatedParty;
+	//@Value( "${schema.schemaLocation_relatedParty}" )
+	//private String schemaLocationRelatedParty;
 	
 	private it.eng.dome.tmforum.tmf620.v4.ApiClient apiClientTmf620;
 //	private it.eng.dome.tmforum.tmf622.v4.ApiClient apiClientTmf622;
@@ -70,7 +70,7 @@ public final class TmfApiFactory implements InitializingBean {
 			}
 			
 			apiClientTmf620.setBasePath(basePath + "/" + tmf620ProductCatalogPath);
-			log.debug("Invoke Catalog API at endpoint: " + apiClientTmf620.getBasePath());			
+			log.debug("Invoke Product Catalog API at endpoint: " + apiClientTmf620.getBasePath());			
 		}
 		
 		return apiClientTmf620;
@@ -139,9 +139,9 @@ public final class TmfApiFactory implements InitializingBean {
 		return apiClientTmf637;
 	}
 	
-	public String getSchemaLocationRelatedParty() {
+	/*public String getSchemaLocationRelatedParty() {
 		return schemaLocationRelatedParty;
-	}
+	}*/
 
 	
 	@Override

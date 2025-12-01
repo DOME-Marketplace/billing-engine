@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 
 @Component(value = "priceAlterationFactory")
@@ -16,7 +17,7 @@ public final class PriceAlterationFactory {
 	private ApplicationContext applicationContext;
 	
 	public PriceAlterationOperation getPriceAlterationCalculator(ProductOfferingPrice alteration) {
-		if ("discount".equalsIgnoreCase(alteration.getPriceType())) {
+		if (ProductOfferingPriceUtils.isPriceTypeDiscount(alteration)) {
 			return (PriceAlterationOperation)applicationContext.getBean("discountAlterationOperation");
 		}
 		

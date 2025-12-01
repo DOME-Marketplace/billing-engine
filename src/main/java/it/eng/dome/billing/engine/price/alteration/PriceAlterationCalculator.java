@@ -94,7 +94,7 @@ public class PriceAlterationCalculator {
 	public Money applyAlterations(@NotNull Money basePrice, @NotNull List<ProductOfferingPrice> popRels) throws BillingEngineValidationException, ApiException{
 
 		PriceAlterationOperation alterationCalculator;
-		BigDecimal totalAtlerationsAmount=BigDecimal.ZERO;
+		BigDecimal totalAtlerationsAmount;
 		BigDecimal basePriceValue=new BigDecimal(String.valueOf(basePrice.getValue()));
 		String priceCurrency=basePrice.getUnit();
 

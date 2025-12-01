@@ -68,7 +68,7 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 			acbrs.addAll(generateACBR(pop,product,billingPeriod));
 		}
 		
-		if(acbrs.size()>0) {
+		if(!acbrs.isEmpty()) {
 			CustomerBill cb=generateCB(acbrs, product, billingPeriod);
 		
 			Invoice invoice=new Invoice(cb, acbrs);

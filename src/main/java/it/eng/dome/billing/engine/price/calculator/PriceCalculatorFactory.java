@@ -29,7 +29,7 @@ public class PriceCalculatorFactory {
 	
 	public PriceCalculator<Product,Money> getPriceCalculatorForProduct(@NotNull ProductOfferingPrice pop, @NotNull TimePeriod billingPeriod) throws BillingEngineValidationException {
 		logger.debug("*************** Price Calculator FACTORY for Product **************");
-        PriceCalculator<Product, Money> pc=null;
+        PriceCalculator<Product, Money> pc;
         
         if(ProductOfferingPriceUtils.isBundled(pop)) {
         	pc=getBundledPriceCalculator(pop,billingPeriod);
@@ -51,7 +51,7 @@ public class PriceCalculatorFactory {
 	
 	public PriceCalculator<ProductOrderItem,List<OrderPrice>> getPriceCalculatorForProductOrderItem(@NotNull ProductOfferingPrice pop, @NotNull List<Usage> usages) throws BillingEngineValidationException {
 		logger.debug("*************** Price Calculator FACTORY for ProductOrderItem **************");
-        PriceCalculator<ProductOrderItem,List<OrderPrice>> pc=null;
+        PriceCalculator<ProductOrderItem,List<OrderPrice>> pc;
         
         if(ProductOfferingPriceUtils.isBundled(pop)) {
         	pc=getBundledPriceCalculatorForProductOrderItem(pop,usages);

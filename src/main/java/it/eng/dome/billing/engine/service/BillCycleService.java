@@ -46,7 +46,7 @@ public class BillCycleService{
 			try {
 			    Collections.sort(temp);
 			} catch (Exception e) {
-			    e.printStackTrace();
+				Logger.error("Error: {}", e.getMessage());
 			}
 			
 			OffsetDateTime startDate=activationDate;
@@ -79,7 +79,7 @@ public class BillCycleService{
 		Logger.info("Calculation of the billingPeriod end dates for recurringPeriodLenght '{}' and recurringPeriodType '{}' and activation date '{}'",
 				recurringChargePeriod.getRecurringChargePeriodLenght(),recurringChargePeriod.getRecurringChargePeriodType(), activationDate);
 		
-		List<OffsetDateTime> billPeriodEndDates=new ArrayList<OffsetDateTime>();
+		List<OffsetDateTime> billPeriodEndDates;
 		
 		RecurringPeriod billingPeriodType=recurringChargePeriod.getRecurringChargePeriodType();
 		Integer billingPeriodLength=recurringChargePeriod.getRecurringChargePeriodLenght();
@@ -193,7 +193,7 @@ public class BillCycleService{
 		List<BillCycle> billCycles=new ArrayList<BillCycle>();
 		
 		if(ProductOfferingPriceUtils.isPriceTypeOneTime(pop)) {
-			billCycles.add(this.getBillCycleForOneTime(pop,activationDate));
+			billCycles.add(this.getBillCycleForOneTime(activationDate));
 		}
 		
 		if(ProductOfferingPriceUtils.isPriceTypeRecurringPrepaid(pop)) {
@@ -217,7 +217,7 @@ public class BillCycleService{
 	 * @param activationDate an {@link OffsetDateTime} representing the activation date
 	 * @return the BillCyle for the specified {@link ProductOfferingPrice} ONE_TIME
 	 */
-	private BillCycle getBillCycleForOneTime(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate) {
+	private BillCycle getBillCycleForOneTime(@NotNull OffsetDateTime activationDate) {
 		BillCycle billCycle=new BillCycle();
 		billCycle.setBillDate(activationDate);
 		billCycle.setBillingPeriod(TMForumEntityUtils.createTimePeriod678(activationDate, activationDate));

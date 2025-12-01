@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
+import it.eng.dome.billing.engine.model.Characteristic;
 import it.eng.dome.billing.engine.model.Money;
 import it.eng.dome.billing.engine.utils.OrderPriceUtils;
 import it.eng.dome.billing.engine.utils.TMForumEntityUtils;
@@ -34,11 +35,11 @@ public class CharacteristicPreviewPriceCalculator extends AbstractPriceCalculato
 		logger.info("Calculating price preview for POP  '{}' with Characteristic of Product '{}'", pop.getId(), prodOrderItem.getId());
 		
 		List<OrderPrice> orderPrices=new ArrayList<OrderPrice>();
-		it.eng.dome.billing.engine.model.Characteristic matchChar=null;
+		Characteristic matchChar;
 		
 		tmfEntityValidator.validateCharacteristicsInProductOrderItem(prodOrderItem);
 		
-		List<it.eng.dome.billing.engine.model.Characteristic> characteristics=TmfConverter.convert622ToCharacteristics(prodOrderItem.getProduct().getProductCharacteristic());
+		List<Characteristic> characteristics=TmfConverter.convert622ToCharacteristics(prodOrderItem.getProduct().getProductCharacteristic());
 		matchChar=this.findMachingCharacteristic(characteristics);
 			
 		if(matchChar==null) {

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
+import it.eng.dome.billing.engine.model.Characteristic;
 import it.eng.dome.billing.engine.model.Money;
 import it.eng.dome.billing.engine.utils.TmfConverter;
 import it.eng.dome.billing.engine.validator.ValidationIssue;
@@ -29,11 +30,11 @@ public class CharacteristicPriceCalculator extends AbstractPriceCalculator<Produ
 	public Money calculatePrice(Product prod) throws BillingEngineValidationException, ApiException {
 		logger.info("Calculating price for POP '{}' with Characteristic of Product '{}'", pop.getId(), prod.getId());
 		
-		it.eng.dome.billing.engine.model.Characteristic matchChar=null;
+		Characteristic matchChar;
 		
 		tmfEntityValidator.validateCharacteristicsInProduct(prod);
 		
-		List<it.eng.dome.billing.engine.model.Characteristic> characteristics=TmfConverter.convert637ToCharacteristics(prod.getProductCharacteristic());
+		List<Characteristic> characteristics=TmfConverter.convert637ToCharacteristics(prod.getProductCharacteristic());
 		matchChar=this.findMachingCharacteristic(characteristics);
 			
 		if(matchChar==null) {

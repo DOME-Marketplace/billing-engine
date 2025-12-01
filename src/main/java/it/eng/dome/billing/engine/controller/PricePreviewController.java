@@ -71,7 +71,7 @@ public class PricePreviewController {
 		// 3) return updated ProductOrder
 		return ResponseEntity.ok(updatedOrder);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("Error: {}", ex.getMessage());		
 			return ResponseEntity.badRequest().build();
 		}
 	}

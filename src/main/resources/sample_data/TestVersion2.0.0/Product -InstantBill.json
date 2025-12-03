@@ -1,0 +1,62 @@
+{
+	"product": {
+		"id": "1234",
+		"description": "Test Product Instant Bill",
+		"isBundle": false,
+        "startDate": "2025-11-30T10:04:38.983Z",
+        "status": "active",
+		"billingAccount": {
+			"id": "urn:ngsi-ld:billing-account:3bf025cb-1b58-48be-b0ae-bb0967d09d3b",
+			"name": "BillingAccountRef Test"
+		},
+		"productPrice": [
+			{
+				"productOfferingPrice": {
+                    "id": "urn:ngsi-ld:product-offering-price:fa67001a-ffc9-4aa0-ae08-1e8c58144434",
+                    "href": "urn:ngsi-ld:product-offering-price:fa67001a-ffc9-4aa0-ae08-1e8c58144434",
+                    "name": "One time plan"
+                }
+			},
+			{
+				"productOfferingPrice": {
+					"id": "urn:ngsi-ld:product-offering-price:5b107cfd-72d8-49b1-9872-7290ae673b14",
+                    "href": "urn:ngsi-ld:product-offering-price:5b107cfd-72d8-49b1-9872-7290ae673b14",
+                    "name": "recurring-prepaid"
+				}
+			},
+            {
+                "productOfferingPrice": {
+					"id": "urn:ngsi-ld:product-offering-price:e891480c-5889-4964-932c-f366cc888b6c",
+                    "href": "urn:ngsi-ld:product-offering-price:e891480c-5889-4964-932c-f366cc888b6",
+                    "name": "recurring"
+				}
+            }
+		],
+        "relatedParty": [
+            {
+                "id": "urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                "href": "https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38063c78-fc9f-42ca-a39e-518107a2d403",
+                "name": "FICODES",
+                "role": "Seller",
+                "@type": "RelatedParty",
+                "@referredType": "Individual"
+            },
+            {
+                "id": "urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                "href": "https://dome-dev.eng.it/tmf-api/party/v4/organization/urn:ngsi-ld:organization:38817de3-8c3e-4141-a344-86ffd915cc3b",
+                "name": "DHUB, Engineering D.HUB S.p.A.",
+                "role": "Customer",
+                "@type": "RelatedParty",
+                "@referredType": "Individual"
+            }
+        ],
+        "productCharacteristic": [
+            {
+                "name": "Cores",
+                "value": 10,
+                "valueType": "number"
+            }       
+        ]
+	},
+	"date": "2025-11-30T10:04:38.983Z"
+}

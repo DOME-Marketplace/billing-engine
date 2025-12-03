@@ -3,6 +3,7 @@ package it.eng.dome.billing.engine.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +41,6 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 	private ProductPriceService productPriceService;
 	
 	@Autowired
-	private BillCycleService billCycleService;
-	
-	@Autowired
 	private PriceCalculatorFactory priceCalculatorFactory;
 	
 	private final AppProperties appProperties;
@@ -61,12 +59,13 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 		
 		tmfEntityValidator.validateProduct(product);
 		
-		List<ProductOfferingPrice> popsToBill=productPriceService.getProductOfferingPriceToBill(product, billingPeriod);
+		Map<ProductOfferingPrice, List<BillCycle>> popBillCyclesInBillingPeriod=productPriceService.getPOPBillCyclesInBillingPeriod(product,billingPeriod);
+		List<ProductOfferingPrice> popKeys = new ArrayList<ProductOfferingPrice>(popBillCyclesInBillingPeriod.keySet());		
 		
-		tmfEntityValidator.validatePOPsCurrency(popsToBill, product);
+		tmfEntityValidator.validatePOPsCurrency(popKeys, product);
 		
-		for(ProductOfferingPrice pop: popsToBill) {
-			acbrs.addAll(generateACBR(pop,product,billingPeriod));
+		for(ProductOfferingPrice pop: popKeys) {
+			acbrs.addAll(generateACBR(pop,popBillCyclesInBillingPeriod.get(pop),product));
 		}
 		
 		if(!acbrs.isEmpty()) {
@@ -79,20 +78,12 @@ private final static Logger logger=LoggerFactory.getLogger(BillingEngineService.
 		return invoices;
 	}
 	
-	
-
-
-	private List<AppliedCustomerBillingRate> generateACBR(@NotNull ProductOfferingPrice pop, @NotNull Product product,
-			@NotNull TimePeriod billingPeriod) throws BillingBadRequestException, BillingEngineValidationException, ApiException {
-		logger.info("Generation of ACBR(s) for POP '{}' in Product '{}' and billingPeriod '{}'-'{}'",pop.getId(),product.getId(),billingPeriod.getStartDateTime(), billingPeriod.getEndDateTime());
+	private List<AppliedCustomerBillingRate> generateACBR(@NotNull ProductOfferingPrice pop, @NotNull List<BillCycle> billCycles, @NotNull Product product) throws BillingBadRequestException, BillingEngineValidationException, ApiException {
+		logger.debug("Generation of ACBR(s) for POP '{}' in Product '{}'",pop.getId(),product.getId());
 		
 		List<AppliedCustomerBillingRate> acbrs=new ArrayList<AppliedCustomerBillingRate>();
 		
-		List<BillCycle> billCycles=billCycleService.getBillCycles(pop, product.getStartDate(), billingPeriod.getEndDateTime());
-		List<BillCycle> billCycleInBillingPeriod=billCycleService.getBillCyclesInBillingPeriod(billCycles, billingPeriod);
-		
-		
-		for(BillCycle billCycle:billCycleInBillingPeriod) {
+		for(BillCycle billCycle:billCycles) {
 			tmfEntityValidator.validatePrice(pop);
 			
 			PriceCalculator<Product,it.eng.dome.billing.engine.model.Money> pc=priceCalculatorFactory.getPriceCalculatorForProduct(pop,billCycle.getBillingPeriod());

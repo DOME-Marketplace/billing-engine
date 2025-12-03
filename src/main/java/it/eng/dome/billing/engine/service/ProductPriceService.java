@@ -1,8 +1,9 @@
 package it.eng.dome.billing.engine.service;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,8 @@ import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
+import it.eng.dome.brokerage.model.BillCycle;
+import it.eng.dome.brokerage.model.PriceType;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
@@ -35,16 +38,10 @@ public class ProductPriceService {
 	@Autowired
 	private BillCycleService billCycleService;
 	
-	//@Autowired
-	//private PriceAlterationCalculator priceAlterationCalculator;
-	
-	//private static final String DEFAULT_CURRENCY = "EUR";
-	
-	
-	public List<ProductOfferingPrice> getProductOfferingPriceToBill(@NotNull Product prod, @NotNull TimePeriod billingPeriod) throws BillingEngineValidationException, IllegalArgumentException, ApiException, BillingBadRequestException{
-		logger.info(String.format("Retrieving the ProductOfferingPrice(s) in the ProductPrice list of Product '%s', that must be billed in the billingPeriod ['%s'-'%s']", prod.getId(),billingPeriod.getStartDateTime().toString(), billingPeriod.getEndDateTime().toString()));
+	public Map<ProductOfferingPrice, List<BillCycle>> getPOPBillCyclesInBillingPeriod(@NotNull Product prod, @NotNull TimePeriod billingPeriod) throws BillingEngineValidationException, IllegalArgumentException, ApiException, BillingBadRequestException{
+		logger.info(String.format("Retrieving the ProductOfferingPrice(s) in the ProductPrice list of Product '%s' and the billCycles that must be billed in the billingPeriod ['%s'-'%s']", prod.getId(),billingPeriod.getStartDateTime().toString(), billingPeriod.getEndDateTime().toString()));
 		
-		List<ProductOfferingPrice> popsToBill= new ArrayList<ProductOfferingPrice>();
+		Map<ProductOfferingPrice, List<BillCycle>> popBillCyclesMap=new HashMap<ProductOfferingPrice, List<BillCycle>>();
 		
 		List<ProductPrice> productPrices=prod.getProductPrice();
 		
@@ -59,104 +56,36 @@ public class ProductPriceService {
 					List<ProductOfferingPrice> bundledPops= ProductOfferingPriceUtils.getBundledProductOfferingPrices(pop.getBundledPopRelationship(), productCatalogManagementApis);
 					for(ProductOfferingPrice bundledPop: bundledPops) {
 						tmfEntityValidator.validateProductOfferingPrice(bundledPop);
-						if(popToBill(bundledPop, prod, billingPeriod))
-							popsToBill.add(bundledPop);
+						popBillCyclesMap.put(bundledPop, this.getPOPBillCyclesInBillingPeriod(bundledPop, prod.getStartDate(), billingPeriod));
 					}
 				}else {
-					if(popToBill(pop, prod, billingPeriod))
-						popsToBill.add(pop);
+					popBillCyclesMap.put(pop, this.getPOPBillCyclesInBillingPeriod(pop, prod.getStartDate(), billingPeriod));
 				}
 			}
 			
 		}
 		
-		logger.info("Number of ProductOfferingPrice(s) to bill: {}",popsToBill.size());
+		long popToBill = popBillCyclesMap.entrySet().stream()
+		        .filter(entry -> !entry.getValue().isEmpty())
+		        .count();
 		
-		return popsToBill;
+		logger.debug("Number of ProductOfferingPrice(s) to bill: {}",popToBill);
+		
+		return popBillCyclesMap;
 	}
 	
-	private boolean popToBill(@NotNull ProductOfferingPrice pop, @NotNull Product prod, @NotNull TimePeriod billingPeriod) throws BillingBadRequestException {
+	private List<BillCycle> getPOPBillCyclesInBillingPeriod(@NotNull ProductOfferingPrice pop, @NotNull OffsetDateTime activationDate, @NotNull TimePeriod billingPeriod) throws BillingBadRequestException{
+		 
+		logger.debug("Get billCycles in billingPeriod [{}-{}] for POP {} priceType {}",billingPeriod.getStartDateTime(),
+				billingPeriod.getEndDateTime(), pop.getId(), PriceType.fromString(pop.getPriceType()));
 		
-		List<OffsetDateTime> billDates=billCycleService.calculateBillDates(pop, prod.getStartDate(), billingPeriod.getEndDateTime());
-		for(OffsetDateTime billDate: billDates) {
-			if(billCycleService.isBillDateWithinBillingPeriod(billDate, billingPeriod))
-				return true;
-		}
+		List<BillCycle> billCycles=billCycleService.getBillCycles(pop, activationDate, billingPeriod.getEndDateTime());
+		List<BillCycle> billCyclesInBillingPeriod=billCycleService.getBillCyclesInBillingPeriod(billCycles, billingPeriod);
 		
-		return false;
-	}
+		logger.debug("BillDates in billingPeriod {}",billCycleService.getBillDates(billCyclesInBillingPeriod));
 
-	/*public Price calculatePrice(@NonNull ProductOfferingPrice pop, List<Characteristic> prodCharacteristics) {
-		Price itemPrice = new Price();
-		Money money=null;
-		
-		if(pop.getProdSpecCharValueUse()==null || pop.getProdSpecCharValueUse().isEmpty()) {
-			
-			money=getMoney(pop);
-			logger.info("Price of ProductOfferingPrice '{}' = {} euro", 
-						pop.getId(), money.getValue());
-			
-			itemPrice.setDutyFreeAmount(TmfConverter.convertMoneyTo622(money));
-								
-			// apply price alterations
-			if (ProductOfferingPriceUtils.hasRelationships(pop)) {
-				
-				Price alteretedPrice=priceAlterationCalculator.applyAlterations(pop, itemPrice);
-									
-				logger.info("Price of ProductOfferingPrice '{}' after alterations = {} euro", 
-						pop.getId(), alteretedPrice.getDutyFreeAmount());	
-			
-				return alteretedPrice;
-			}
-			
-		}else {
-			if(prodCharacteristics==null || prodCharacteristics.isEmpty())
-				throw new BillingBadRequestException(String.format("Error! The Characteristics are missing in the Product to calculate the price for the ProductOfferingPrice '%s' ", pop.getId()));
-			
-			ProductSpecificationCharacteristicValueUse prodSpecCharValueUse= pop.getProdSpecCharValueUse().get(0);
-			if(prodSpecCharValueUse.getName()==null) {
-				throw new BillingBadRequestException(String.format("The name of the Characteristic is missing in the ProductOfferingPrice '%s'", pop.getId()));
-			}
-			Characteristic matchChar=null;
-			
-			for(Characteristic productCharacteristic : prodCharacteristics) {
-				if(prodSpecCharValueUse.getName().equalsIgnoreCase(productCharacteristic.getName())) {
-					matchChar=productCharacteristic;
-					break;
-				}
-			}
-			if(matchChar==null) {
-				throw new BillingBadRequestException(String.format("Error! No matching Characteristic found for the ProductOfferingPrice '%s'", pop.getId()));
-			}
-			
-			// calculates the base price of the Characteristic 
-			itemPrice = calculatePriceForCharacteristic(pop, matchChar);
-				
-		    // applies price alterations
-			if (PriceUtils.hasRelationships(pop)) {
-				Price alteratedPrice=pac.applyAlterations(pop, itemPrice);
-				
-				logger.info("Price of Characteristic '{}' '{}' after alterations: {} euro", 
-				matchChar.getName(), matchChar.getValue(), alteratedPrice.getDutyFreeAmount());
-				
-				return alteratedPrice;
-			
-			}
-		}
-		
-		return itemPrice;
+		return billCyclesInBillingPeriod;
 	}
 	
-	private Money getMoney(@NotNull ProductOfferingPrice pop) throws BillingEngineValidationException {
-		tmfEntityValidator.validatePrice(pop);
-		
-		Money money=pop.getPrice();
-		
-		if(money.getUnit()==null || money.getUnit().isEmpty())
-			money.setUnit(DEFAULT_CURRENCY);
-		
-		return money;
-	}*/
 	
-
 }

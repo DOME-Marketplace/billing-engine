@@ -1,6 +1,6 @@
 
 # Use a JDK17 as set in the dev environment
-FROM openjdk:17-jdk-alpine 
+FROM eclipse-temurin:17-jdk-alpine
 
 # If there si the need to upgrade to a newer version of Java use the following FROM
 # FROM alpine/java:21-jdk

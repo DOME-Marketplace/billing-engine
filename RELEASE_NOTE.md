@@ -7,10 +7,9 @@
 * Updated REST API POST **billing/bill** with payload `BillingRequestDTO` and response payload `List<Invoice>`.
 * Added REST API POST **billing/instantBill** with payload `InstantBillingRequestDTO` and response payload `List<Invoice>`.
 * Updated code to calculate one or more `Invoice` (i.e., a `CustomerBill` with one or more `ACBR` associated) for a `Product` that fall within a billingPeriod.
-* Updated code to manage TMForum entity validation.
-* Improved code to manage exceptions.
-* Cleaning of the code.
-* Updated Javadoc.
+* Updated code to manage TMForum entity **validation**.
+* Improved code to manage exceptions and made the code clean.
+* Updated `Javadoc`.
 
 **BugFixing**
 * Solved *bug fix* to calculate `PriceAlteration`.

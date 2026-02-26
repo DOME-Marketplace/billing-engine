@@ -87,7 +87,7 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 		final String chName = ch.getName();
 		final String chValueType= ch.getValueType();
 		Float chValue;
-		Float chAmount=0f;
+		Float chAmount;
 		
 		//final Float chValue = Float.parseFloat(ch.getValue().toString());
 		//Float chAmount;

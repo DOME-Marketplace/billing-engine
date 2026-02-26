@@ -65,11 +65,11 @@ public class PricePreviewController {
 		}
 		try {
 		
-		// 2) calculate order price
-		ProductOrder updatedOrder=priceService.calculateOrderPrice(order,usageData);
+			// 2) calculate order price
+			ProductOrder updatedOrder=priceService.calculateOrderPrice(order,usageData);
 
-		// 3) return updated ProductOrder
-		return ResponseEntity.ok(updatedOrder);
+			// 3) return updated ProductOrder
+			return ResponseEntity.ok(updatedOrder);
 		} catch (Exception ex) {
 			logger.error("Error: {}", ex.getMessage());		
 			return ResponseEntity.badRequest().build();

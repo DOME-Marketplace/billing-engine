@@ -32,7 +32,7 @@ public class CharacteristicPreviewPriceCalculator extends AbstractPriceCalculato
 
 	@Override
 	public List<OrderPrice> calculatePrice(ProductOrderItem prodOrderItem) throws BillingEngineValidationException, ApiException {
-		logger.info("Calculating price preview for POP  '{}' with Characteristic of Product '{}'", pop.getId(), prodOrderItem.getId());
+		logger.info("Calculating price preview for POP  '{}' with Characteristic for ProductOrderItem '{}'", pop.getId(), prodOrderItem.getId());
 		
 		List<OrderPrice> orderPrices=new ArrayList<OrderPrice>();
 		Characteristic matchChar;
@@ -40,6 +40,7 @@ public class CharacteristicPreviewPriceCalculator extends AbstractPriceCalculato
 		tmfEntityValidator.validateCharacteristicsInProductOrderItem(prodOrderItem);
 		
 		List<Characteristic> characteristics=TmfConverter.convert622ToCharacteristics(prodOrderItem.getProduct().getProductCharacteristic());
+		
 		matchChar=this.findMachingCharacteristic(characteristics);
 			
 		if(matchChar==null) {

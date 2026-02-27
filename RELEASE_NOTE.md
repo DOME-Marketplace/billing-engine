@@ -2,15 +2,18 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>2.0.1</code> :calendar: 26/02/2026
+**BugFixing**
+* Updated calculation of price for `ProductOfferingPrice` with characteristics to solve issue with `valueType=string`
+
 ### <code>2.0.0</code> :calendar: 28/11/2025
 **Improvements**
 * Updated REST API POST **billing/bill** with payload `BillingRequestDTO` and response payload `List<Invoice>`.
 * Added REST API POST **billing/instantBill** with payload `InstantBillingRequestDTO` and response payload `List<Invoice>`.
 * Updated code to calculate one or more `Invoice` (i.e., a `CustomerBill` with one or more `ACBR` associated) for a `Product` that fall within a billingPeriod.
-* Updated code to manage TMForum entity validation.
-* Improved code to manage exceptions.
-* Cleaning of the code.
-* Updated Javadoc.
+* Updated code to manage TMForum entity **validation**.
+* Improved code to manage exceptions and made the code clean.
+* Updated `Javadoc`.
 
 **BugFixing**
 * Solved *bug fix* to calculate `PriceAlteration`.

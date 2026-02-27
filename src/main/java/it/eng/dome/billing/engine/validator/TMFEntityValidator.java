@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
+import it.eng.dome.billing.engine.model.Characteristic;
+import it.eng.dome.billing.engine.utils.TmfConverter;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductOfferingPrice;
 import it.eng.dome.tmforum.tmf620.v4.model.ProductSpecificationCharacteristicValueUse;
@@ -296,6 +298,48 @@ public class TMFEntityValidator {
 	}
 	
 	/**
+	 * Validates the specified list of {@link Characteristic}
+	 * @param chs the list of {@link Characteristic} to validate
+	 * @param productOrderItemId the identifier of the productOrderItem to which the characteristics belong to
+	 * @throws BillingEngineValidationException if some unexpected/missing values are find
+	 */
+	public void validateCharacteristics(@NotNull List<Characteristic> chs, @NotNull String productOrderItemId)  throws BillingEngineValidationException{
+		for(Characteristic ch: chs) {
+			this.validateCharacteristic(ch, productOrderItemId);
+		}
+	}
+	
+	/**
+	 * Validates the specified  {@link Characteristic}
+	 * @param ch the {@link Characteristic} to validate
+	 * @param productOrderItemId the identifier of the productOrderItem to which the characteristic belong to
+	 * @throws BillingEngineValidationException if some unexpected/missing values are find
+	 */
+	private void validateCharacteristic(@NotNull Characteristic ch, @NotNull String productOrderItemId) throws BillingEngineValidationException {
+		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
+		
+		if(ch.getName()==null || ch.getName().isBlank()) {
+			String msg=String.format("The name of the Characteristic in ProductOrderItem %s is missing", productOrderItemId);
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		if(ch.getValue()==null) {
+			String msg=String.format("The value of the Characteristic in ProductOrderItem %s is missing", productOrderItemId);
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		
+		if(!"number".equalsIgnoreCase(ch.getValueType()) && !"string".equalsIgnoreCase(ch.getValueType())) {
+			String msg=String.format("Unsupported valueType %s for Characteristic %s in ProductOrderItem %s", ch.getValueType(), ch.getName(), productOrderItemId);
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+	
+		this.throwsErrorValidationIssuesIfAny(issues);
+		
+		logger.debug("Validation of Characteristic {} successful", ch.getName());
+	}
+	
+	/**
 	 * Checks if all the currencies in the specified list of {@link ProductOfferingPrice} are the same or not
 	 * @param pops the list of {@link ProductOfferingPrice} that must be checked
 	 * @param prod the Product to which the {@link ProductOfferingPrice} in the list refer to
@@ -393,6 +437,13 @@ public class TMFEntityValidator {
 		if(productOrderItem.getQuantity()==null||productOrderItem.getQuantity()<=0f){
 			String msg=String.format("The ProductOrderItem %s of ProductOrder '%s' must have 'quantity' greater than zero", productOrderItem.getId(),productOrderId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		if(productOrderItem.getProduct()!=null && (productOrderItem.getProduct().getProductCharacteristic()!=null && !productOrderItem.getProduct().getProductCharacteristic().isEmpty())){
+			for(it.eng.dome.tmforum.tmf622.v4.model.Characteristic ch: productOrderItem.getProduct().getProductCharacteristic()) {
+				Characteristic chOut=TmfConverter.convert622ToCharacteristic(ch);
+				this.validateCharacteristic(chOut, productOrderItem.getId());
+			}
 		}
 		
 		this.throwsErrorValidationIssuesIfAny(issues);

@@ -328,11 +328,15 @@ public class TMFEntityValidator {
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
-		
-		if(!"number".equalsIgnoreCase(ch.getValueType()) && !"string".equalsIgnoreCase(ch.getValueType())) {
-			String msg=String.format("Unsupported valueType %s for Characteristic %s in ProductOrderItem %s", ch.getValueType(), ch.getName(), productOrderItemId);
+		if(ch.getValueType()==null || ch.getValueType().isBlank()) {
+			String msg=String.format("The valueType of the Characteristic in ProductOrderItem %s is missing", productOrderItemId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
+			
+		/*if(!"number".equalsIgnoreCase(ch.getValueType()) && !"string".equalsIgnoreCase(ch.getValueType())) {
+			String msg=String.format("Unsupported valueType %s for Characteristic %s in ProductOrderItem %s", ch.getValueType(), ch.getName(), productOrderItemId);
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}*/
 	
 		this.throwsErrorValidationIssuesIfAny(issues);
 		

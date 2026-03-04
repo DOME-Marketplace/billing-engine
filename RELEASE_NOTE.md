@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>2.0.2</code> :calendar: 04/03/2026
+**BugFixing**
+* Solved *bug fix* to calculate price for `ProductOfferingPrice` with characteristics
+
 ### <code>2.0.1</code> :calendar: 26/02/2026
 **BugFixing**
 * Updated calculation of price for `ProductOfferingPrice` with characteristics to solve issue with `valueType=string`

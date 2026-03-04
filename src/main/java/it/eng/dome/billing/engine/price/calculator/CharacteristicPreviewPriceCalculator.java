@@ -13,8 +13,6 @@ import it.eng.dome.billing.engine.model.Money;
 import it.eng.dome.billing.engine.utils.OrderPriceUtils;
 import it.eng.dome.billing.engine.utils.TMForumEntityUtils;
 import it.eng.dome.billing.engine.utils.TmfConverter;
-import it.eng.dome.billing.engine.validator.ValidationIssue;
-import it.eng.dome.billing.engine.validator.ValidationIssueSeverity;
 import it.eng.dome.brokerage.billing.utils.ProductOfferingPriceUtils;
 import it.eng.dome.tmforum.tmf620.v4.ApiException;
 import it.eng.dome.tmforum.tmf622.v4.model.OrderPrice;
@@ -32,7 +30,8 @@ public class CharacteristicPreviewPriceCalculator extends AbstractPriceCalculato
 
 	@Override
 	public List<OrderPrice> calculatePrice(ProductOrderItem prodOrderItem) throws BillingEngineValidationException, ApiException {
-		logger.info("Calculating price preview for POP  '{}' with Characteristic for ProductOrderItem '{}'", pop.getId(), prodOrderItem.getId());
+		//logger.info("Calculating price preview for POP  '{}' with Characteristic for ProductOrderItem '{}'", pop.getId(), prodOrderItem.getId());
+		logger.info("Calculating price preview for POP  '{}' with Characteristic", pop.getId());
 		
 		List<OrderPrice> orderPrices=new ArrayList<OrderPrice>();
 		Characteristic matchChar;
@@ -44,9 +43,11 @@ public class CharacteristicPreviewPriceCalculator extends AbstractPriceCalculato
 		matchChar=this.findMachingCharacteristic(characteristics);
 			
 		if(matchChar==null) {
-			String msg=String.format("Error! No matching Characteristic found for the ProductOfferingPrice '%s' in ProductOrderItem '%s'", pop.getId(), prodOrderItem.getId());
-			ValidationIssue issue=new ValidationIssue(msg,ValidationIssueSeverity.ERROR);
-			throw new BillingEngineValidationException(issue);
+			//String msg=String.format("Error! No matching Characteristic found for the ProductOfferingPrice '%s' in ProductOrderItem '%s'", pop.getId(), prodOrderItem.getId());
+			//ValidationIssue issue=new ValidationIssue(msg,ValidationIssueSeverity.ERROR);
+			//throw new BillingEngineValidationException(issue);
+			logger.info("No maching characteristics for ProductOfferingPrice '{}' in ProductOrderItem '{}'", pop.getId(), prodOrderItem.getId());
+			return orderPrices;
 		}
 			
 		Money chPrice=calculatePriceForCharacteristic(matchChar);

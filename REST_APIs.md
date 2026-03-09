@@ -1,6 +1,6 @@
 # Billing Engine
 
-**Version:** 2.0.2  
+**Version:** 2.0.3  
 **Description:** Swagger REST APIs for the billing-engine software  
 
 
@@ -15,6 +15,8 @@
 | Verb | Path | Task |
 |------|------|------|
 | POST | `/billing/bill` | calculateBill |
+| POST | `/billing/instantBill` | calculateBill |
+
 
 ### Billing Engine Controller
 | Verb | Path | Task |

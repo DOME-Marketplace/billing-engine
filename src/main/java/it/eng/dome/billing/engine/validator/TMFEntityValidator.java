@@ -83,6 +83,24 @@ public class TMFEntityValidator {
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
+		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().size()>1) {
+			String msg=String.format("The size of prodSpecCharValueUse in ProductOfferingPrice %s is greater than one ", pop.getId());
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		
+		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().get(0)!=null) {
+			ProductSpecificationCharacteristicValueUse prodSpecChValueUse=pop.getProdSpecCharValueUse().get(0);
+			if(prodSpecChValueUse.getProductSpecCharacteristicValue()!=null && prodSpecChValueUse.getProductSpecCharacteristicValue().size()>0) {
+				String msg=String.format("The size of productSpecCharacteristicValue in ProductOfferingPrice %s is greater than one ", pop.getId());
+				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+			}
+			if(prodSpecChValueUse.getName()==null || prodSpecChValueUse.getName().isEmpty()) {
+				String msg=String.format("The'?prodSpecCharValueUse' of ProductOfferingPrice '%s' must have 'name'", pop.getId());
+				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+			}
+
+		}
+		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
 		logger.debug("Validation of ProductOfferingPrice {} successful", pop.getId());
@@ -263,32 +281,20 @@ public class TMFEntityValidator {
 	}
 	
 	/**
-	 * Validates the list of {@link ProductSpecificationCharacteristicValueUse} of the specified {@link ProductOfferingPrice}
-	 * @param pop the {@link ProductOfferingPrice} for which the {@link ProductSpecificationCharacteristicValueUse} must be validated
-	 * @throws BillingEngineValidationException if some unexpected/missing values are find
-	 */
-	public void validateProdSpecCharValueUseList(@NotNull ProductOfferingPrice pop) throws BillingEngineValidationException{
-		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
-		
-		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().size()>1) {
-			String msg=String.format("The size of prodSpecCharValueUse in ProductOfferingPrice %s is greater than one ", pop.getId());
-			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.WARNING));
-		}
-		
-		this.logWarningValidationIssuesIfAny(issues);
-	}
-	
-	/**
 	 * Validates the {@link ProductSpecificationCharacteristicValueUse} of the specified  {@link ProductOfferingPrice}
 	 * @param charValueUse the {@link ProductSpecificationCharacteristicValueUse} to validate
 	 * @param pop the {@link ProductOfferingPrice} to which the {@link ProductSpecificationCharacteristicValueUse} belongs to
 	 * @throws BillingEngineValidationException if some unexpected/missing values are find
 	 */
-	public void validateProductSpecificationCharacteristicValueUse(@NotNull ProductSpecificationCharacteristicValueUse charValueUse, @NotNull ProductOfferingPrice pop) throws BillingEngineValidationException {
+	public void validateProdSpecCharValueUse(@NotNull ProductSpecificationCharacteristicValueUse charValueUse, @NotNull ProductOfferingPrice pop) throws BillingEngineValidationException {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(charValueUse.getName()==null || charValueUse.getName().isEmpty()) {
 			String msg=String.format("The name of the Characteristic is missing in ProductOfferingPrice %s", pop.getId());
+			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+		}
+		if(charValueUse.getProductSpecCharacteristicValue()!=null && charValueUse.getProductSpecCharacteristicValue().size()>1) {
+			String msg=String.format("The size of productSpecCharacteristicValue in ProductOfferingPrice %s is greater than one", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 	
@@ -332,11 +338,6 @@ public class TMFEntityValidator {
 			String msg=String.format("The valueType of the Characteristic in ProductOrderItem %s is missing", productOrderItemId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
-			
-		/*if(!"number".equalsIgnoreCase(ch.getValueType()) && !"string".equalsIgnoreCase(ch.getValueType())) {
-			String msg=String.format("Unsupported valueType %s for Characteristic %s in ProductOrderItem %s", ch.getValueType(), ch.getName(), productOrderItemId);
-			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
-		}*/
 	
 		this.throwsErrorValidationIssuesIfAny(issues);
 		

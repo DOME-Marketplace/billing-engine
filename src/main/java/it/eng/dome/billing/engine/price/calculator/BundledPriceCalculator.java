@@ -41,7 +41,7 @@ public class BundledPriceCalculator extends AbstractPriceCalculator<Product,Mone
 		}
 		
 		for(ProductOfferingPrice bundledPop:bundledPops) {
-			tmfEntityValidator.validateProductOfferingPrice(bundledPop);
+
 			PriceCalculator<Product,Money> pc= priceCalculatorFactory.getPriceCalculatorForProduct(bundledPop, billingPeriod);
 			Money bundledPopMoney= pc.calculatePrice(prod);
 			totalBundledPopsAmount+=bundledPopMoney.getValue();

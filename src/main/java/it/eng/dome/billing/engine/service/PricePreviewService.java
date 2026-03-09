@@ -81,6 +81,8 @@ public class PricePreviewService {
 	    		
 	    		// Retrieves from the ProductOfferingPrice
 	    		ProductOfferingPrice pop =ProductOfferingPriceUtils.getProductOfferingPrice(op.getProductOfferingPrice().getId(), productCatalogManagementApis);
+	    		
+	    		tmfEntityValidator.validateProductOfferingPrice(pop);
 			
 	    		// Retrieves the price calculator for the ProductOfferingPrice
 	    		PriceCalculator<ProductOrderItem, List<OrderPrice>> priceCalculator = priceCalculatorFactory.getPriceCalculatorForProductOrderItem(pop, usageData);

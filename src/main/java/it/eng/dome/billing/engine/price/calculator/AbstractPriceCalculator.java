@@ -12,6 +12,7 @@ import it.eng.dome.billing.engine.exception.BillingEngineValidationException;
 import it.eng.dome.billing.engine.model.Characteristic;
 import it.eng.dome.billing.engine.model.Money;
 import it.eng.dome.billing.engine.price.alteration.PriceAlterationCalculator;
+import it.eng.dome.billing.engine.utils.CharacteristicUtils;
 import it.eng.dome.billing.engine.utils.UsageUtils;
 import it.eng.dome.billing.engine.validator.TMFEntityValidator;
 import it.eng.dome.brokerage.api.ProductCatalogManagementApis;
@@ -89,17 +90,7 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 		Float chValue;
 		Float chAmount;
 		
-		//final Float chValue = Float.parseFloat(ch.getValue().toString());
-		//Float chAmount;
-		
-		// valueType of the characteristic is "string"
-		if ("string".equalsIgnoreCase(chValueType)) {
-			chAmount = (pop.getPrice().getValue());
-			logger.info("Price of Characteristic '{}' [valueType: {}, price: '{}'] = {} {}", 
-					chName, chValueType, pop.getPrice().getValue(), chAmount,priceCurrency);
-		
-		// valueType of the characteristic is "number"	
-		}else if ("number".equalsIgnoreCase(chValueType)){
+		if ("number".equalsIgnoreCase(chValueType)){
 			chValue = Float.parseFloat(ch.getValue().toString());
 		
 			if (ProductOfferingPriceUtils.isForfaitPrice(pop)) {
@@ -114,9 +105,12 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 						chName, chValue,
 						pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), chAmount,priceCurrency);
 			}
-		} else {
-		    throw new IllegalArgumentException(
-		            "Unsupported valueType: " + chValueType);
+		}
+		// valueType of the characteristic != number
+		else {
+			chAmount = (pop.getPrice().getValue());
+			logger.info("Price of Characteristic '{}' [valueType: {}, price: '{}'] = {} {}", 
+					chName, chValueType, pop.getPrice().getValue(), chAmount,priceCurrency);
 		}
 		
 		return new Money(priceCurrency, chAmount);
@@ -143,36 +137,41 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 	
 	protected Characteristic findMachingCharacteristic(@NotNull List<Characteristic> characteristics) throws BillingEngineValidationException {
 		logger.debug("Find matching characteristic...");
-		List<ProductSpecificationCharacteristicValueUse> prodSpecCharValueUses=pop.getProdSpecCharValueUse();
-		
-		if(prodSpecCharValueUses==null || prodSpecCharValueUses.isEmpty()) {
-			return null;
-		}
+		ProductSpecificationCharacteristicValueUse prodSpecCharValueUse=pop.getProdSpecCharValueUse().get(0);
 		
 		for(Characteristic characteristic : characteristics) {
-			
-			for (ProductSpecificationCharacteristicValueUse prodSpecCharValueUse : prodSpecCharValueUses) {
 				
-				// Match name (case insensitive)
-	            if (!characteristic.getName().equalsIgnoreCase(prodSpecCharValueUse.getName())) {
-	                continue;
-	            }
-
+			// Match name (case insensitive)
+	        if (!characteristic.getName().equalsIgnoreCase(prodSpecCharValueUse.getName())) {
+	            continue;
+	        }
+	        
+	        if(prodSpecCharValueUse.getProductSpecCharacteristicValue() != null) {
+	        	CharacteristicValueSpecification chValueSpec=prodSpecCharValueUse.getProductSpecCharacteristicValue().get(0);
+	        	
+	        	// Characteristic.valueType == number
 				if ("number".equalsIgnoreCase(characteristic.getValueType())) {
-					logger.debug("Matching characteristic with name '{}' and valueType '{}'",characteristic.getName(),characteristic.getValueType());
-					return characteristic;
+					// match on range
+					if(CharacteristicUtils.isRangeCharacteristic(chValueSpec) && CharacteristicUtils.isValueInCharacteristicRange((Integer)characteristic.getValue(), chValueSpec)) {
+						logger.debug("Matching characteristic with name '{}' and valueType '{}' in range [{}-{}]",characteristic.getName(),characteristic.getValueType(),chValueSpec.getValueFrom(),chValueSpec.getValueTo());
+						return characteristic;
+					}
+					else {
+						return null;
+					}
+				}
+				// Characteristic.valueType != number 
+				else {
+					if (valuesMatch(chValueSpec.getValue(), characteristic.getValue())) {
+						logger.debug("Matching characteristic with name '{}' valueType '{}' and value '{}'",characteristic.getName(),characteristic.getValueType(), characteristic.getValue().toString());
+						return characteristic;
+					}
 		        }
-				
-				// Characteristic.valueType = string → match also on value 
-	            if ("string".equalsIgnoreCase(characteristic.getValueType()) && prodSpecCharValueUse.getProductSpecCharacteristicValue() != null) {
-                    for (CharacteristicValueSpecification spec : prodSpecCharValueUse.getProductSpecCharacteristicValue()) {
-                    	if (valuesMatch(spec.getValue(), characteristic.getValue())) {
-                    		logger.debug("Matching characteristic with name '{}' valueType '{}' and value '{}'",characteristic.getName(),characteristic.getValueType(), characteristic.getValue().toString());
-                    		return characteristic;
-		                }
-		            }
-		        }
-			}
+	        }
+			else {
+	        	logger.debug("Matching characteristic with name '{}' and valueType '{}'",characteristic.getName(),characteristic.getValueType());
+				return characteristic;
+	        }
 		}
 		
 		return null;

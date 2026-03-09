@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>2.0.3</code> :calendar: 09/03/2026
+**BugFixing**
+* Solved *bug fix* to calculate Tier pricing
+
 ### <code>2.0.2</code> :calendar: 04/03/2026
 **BugFixing**
 * Solved *bug fix* to calculate price for `ProductOfferingPrice` with characteristics

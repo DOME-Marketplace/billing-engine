@@ -156,16 +156,11 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 						logger.debug("Matching characteristic with name '{}' and valueType '{}' in range [{}-{}]",characteristic.getName(),characteristic.getValueType(),chValueSpec.getValueFrom(),chValueSpec.getValueTo());
 						return characteristic;
 					}
-					else {
-						return null;
-					}
 				}
 				// Characteristic.valueType != number 
-				else {
-					if (valuesMatch(chValueSpec.getValue(), characteristic.getValue())) {
-						logger.debug("Matching characteristic with name '{}' valueType '{}' and value '{}'",characteristic.getName(),characteristic.getValueType(), characteristic.getValue().toString());
-						return characteristic;
-					}
+				if (valuesMatch(chValueSpec.getValue(), characteristic.getValue())) {
+					logger.debug("Matching characteristic with name '{}' valueType '{}' and value '{}'",characteristic.getName(),characteristic.getValueType(), characteristic.getValue().toString());
+					return characteristic;
 		        }
 	        }
 			else {

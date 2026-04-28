@@ -84,18 +84,23 @@ public class TMFEntityValidator {
 		}
 		
 		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().size()>1) {
-			String msg=String.format("The size of prodSpecCharValueUse in ProductOfferingPrice %s is greater than one ", pop.getId());
+			String msg=String.format("The size of 'prodSpecCharValueUse' in ProductOfferingPrice '%s' is greater than one ", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
-		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().get(0)!=null) {
+		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().size()==1) {
 			ProductSpecificationCharacteristicValueUse prodSpecChValueUse=pop.getProdSpecCharValueUse().get(0);
-			if(prodSpecChValueUse.getProductSpecCharacteristicValue()!=null && prodSpecChValueUse.getProductSpecCharacteristicValue().size()>0) {
-				String msg=String.format("The size of productSpecCharacteristicValue in ProductOfferingPrice %s is greater than one ", pop.getId());
+			
+			if(prodSpecChValueUse.getProductSpecCharacteristicValue()==null || (prodSpecChValueUse.getProductSpecCharacteristicValue()!=null && prodSpecChValueUse.getProductSpecCharacteristicValue().isEmpty())) {
+				String msg=String.format("The'productSpecCharacteristicValue' in ProductOfferingPrice '%s' is missing", pop.getId());
+				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
+			}
+			if(prodSpecChValueUse.getProductSpecCharacteristicValue()!=null && prodSpecChValueUse.getProductSpecCharacteristicValue().size()>1) {
+				String msg=String.format("The size of 'productSpecCharacteristicValue' in ProductOfferingPrice '%s' is greater than one ", pop.getId());
 				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 			}
 			if(prodSpecChValueUse.getName()==null || prodSpecChValueUse.getName().isEmpty()) {
-				String msg=String.format("The'?prodSpecCharValueUse' of ProductOfferingPrice '%s' must have 'name'", pop.getId());
+				String msg=String.format("The'prodSpecCharValueUse' of ProductOfferingPrice '%s' must have 'name'", pop.getId());
 				issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 			}
 
@@ -103,7 +108,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of ProductOfferingPrice {} successful", pop.getId());
+		logger.debug("Validation of ProductOfferingPrice '{}' successful", pop.getId());
 		
 	}
 	
@@ -145,7 +150,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of Product {} successful", prod.getId());
+		logger.debug("Validation of Product '{}' successful", prod.getId());
 		
 	}	
 	
@@ -161,12 +166,12 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(prodPrice.getProductOfferingPrice()==null) {
-			String msg=String.format("The ProductPrice of Product %s must have 'ProductOfferingPrice'", prodId);
+			String msg=String.format("The ProductPrice of Product '%s' must have ProductOfferingPrice", prodId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
 		if(prodPrice.getProductOfferingPrice().getId()==null || prodPrice.getProductOfferingPrice().getId().isEmpty()) {
-			String msg=String.format("The ProductPrice f Product %s must have a 'ProductOfferingPrice' with a valorised 'id'", prodId);
+			String msg=String.format("The ProductPrice of Product '%s' must have a ProductOfferingPrice with a valorised 'id'", prodId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
@@ -186,13 +191,13 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(usage.getUsageCharacteristic()==null || usage.getUsageCharacteristic().isEmpty()) {
-			String msg=String.format("The UsageCharacteristic should not be null or empty for Usage: %s", usage.getId());
+			String msg=String.format("The UsageCharacteristic should not be null or empty for Usage: '%s'", usage.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.WARNING));
 		}
 		
 		this.logWarningValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of Usage {} successful", usage.getId());
+		logger.debug("Validation of Usage '{}' successful", usage.getId());
 	}
 	
 	/**
@@ -217,12 +222,12 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(pop.getPrice().getUnit()==null || (pop.getPrice().getUnit().isEmpty())) {
-			String msg=String.format("The currency is missing in the price of ProductOfferingPrice %s. By default 'EUR' is used", pop.getId());
+			String msg=String.format("The currency is missing in the price of ProductOfferingPrice '%s'. By default 'EUR' is used", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.WARNING));
 		}
 		
 		if(pop.getPrice().getValue()==null) {
-			String msg=String.format("The value is missing in the price of ProductOfferingPrice %s", pop.getId());
+			String msg=String.format("The value is missing in the price of ProductOfferingPrice '%s'", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
@@ -234,7 +239,7 @@ public class TMFEntityValidator {
 		
 		this.logWarningValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of Price for ProductOfferingPrice {} successful", pop.getId());
+		logger.debug("Validation of Price for ProductOfferingPrice '{}' successful", pop.getId());
 	}
 	
 	/**
@@ -247,18 +252,18 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(unitOfMeasure.getUnits()==null || unitOfMeasure.getUnits().isEmpty()){
-			String msg=String.format("The units is missing in unitOfMeasure of ProductOfferingPrice %s", pop.getId());
+			String msg=String.format("The 'units' is missing in 'unitOfMeasure' of ProductOfferingPrice '%s'", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
 		if(unitOfMeasure.getAmount()==null){
-			String msg=String.format("The amount is missing in unitOfMeasure of ProductOfferingPrice %s", pop.getId());
+			String msg=String.format("The 'amount' is missing in 'unitOfMeasure' of ProductOfferingPrice '%s'", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 			
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of unitOdMeasure of ProductOfferingPrice {} successful", pop.getId());
+		logger.debug("Validation of 'unitOdMeasure' of ProductOfferingPrice '{}' successful", pop.getId());
 	}
 	
 	/**
@@ -275,7 +280,7 @@ public class TMFEntityValidator {
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
-		logger.debug("Validation of unitOfMeasure of single ProductOfferingPrice {} successful", pop.getId());
+		logger.debug("Validation of 'unitOfMeasure' of single ProductOfferingPrice '{}' successful", pop.getId());
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 	}
@@ -290,17 +295,17 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(charValueUse.getName()==null || charValueUse.getName().isEmpty()) {
-			String msg=String.format("The name of the Characteristic is missing in ProductOfferingPrice %s", pop.getId());
+			String msg=String.format("The name of the Characteristic is missing in ProductOfferingPrice '%s'", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		if(charValueUse.getProductSpecCharacteristicValue()!=null && charValueUse.getProductSpecCharacteristicValue().size()>1) {
-			String msg=String.format("The size of productSpecCharacteristicValue in ProductOfferingPrice %s is greater than one", pop.getId());
+			String msg=String.format("The size of 'productSpecCharacteristicValue' in ProductOfferingPrice %s is greater than one", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 	
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of productSpecificationCharacteristicValueUse of ProductOfferingPrice {} successful", pop.getId());
+		logger.debug("Validation of 'productSpecificationCharacteristicValueUse' of ProductOfferingPrice '{}' successful", pop.getId());
 	}
 	
 	/**
@@ -325,23 +330,23 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(ch.getName()==null || ch.getName().isBlank()) {
-			String msg=String.format("The name of the Characteristic in ProductOrderItem %s is missing", productOrderItemId);
+			String msg=String.format("The name of the Characteristic in ProductOrderItem '%s' is missing", productOrderItemId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
 		if(ch.getValue()==null) {
-			String msg=String.format("The value of the Characteristic in ProductOrderItem %s is missing", productOrderItemId);
+			String msg=String.format("The value of the Characteristic in ProductOrderItem '%s' is missing", productOrderItemId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
 		if(ch.getValueType()==null || ch.getValueType().isBlank()) {
-			String msg=String.format("The valueType of the Characteristic in ProductOrderItem %s is missing", productOrderItemId);
+			String msg=String.format("The valueType of the Characteristic in ProductOrderItem '%s' is missing", productOrderItemId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 	
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of Characteristic {} successful", ch.getName());
+		logger.debug("Validation of Characteristic '{}' successful", ch.getName());
 	}
 	
 	/**
@@ -360,13 +365,13 @@ public class TMFEntityValidator {
 	            .allMatch(currency -> currency.equals(firstCurrency));
 
 	    if (!allSame) {
-	    	String msg=String.format("The price components of the Product %s have different currencies", prod.getId());
+	    	String msg=String.format("The price components of the Product '%s' have different currencies", prod.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 	    }
 	    
 	    this.throwsErrorValidationIssuesIfAny(issues);
 	    
-	    logger.debug("Validation of ProductOfferingPrice's currencies of Product {} successful", prod.getId());
+	    logger.debug("Validation of ProductOfferingPrice's currencies of Product '{}' successful", prod.getId());
 		
 	}
 	
@@ -398,7 +403,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of ProductOfferingPrice in popRelationship {} successful", pop.getId());
+		logger.debug("Validation of ProductOfferingPrice in popRelationship '{}' successful", pop.getId());
 		
 	}
 	
@@ -419,7 +424,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of ProductOrder {} successful", productOrder.getId());
+		logger.debug("Validation of ProductOrder '{}' successful", productOrder.getId());
 		
 	}
 	
@@ -435,12 +440,12 @@ public class TMFEntityValidator {
 		List<ValidationIssue> issues=new ArrayList<ValidationIssue>();
 		
 		if(productOrderItem.getItemTotalPrice()==null||productOrderItem.getItemTotalPrice().isEmpty()){
-			String msg=String.format("The ProductOrderItem %s of ProductOrder '%s' must have 'itemTotalPrice'", productOrderItem.getId(),productOrderId);
+			String msg=String.format("The ProductOrderItem '%s' of ProductOrder '%s' must have 'itemTotalPrice'", productOrderItem.getId(),productOrderId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
 		if(productOrderItem.getQuantity()==null||productOrderItem.getQuantity()<=0f){
-			String msg=String.format("The ProductOrderItem %s of ProductOrder '%s' must have 'quantity' greater than zero", productOrderItem.getId(),productOrderId);
+			String msg=String.format("The ProductOrderItem '%s' of ProductOrder '%s' must have 'quantity' greater than zero", productOrderItem.getId(),productOrderId);
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
@@ -453,7 +458,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of ProductOrderItem {} for ProductOrder {} successful",productOrderItem.getId(),productOrderId);
+		logger.debug("Validation of ProductOrderItem '{}' for ProductOrder '{}' successful",productOrderItem.getId(),productOrderId);
 		
 	}
 	
@@ -481,7 +486,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of OrderPrice of ProductOrderItem {} in ProductOrder {} successful",productOrderItemId, productOrderId);
+		logger.debug("Validation of OrderPrice of ProductOrderItem '{}' in ProductOrder '{}' successful",productOrderItemId, productOrderId);
 		
 	}
 	
@@ -507,7 +512,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of Characteristics in ProductOrderItem {} successful",productOrderItem.getId());
+		logger.debug("Validation of Characteristics in ProductOrderItem '{}' successful",productOrderItem.getId());
 		
 	}
 	
@@ -528,7 +533,7 @@ public class TMFEntityValidator {
 		
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of Characteristics in Product {} successful",product.getId());
+		logger.debug("Validation of Characteristics in Product '{}' successful",product.getId());
 		
 	}
 	

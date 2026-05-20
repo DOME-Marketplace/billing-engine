@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>2.0.5</code> :calendar: 20/05/2026
+**BugFixing**
+* Solved *bug fix* to calculate price for `ProductOfferingPrice` with characteristics in range (unit prices)
+
 ### <code>2.0.4</code> :calendar: 28/04/2026
 **BugFixing**
 * Solved *bug fix* to calculate price for `ProductOfferingPrice` with characteristics

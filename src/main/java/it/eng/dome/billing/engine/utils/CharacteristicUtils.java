@@ -1,5 +1,6 @@
 package it.eng.dome.billing.engine.utils;
 
+import it.eng.dome.billing.engine.model.Characteristic;
 import it.eng.dome.tmforum.tmf620.v4.model.CharacteristicValueSpecification;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,6 +16,10 @@ public class CharacteristicUtils {
 		Integer validFrom=ch.getValueFrom();
 		Integer validTo=ch.getValueTo();
 		return value >= validFrom && value <= validTo;
+	}
+	
+	public static boolean isUnitPrice(@NotNull Characteristic ch) {
+		return ch.isUnitPrice();
 	}
 	
 

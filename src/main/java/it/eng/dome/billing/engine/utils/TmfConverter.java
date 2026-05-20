@@ -107,6 +107,7 @@ public class TmfConverter {
 		out.setName(characteristicIn.getName());
 		out.setValueType(characteristicIn.getValueType());
 		out.setValue(characteristicIn.getValue());
+		out.setUnitPrice(false);
 		
 		return out;
 	}

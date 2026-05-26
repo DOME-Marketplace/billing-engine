@@ -93,17 +93,15 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 		if ("number".equalsIgnoreCase(chValueType)){
 			chValue = Float.parseFloat(ch.getValue().toString());
 		
-			if (ProductOfferingPriceUtils.isForfaitPrice(pop)) {
+			if(CharacteristicUtils.isUnitPrice(ch)) {
 				chAmount = (pop.getPrice().getValue() * chValue);
-				logger.info("Price of Characteristic '{}' [quantity: {}, price: '{}'] = {} {}", 
-					chName, chValue, pop.getPrice().getValue(), chAmount,priceCurrency);
+				logger.info("Price of Characteristic's unit price '{}' [units: {}, price: '{}'] = {} {}", 
+						chName, chValue, pop.getPrice().getValue(), chAmount,priceCurrency);
 			} else {
-				final Quantity unitOfMeasure = pop.getUnitOfMeasure();
-				//chAmount = new EuroMoney(((pop.getPrice().getValue() * chValue) / unitOfMeasure.getAmount()) * chValue);
-				chAmount = (pop.getPrice().getValue() * chValue) / unitOfMeasure.getAmount();
-				logger.info("Price of Characteristic '{}' [quantity: {}, price: '{}' per '{} {}'] = {} {}", 
-						chName, chValue,
-						pop.getPrice().getValue(), unitOfMeasure.getAmount(), unitOfMeasure.getUnits(), chAmount,priceCurrency);
+				chAmount = pop.getPrice().getValue();
+				logger.info("Price of Characteristic's fixed price '{}' [valueType: {}, price: '{}']  = {} {}", 
+						chName,chValueType,
+						pop.getPrice().getValue(), chAmount,priceCurrency);
 			}
 		}
 		// valueType of the characteristic != number
@@ -154,14 +152,20 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 					// match on range
 					if(CharacteristicUtils.isRangeCharacteristic(chValueSpec) && CharacteristicUtils.isValueInCharacteristicRange((Integer)characteristic.getValue(), chValueSpec)) {
 						logger.debug("Matching characteristic with name '{}' and valueType '{}' in range [{}-{}]",characteristic.getName(),characteristic.getValueType(),chValueSpec.getValueFrom(),chValueSpec.getValueTo());
+						characteristic.setUnitPrice(true);
 						return characteristic;
+					}else {
+						if(!CharacteristicUtils.isRangeCharacteristic(chValueSpec) && valuesMatch(chValueSpec.getValue(), characteristic.getValue())) {
+							return characteristic;
+						}
 					}
+				// Characteristic.valueType != number
+				}else {
+					if (valuesMatch(chValueSpec.getValue(), characteristic.getValue())) {
+						logger.debug("Matching characteristic with name '{}' valueType '{}' and value '{}'",characteristic.getName(),characteristic.getValueType(), characteristic.getValue().toString());
+						return characteristic;
+			        }
 				}
-				// Characteristic.valueType != number 
-				if (valuesMatch(chValueSpec.getValue(), characteristic.getValue())) {
-					logger.debug("Matching characteristic with name '{}' valueType '{}' and value '{}'",characteristic.getName(),characteristic.getValueType(), characteristic.getValue().toString());
-					return characteristic;
-		        }
 	        }
 			else {
 	        	logger.debug("Matching characteristic with name '{}' and valueType '{}'",characteristic.getName(),characteristic.getValueType());

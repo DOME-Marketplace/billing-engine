@@ -10,6 +10,8 @@ public class Characteristic {
 	private String valueType;
 	
 	private Object value;
+	
+	private boolean isUnitPrice;
 
 	public Characteristic() {
 	}
@@ -19,6 +21,7 @@ public class Characteristic {
 		this.name = name;
 		this.valueType = valueType;
 		this.value = value;
+		this.setUnitPrice(false);
 	}
 
 	public String getName() {
@@ -43,6 +46,14 @@ public class Characteristic {
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	public boolean isUnitPrice() {
+		return isUnitPrice;
+	}
+
+	public void setUnitPrice(boolean isUnitPrice) {
+		this.isUnitPrice = isUnitPrice;
 	}
 
 }

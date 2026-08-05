@@ -23,7 +23,9 @@ public class UsageUtils {
 	private static final Logger logger = LoggerFactory.getLogger(UsageUtils.class);
 	
 	/**
-	 * Gets all {@link Usage} related in to the {@link Product} with the product identifier in input and belonging to the specified {@link TimePeriod}
+	 * Gets all {@link Usage} related to the {@link Product} with the product identifier in input and belonging to the specified {@link TimePeriod}.
+	 * The Usage(s) are retrieved considering the TimePeriod as a Semi-Open Intervals. This means the start is inclusive (Closed bracket: [ ) and the end is strictly exclusive (Open bracket: ) ).
+	 * 
 	 * @param productId the identifier of the {@link Product}
 	 * @param tp the billingPeriod to take into consideration
 	 * @param usageManagementApis An instance of {@link UsageManagementApis} to retrieve the Usage(s)
@@ -43,7 +45,8 @@ public class UsageUtils {
 		 .filter(u ->
 		        u.getUsageDate() != null &&
 		        !u.getUsageDate().isBefore(tp.getStartDateTime()) &&
-		        !u.getUsageDate().isAfter(tp.getEndDateTime())
+		        //!u.getUsageDate().isAfter(tp.getEndDateTime())
+		        u.getUsageDate().isBefore(tp.getEndDateTime())
 		    )
 		    // Filter for ratedProductUsage.productRef.id
 		    .filter(u ->

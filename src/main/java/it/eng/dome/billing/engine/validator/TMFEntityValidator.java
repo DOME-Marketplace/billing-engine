@@ -263,7 +263,7 @@ public class TMFEntityValidator {
 			
 		this.throwsErrorValidationIssuesIfAny(issues);
 		
-		logger.debug("Validation of 'unitOdMeasure' of ProductOfferingPrice '{}' successful", pop.getId());
+		logger.debug("Validation of 'unitOfMeasure' of ProductOfferingPrice '{}' successful", pop.getId());
 	}
 	
 	/**

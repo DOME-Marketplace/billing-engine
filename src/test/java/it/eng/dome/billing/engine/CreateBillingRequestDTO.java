@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import it.eng.dome.brokerage.billing.dto.BillingRequestDTO;
+import it.eng.dome.brokerage.model.PriceType;
 import it.eng.dome.tmforum.tmf637.v4.model.BillingAccountRef;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.ProductOfferingPriceRef;
@@ -27,7 +28,7 @@ public class CreateBillingRequestDTO {
 		product.setIsBundle(false);
 		
 		TimePeriod tp=new TimePeriod();
-		tp.setStartDateTime(OffsetDateTime.now());
+		tp.setStartDateTime(OffsetDateTime.parse("2016-05-24T00:00:00Z"));
 		tp.setEndDateTime(OffsetDateTime.now());
 		
 		ArrayList<ProductPrice> productPriceList=new ArrayList<ProductPrice>();
@@ -35,13 +36,13 @@ public class CreateBillingRequestDTO {
 		ProductPrice pp=new ProductPrice();
 		ProductOfferingPriceRef popr=new ProductOfferingPriceRef();
 		popr.setId("urn:ngsi-ld:product-offering-price:38b293a6-92db-4ca3-8fe6-54a6e4a9e12c");
-		pp.setPriceType("recurring");
+		pp.setPriceType(PriceType.RECURRING_PREPAID.name());
 		pp.setProductOfferingPrice(popr);
 		
 		ProductPrice pp2=new ProductPrice();
 		ProductOfferingPriceRef popr2=new ProductOfferingPriceRef();
 		popr2.setId("urn:ngsi-ld:product-offering-price:04a8cd8e-c88f-49be-8425-dca68e69708b");
-		pp2.setPriceType("recurring");
+		pp2.setPriceType(PriceType.RECURRING_POSTPAID.name());
 		pp2.setProductOfferingPrice(popr2);
 		
 		productPriceList.add(pp);

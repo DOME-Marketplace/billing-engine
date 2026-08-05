@@ -2,6 +2,11 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>2.0.6</code> :calendar: 05/08/2026
+**Improvements**
+* Added Characteristic to the `AppliedCustomerBillingRate` with name `popId` and value the identifier of the `ProductOfferingPrice`
+* Improved bill calculation to to use semi-open intervals to evaluate ACBR billing periods. This means that the startDate period coverage is inclusive (Closed bracket: `[` ) and the endDate is strictly exclusive (Open bracket: `)`). This improvement has been made to remove gaps in the timeline.
+
 ### <code>2.0.5</code> :calendar: 20/05/2026
 **BugFixing**
 * Solved *bug fix* to calculate price for `ProductOfferingPrice` with characteristics in range (unit prices)

@@ -3,6 +3,7 @@ package it.eng.dome.billing.engine.utils;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.util.CollectionUtils;
@@ -17,6 +18,7 @@ import it.eng.dome.tmforum.tmf622.v4.model.Price;
 import it.eng.dome.tmforum.tmf622.v4.model.PriceAlteration;
 import it.eng.dome.tmforum.tmf637.v4.model.Product;
 import it.eng.dome.tmforum.tmf637.v4.model.RelatedParty;
+import it.eng.dome.tmforum.tmf678.v4.model.AppliedBillingRateCharacteristic;
 import it.eng.dome.tmforum.tmf678.v4.model.AppliedCustomerBillingRate;
 import it.eng.dome.tmforum.tmf678.v4.model.CustomerBill;
 import it.eng.dome.tmforum.tmf678.v4.model.Money;
@@ -68,6 +70,14 @@ public class TMForumEntityUtils {
 		// Set appliedCustomerBillingRate.relatedParty (if present in the Product)
 		List<RelatedParty> prodRelatedParty = product.getRelatedParty();
 		appliedCustomerBillingRate.setRelatedParty(TmfConverter.convertRpTo678(prodRelatedParty));
+		
+		// Set appliedCustomerBillingRate.characteristic with an AppliedBillingRateCharacteristic with name=popId and value=<Id of the ProductOfferingPrice>
+		List<AppliedBillingRateCharacteristic> characteristics=new ArrayList<AppliedBillingRateCharacteristic>();
+		AppliedBillingRateCharacteristic characteristic=new AppliedBillingRateCharacteristic();
+		characteristic.setName("popId");
+		characteristic.setValue(pop.getId());
+		characteristics.add(characteristic);
+		appliedCustomerBillingRate.setCharacteristic(characteristics);
 		
 		return appliedCustomerBillingRate;
 	}

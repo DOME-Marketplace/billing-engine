@@ -102,7 +102,7 @@ public final class TmfApiFactory implements InitializingBean {
 			}
 			
 			apiClientTmf635.setBasePath(basePath + "/" + tmf635UsageManagementPath);
-			log.debug("Invoke Product Ordering API at endpoint: " + apiClientTmf635.getBasePath());
+			log.debug("Invoke Usage Management API at endpoint: " + apiClientTmf635.getBasePath());
 		}
 		
 		return apiClientTmf635;

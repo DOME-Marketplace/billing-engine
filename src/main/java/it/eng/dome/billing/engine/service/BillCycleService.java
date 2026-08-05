@@ -28,6 +28,7 @@ public class BillCycleService{
 	
 	/**
 	 * Calculates all the {@link TimePeriod}) representing the billingPeriod(s) of the {@link BillCycle}, considering a {@link RecurringChargePeriod}, an {@link OffsetDateTime} activation date and a {@link OffsetDateTime} limitDate
+	 * Billing periods are represented as semi-open intervals [startDate, endDate) where startDate is inclusive and endDate is exclusive.
 	 *
 	 * @param recurringChargePeriod A {@link RecurringChargePeriod} specifying the recurringChargePeriodType and recurringChargePeriodLength  
 	 * @param activationDate An {@link OffsetDateTime} representing a start date from which the billingPeriod(s) are calculated
@@ -73,16 +74,20 @@ public class BillCycleService{
 
 	    switch (billingPeriodType) {
 	        case DAY:
-	            return startDate.plusDays(billingPeriodLenght - 1);
+	        	//return startDate.plusDays(billingPeriodLenght - 1);
+	            return startDate.plusDays(billingPeriodLenght);
 
 	        case WEEK:
-	            return startDate.plusDays((long) billingPeriodLenght * 7 - 1);
+	        	//return startDate.plusDays((long) billingPeriodLenght * 7 - 1);
+	            return startDate.plusDays((long) billingPeriodLenght * 7);
 
 	        case MONTH:
-	            return startDate.plusMonths(billingPeriodLenght).minusDays(1);
+	        	//return startDate.plusMonths(billingPeriodLenght).minusDays(1);
+	            return startDate.plusMonths(billingPeriodLenght);
 
 	        case YEAR:
-	            return startDate.plusYears(billingPeriodLenght).minusDays(1);
+	        	//return startDate.plusYears(billingPeriodLenght).minusDays(1);
+	            return startDate.plusYears(billingPeriodLenght);
 
 	        default:
 	        	throw new IllegalArgumentException("Error in the RecurringChargePeriod: unexpected value for billingPeriodType");
@@ -91,6 +96,7 @@ public class BillCycleService{
 
 	/**
 	 * Calculates the billingPeriod END dates of the BillCycle, included from an activation {@link OffsetDateTime} and a limit {@link OffsetDateTime}, according to the specified {@link RecurringChargePeriod} (e.g., 5 DAY, 2 WEEK; 1 MONTH, 1 YEAR) 
+	 * Billing periods are represented as semi-open intervals [startDate, endDate) where startDate is inclusive and endDate is exclusive.
 	 * 
 	 * @param recurringChargePeriod A {@link RecurringChargePeriod} specifying the recurringChargePeriodType and recurringChargePeriodLength  
 	 * @param activationDate An {@link OffsetDateTime} representing a start date from which the billingPeriod end dates are calculated
@@ -124,7 +130,8 @@ public class BillCycleService{
 		case DAY: {
 			
 			streamData = Stream.iterate(
-	                activationDate.plusDays(billingPeriodLength- 1),          
+					//activationDate.plusDays(billingPeriodLength - 1),
+	                activationDate.plusDays(billingPeriodLength),          
 	                d -> d.plusDays(billingPeriodLength)                    
 	        );
 	       break;
@@ -132,8 +139,9 @@ public class BillCycleService{
 		case WEEK: {
 			
 			streamData = Stream.iterate(
-	        		activationDate.plusDays((7 * billingPeriodLength)-1),          
-	                d -> d.plusDays(7 * billingPeriodLength)                    
+					//activationDate.plusDays((7 * billingPeriodLength) - 1),
+	        		activationDate.plusDays((7L * billingPeriodLength)),          
+	                d -> d.plusDays(7L * billingPeriodLength)                    
 	        );
 	       break;
 		}
@@ -141,14 +149,16 @@ public class BillCycleService{
 
 			streamData = Stream.iterate(
 			        1, i -> i + 1
-			).map(i -> activationDate.plusMonths(i * billingPeriodLength).minusDays(1));
+			//).map(i -> activationDate.plusMonths(i * billingPeriodLength).minusDays(1));
+			).map(i -> activationDate.plusMonths(i * billingPeriodLength));
 	       break;
 		}
 		case YEAR: {
 
 			streamData = Stream.iterate(
 			        1, i -> i + 1
-			).map(i -> activationDate.plusYears(i * billingPeriodLength).minusDays(1));
+			//).map(i -> activationDate.plusYears(i * billingPeriodLength).minusDays(1));
+			).map(i -> activationDate.plusYears(i * billingPeriodLength));
 	       break;
 		}
 		default:
@@ -156,7 +166,8 @@ public class BillCycleService{
 		}
 		
 		endDates=streamData
-	            .takeWhile(d -> !d.isAfter(limitDate))
+				.takeWhile(d -> !d.isAfter(limitDate))
+	            //.takeWhile(d -> !d.isBefore(limitDate))
 	            .toList(); // immutable → create new ArrayList
 	    
 		Logger.debug("Per {} {} billingPeriod END dates:{}",billingPeriodLength,billingPeriodType,endDates);
@@ -235,7 +246,8 @@ public class BillCycleService{
 
 	    // Take all start dates <= limitDate
 	    startDates = streamData
-	            .takeWhile(d -> !d.isAfter(limitDate))
+	    		.takeWhile(d -> !d.isAfter(limitDate))
+	            //.takeWhile(d -> d.isBefore(limitDate))
 	            .toList(); // immutable → create new ArrayList
 
 	    //Logger.debug("Per {} {} billingPeriod START dates:{}",billingPeriodLength,billingPeriodType,startDates);
@@ -245,6 +257,7 @@ public class BillCycleService{
 	
 	/**
 	 * Checks if a {@link OffsetDateTime} bill date falls within a {@link TimePeriod} representing the billingPeriod
+	 * Billing periods are represented as semi-open intervals [startDate, endDate) where startDate is inclusive and endDate is exclusive.
 	 * 
 	 * @param billingDate A {@link OffsetDateTime} bill date to check
 	 * @param billingPeriod A {@link TimePeriod}  representing the billingPeriod
@@ -252,6 +265,7 @@ public class BillCycleService{
 	 */
 	public boolean isBillDateWithinBillingPeriod(@NotNull OffsetDateTime billingDate, @NotNull TimePeriod billingPeriod) {
 		return (!billingDate.isBefore(billingPeriod.getStartDateTime())) && (!billingDate.isAfter(billingPeriod.getEndDateTime()));
+		//return (!billingDate.isBefore(billingPeriod.getStartDateTime())) && (billingDate.isBefore(billingPeriod.getEndDateTime()));
 	}
 	
 	/**

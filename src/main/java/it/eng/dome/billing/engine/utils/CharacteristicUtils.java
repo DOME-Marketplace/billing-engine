@@ -12,10 +12,18 @@ public class CharacteristicUtils {
 		return false;
 	}
 	
-	public static boolean isValueInCharacteristicRange(@NotNull Integer value, @NotNull CharacteristicValueSpecification ch) {
+	/*public static boolean isValueInCharacteristicRange(@NotNull Integer value, @NotNull CharacteristicValueSpecification ch) {
 		Integer validFrom=ch.getValueFrom();
 		Integer validTo=ch.getValueTo();
 		return value >= validFrom && value <= validTo;
+	}*/
+	
+	public static boolean isValueInCharacteristicRange(@NotNull Number value, @NotNull CharacteristicValueSpecification ch) {
+		double validFrom=ch.getValueFrom();
+		double validTo=ch.getValueTo();
+		
+		double currentValue = value.doubleValue();
+		return currentValue >= validFrom && currentValue <= validTo;
 	}
 	
 	public static boolean isUnitPrice(@NotNull Characteristic ch) {

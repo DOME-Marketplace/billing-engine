@@ -84,13 +84,12 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 	
 	protected Money calculatePriceForCharacteristic(@NotNull Characteristic ch) {
 		
-		logger.debug("Calculating price for Characteristic with name '{}' value '{}' and valueType '{}'", ch.getName(), ch.getValue(), ch.getValueType());
+		logger.debug("Calculating price for Characteristic with name '{}' and value '{}'", ch.getName(), ch.getValue());
 		final String chName = ch.getName();
-		final String chValueType= ch.getValueType();
 		Float chValue;
 		Float chAmount;
 		
-		if ("number".equalsIgnoreCase(chValueType)){
+		if(ch.getValue() instanceof Number) {
 			chValue = Float.parseFloat(ch.getValue().toString());
 		
 			if(CharacteristicUtils.isUnitPrice(ch)) {
@@ -99,16 +98,16 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 						chName, chValue, pop.getPrice().getValue(), chAmount,priceCurrency);
 			} else {
 				chAmount = pop.getPrice().getValue();
-				logger.info("Price of Characteristic's fixed price '{}' [valueType: {}, price: '{}']  = {} {}", 
-						chName,chValueType,
+				logger.info("Price of Characteristic's fixed price '{}' [price: '{}']  = {} {}", 
+						chName,
 						pop.getPrice().getValue(), chAmount,priceCurrency);
 			}
 		}
-		// valueType of the characteristic != number
+		// value of the characteristic is not a number
 		else {
 			chAmount = (pop.getPrice().getValue());
-			logger.info("Price of Characteristic '{}' [valueType: {}, price: '{}'] = {} {}", 
-					chName, chValueType, pop.getPrice().getValue(), chAmount,priceCurrency);
+			logger.info("Price of Characteristic '{}' [price: '{}'] = {} {}", 
+					chName, pop.getPrice().getValue(), chAmount,priceCurrency);
 		}
 		
 		return new Money(priceCurrency, chAmount);
@@ -138,7 +137,7 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 		ProductSpecificationCharacteristicValueUse prodSpecCharValueUse=pop.getProdSpecCharValueUse().get(0);
 		
 		for(Characteristic characteristic : characteristics) {
-				
+					
 			// Match name (case insensitive)
 	        if (!characteristic.getName().equalsIgnoreCase(prodSpecCharValueUse.getName())) {
 	            continue;
@@ -147,11 +146,11 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 	        if(prodSpecCharValueUse.getProductSpecCharacteristicValue() != null) {
 	        	CharacteristicValueSpecification chValueSpec=prodSpecCharValueUse.getProductSpecCharacteristicValue().get(0);
 	        	
-	        	// Characteristic.valueType == number
-				if ("number".equalsIgnoreCase(characteristic.getValueType())) {
+	        	// Characteristic.value is a number
+	        	if(characteristic.getValue() instanceof Number) {
 					// match on range
-					if(CharacteristicUtils.isRangeCharacteristic(chValueSpec) && CharacteristicUtils.isValueInCharacteristicRange((Integer)characteristic.getValue(), chValueSpec)) {
-						logger.debug("Matching characteristic with name '{}' and valueType '{}' in range [{}-{}]",characteristic.getName(),characteristic.getValueType(),chValueSpec.getValueFrom(),chValueSpec.getValueTo());
+					if(CharacteristicUtils.isRangeCharacteristic(chValueSpec) && CharacteristicUtils.isValueInCharacteristicRange((Number)characteristic.getValue(), chValueSpec)) {
+						logger.debug("Matching characteristic with name '{}' in range [{}-{}]",characteristic.getName(),chValueSpec.getValueFrom(),chValueSpec.getValueTo());
 						characteristic.setUnitPrice(true);
 						return characteristic;
 					}else {
@@ -159,20 +158,19 @@ public abstract class AbstractPriceCalculator<T, R> implements PriceCalculator<T
 							return characteristic;
 						}
 					}
-				// Characteristic.valueType != number
+				// Characteristic.value is not a number
 				}else {
 					if (valuesMatch(chValueSpec.getValue(), characteristic.getValue())) {
-						logger.debug("Matching characteristic with name '{}' valueType '{}' and value '{}'",characteristic.getName(),characteristic.getValueType(), characteristic.getValue().toString());
+						logger.debug("Matching characteristic with name '{}' and value '{}'",characteristic.getName(), characteristic.getValue().toString());
 						return characteristic;
 			        }
 				}
 	        }
 			else {
-	        	logger.debug("Matching characteristic with name '{}' and valueType '{}'",characteristic.getName(),characteristic.getValueType());
+	        	logger.debug("Matching characteristic with name '{}' ",characteristic.getName());
 				return characteristic;
 	        }
 		}
-		
 		return null;
 	}
 	

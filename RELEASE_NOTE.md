@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>2.0.7</code> :calendar: 21/10/2026
+**BugFixing**
+* Solved *bug fix* to calculate for `ProductOfferingPrice` with characteristics
+
 ### <code>2.0.6</code> :calendar: 05/08/2026
 **Improvements**
 * Added Characteristic to the `AppliedCustomerBillingRate` with name `popId` and value the identifier of the `ProductOfferingPrice`

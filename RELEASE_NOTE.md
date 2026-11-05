@@ -2,6 +2,10 @@
 
 **Release Notes** of the *Billing Engine* software:
 
+### <code>2.0.8</code> :calendar: 05/11/2026
+**BugFixing**
+* Solved *bug fix* to avoid validation errors if a bundled `ProductOfferingPrice` contains a list of of prodSpecCharValueUse entries
+
 ### <code>2.0.7</code> :calendar: 21/10/2026
 **BugFixing**
 * Solved *bug fix* to calculate for `ProductOfferingPrice` with characteristics

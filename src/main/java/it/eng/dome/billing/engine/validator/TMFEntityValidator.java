@@ -83,7 +83,7 @@ public class TMFEntityValidator {
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
 		
-		if(pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().size()>1) {
+		if((pop.getIsBundle()!=null && !pop.getIsBundle()) && pop.getProdSpecCharValueUse()!=null && pop.getProdSpecCharValueUse().size()>1) {
 			String msg=String.format("The size of 'prodSpecCharValueUse' in ProductOfferingPrice '%s' is greater than one ", pop.getId());
 			issues.add(new ValidationIssue(msg,ValidationIssueSeverity.ERROR));
 		}
